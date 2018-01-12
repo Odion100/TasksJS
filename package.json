@@ -1,6 +1,6 @@
 {
   "name": "sht-tasks",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Framework for microservice software systems",
   "main": "tasks.js",
   "scripts": {

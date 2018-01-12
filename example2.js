@@ -1,8 +1,8 @@
-const app = require('sht-tasks').app();
+const app = require('./tasks').app();
 
 app.initService({
-	route:'/viewService',
-	port:4500
+	route:'/service',
+	port:4567
 })
 .module('db', function(){
 	
@@ -10,7 +10,7 @@ app.initService({
 		cb(null, {test:'this is a test message!'})
 	}
 
-	this.addOrder = function(){
+	this.addOrders = function(){
 		cb(null, {})
 	}
 
@@ -19,6 +19,7 @@ app.initService({
 .serverMod('orders', function(){		
 	var db = this.useModule('db');
 	var orders = this
+
 	orders.getOrders = function(query, cb){
 		db.find({}, function(err, results){
 			if(err){
@@ -43,6 +44,6 @@ app.initService({
 	}
 	
 	setInterval(function(){
-		orders.emit('test_message', {test_message:'testing from app2'})		
+		orders.emit('test_message', {test_message:'testing from example2!'})		
 	},10000)
 })

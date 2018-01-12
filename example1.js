@@ -1,4 +1,4 @@
-const app = require('sht-tasks').app();
+const app = require('tasks').app();
 const PORT = parseInt(Math.random()*parseInt(Math.random()*10000))
 
 app.initService({
