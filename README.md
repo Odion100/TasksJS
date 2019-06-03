@@ -49,7 +49,7 @@ In the code above we created a *ServerModule* named queue and assigned the ``` t
 
 ```
 app.serverMod("queue", function(){
-    const queue = this;
+    	const queue = this;
 
 	queue.addJob = function(data, cb){
 		//do somthing then call the callBack function
@@ -60,7 +60,7 @@ app.serverMod("queue", function(){
 
 		//Emit an event 
 		queue.emit("new_job", {example: "this is a job"})
-   }
+	}
 })
 ```
           
