@@ -1,5 +1,5 @@
 # TasksJS
-Framework for microservice software system
+Framework for microservice software systems
 
 # Overview
 
