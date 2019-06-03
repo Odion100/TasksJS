@@ -1,14 +1,13 @@
 const app = require('sht-tasks').app();
-var obj = require('obj')
+var obj = require('sht-tasks/node_modules/obj-handler');
 app.initService({
 	route:'/loadBalancer',
-	port:5500
+	port:4600
 })
 
 app.serverMod('clones', function(){
 	var _clones = this, clones = [], service_route = '', isInit = false;
 	
-
 	_clones.register = function(conn_data, cb){		
 		console.log(conn_data)
 		
@@ -27,7 +26,7 @@ app.serverMod('clones', function(){
 		})
 		
 		cb(null, clones[clones.length-1])
-		console.log('dkldsjsdlkjsljf')
+		
 		if(!isInit){
 			init()
 		}

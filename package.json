@@ -1,28 +1,89 @@
 {
-  "name": "sht-tasks",
-  "version": "1.2.0",
-  "description": "Framework for microservice software systems",
-  "main": "tasks.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "_args": [
+    [
+      "sht-tasks@1.23.4",
+      "C:\\listingsBot-mono\\listingsBotMono\\listings"
+    ]
+  ],
+  "_from": "sht-tasks",
+  "_id": "sht-tasks@1.28.11",
+  "_inBundle": false,
+  "_integrity": "sha512-62wUlEdTSxwsMVhJo1EnG5jj3N7C9eO8iSKoTGChZMOLVoyvJ7zB+59vLBL/lLZOCfM9PLwbLB/W6h1XtVELeA==",
+  "_location": "/sht-tasks",
+  "_nodeVersion": "4.6.0",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/sht-tasks_1.22.4_1527861589844_0.29739800688866413"
   },
+  "_npmUser": {
+    "name": "odion",
+    "email": "odionedwards@gmail.com"
+  },
+  "_npmVersion": "2.15.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "sht-tasks",
+    "name": "sht-tasks",
+    "escapedName": "sht-tasks",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/sht-tasks/-/sht-tasks-1.28.11.tgz",
+  "_shasum": "e7269ae8e94ed40cc8859e9a393993dee99a5fe3",
+  "_spec": "sht-tasks",
+  "_where": "C:\\boilerPlate",
+  "author": {
+    "name": "odion edwards"
+  },
+  "bugs": {
+    "url": "https://github.com/Odion100/tasksJS/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mime": "^2.4.0",
+    "multer": "^1.4.1",
+    "multitaskhandler": "^1.0.0",
+    "obj-handler": "^1.2.1",
+    "request": "^2.88.0",
+    "socket.io": "^2.2.0"
+  },
+  "deprecated": false,
+  "description": "Framework for microservice software systems",
+  "directories": {},
+  "dist": {
+    "shasum": "d67cea737d379dc5427cd22d0a7942e97097b629",
+    "tarball": "https://registry.npmjs.org/sht-tasks/-/sht-tasks-1.22.4.tgz",
+    "fileCount": 7,
+    "unpackedSize": 36100,
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJbEVFWCRA9TVsSAnZWagAANncP/0ovG+/QQOg6e6mJ+E7l\n3TLbL7ONEHX6L3hn0khtUCGziQ9iy3KRCX7t6ywSPUJBZm1orZVMeiBzgIkr\nTECsXph17ih/RaI88qkVfxMbL12hnbeUVh3OSIMnmQrBmrhc3XyoDFZzRIGd\nbMASGDlykiPK4k62JdRJwZA2FP17HAxM5/aeaVO/3YLjDyjIIzQPdAbN2BXP\nuixbzr1itc6vmMOXS7NIVFHfaid9ypCazikIdSwSL7TFunWv10JBgEdUGAZD\nF+jK+Ajdkr/k4800g0CwR/NgEKxuHC5NvTysENxaCdC1K7NOUfd/eupdx5hZ\nj1vToSZAvJ/WPUIc2c5lAsbbm6TCxpkBpBo5XlWmzhrWFrXxW1l2Kfo2HtNO\niWlcSzCT8iJxH27UdCUgKIlMCHbCq9d8eAbYu7mWuWltlKOZ1zo03RExeJro\nNxZOZB+gJ6+wocXC2RCmRbGS5iKcq/lpc0Qa9hytmXigjCMx2tgNntl2tO5h\nwNR+I/Bfo3GobAjn3tL4TsOlVsjWx+JURECBSducSxodb1owER1S5Y6HoZWD\nBEB/Cqwl8eO3Luv+Kc4y2r79zYi3KYq+qXJyndX4U45OtNjpO4VlOXNumFnj\nrPJe53MfxuFTYNn/T3d0bV7aWyB7T1hm/5kRoiqRmsL+zAvZQetHZTGf8vSS\nzAiL\r\n=1lxk\r\n-----END PGP SIGNATURE-----\r\n"
+  },
+  "gitHead": "013d72e1edeeeec38298298f1c2ed70a6f94d4b1",
+  "homepage": "https://github.com/Odion100/tasksJS#readme",
+  "license": "ISC",
+  "main": "tasks.js",
+  "maintainers": [
+    {
+      "name": "odion",
+      "email": "odionedwards@gmail.com"
+    }
+  ],
+  "name": "sht-tasks",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Odion100/tasksJS.git"
   },
-  "author": "odion edwards",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Odion100/tasksJS/issues"
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "homepage": "https://github.com/Odion100/tasksJS#readme",
-  "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "multer": "^1.3.0",
-    "multitaskhandler": "^1.0.0",
-    "obj-handler": "^1.0.0",
-    "request": "^2.83.0",
-    "socket.io": "^2.0.4"
-  }
+  "version": "1.28.11"
 }
