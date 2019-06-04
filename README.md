@@ -49,18 +49,18 @@ In the code above we created a *ServerModule* named queue and assigned the ``` t
 
 ```
 app.serverMod("queue", function(){
-    	const queue = this;
+   const queue = this;
 
-	queue.addJob = function(data, cb){
-		//do somthing then call the callBack function
-		//use the first parameter of the cb function to respond with an error 
-		//otherwise pass null as the first parameter and pass a success response as the second parameter
+   queue.addJob = function(data, cb){
+      //do somthing then call the callBack function
+      //use the first parameter of the cb function to respond with an error 
+      //otherwise pass null as the first parameter and pass a success response as the second parameter
 
-		cb(null, { message: "Job added successfully"})
+      cb(null, { message: "Job added successfully"})
 
-		//Emit an event 
-		queue.emit("new_job", {example: "this is a job"})
-	}
+      //Emit an event 
+      queue.emit("new_job", {example: "this is a job"})
+   }
 })
 ```
           
