@@ -1,9 +1,9 @@
 //The purpose of the client class is to have just one abstraction for sending request
 //that will be used by all other classes. Even if I decide to change what module i use
 //to actually send the request, the abstraction remains the same
-import httpClient from "../request";
+const httpClient = require("request");
 
-class client {
+class Client {
   request({ method, url, body, json }, cb) {
     httpClient({ method, url, body, json }, (err, res, body) => {
       if (err) {
@@ -28,3 +28,11 @@ class client {
     });
   }
 }
+
+let c = new Client();
+c.request(
+  { method: "GET", url: "https://jsonplaceholder.typicode.com/todos/3" },
+  (err, res) => console.log(err, res)
+);
+
+export default Client;
