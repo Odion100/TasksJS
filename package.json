@@ -54,6 +54,7 @@
     "multitaskhandler": "^1.0.0",
     "obj-handler": "^1.2.1",
     "request": "^2.88.0",
+    "shortid": "^2.2.14",
     "socket.io": "^2.2.0"
   },
   "deprecated": false,
@@ -86,8 +87,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "version": "1.28.11",
-  "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/node": "^7.4.5"
-  }
+  "devDependencies": {}
 }

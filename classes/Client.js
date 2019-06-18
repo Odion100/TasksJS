@@ -35,4 +35,4 @@ c.request(
   (err, res) => console.log(err, res)
 );
 
-export default Client;
+exports = Client;
