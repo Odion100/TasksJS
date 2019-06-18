@@ -3,8 +3,7 @@ const cwd = process.cwd();
 const express = require("express");
 const server = express();
 
-//scoket.io server
-setup;
+//scoket.io server setup;
 const socketApp = express();
 const socketServer = require("http").Server(socketApp);
 const io = require("socket.io")(socketServer);
