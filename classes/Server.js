@@ -63,9 +63,8 @@ server.use((req, res, next) => {
         )
           return next();
 
-  res
-    .status(400)
-    .json({ maps, invalidMap: true, service: `${_host}:${_port}` });
+  let { host, port } = serv;
+  res.status(400).json({ maps, invalidMap: true, service: `${host}:${port}` });
 });
 
 //all request are handle in the same way.
@@ -90,8 +89,9 @@ const requestHandler = (req, res) => {
 };
 
 const errorResponseBuilder = err => {
-  //will add more logic once i've learned what else to do here
-  err._service = `${_host}:${_port}${connectionPath}`;
+  //will add more logic after some experiementation
+  let { host, port, connectionPath } = serv;
+  err._service = `${host}:${port}${connectionPath}`;
   return err;
 };
 
@@ -153,5 +153,5 @@ const ServerManager = () => {
   };
   return manager;
 };
-
-module.exports = new ServerManager();
+const serv = new ServerManager();
+module.exports = serv;
