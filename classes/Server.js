@@ -55,10 +55,13 @@ server.use((req, res, next) => {
 server.use((req, res, next) => {
   let { app, mod, serverMod, fn } = req.params;
 
-  if (tasks[id])
-    if (tasks[id][app])
-      if (tasks[id][app][serverMod])
-        if (typeof tasks[id][app][serverMod][fn] === "function") return next();
+  if (ServerManager.moduleHash[id])
+    if (ServerManager.moduleHash[id][app])
+      if (ServerManager.moduleHash[id][app][serverMod])
+        if (
+          typeof ServerManager.moduleHash[id][app][serverMod][fn] === "function"
+        )
+          return next();
 
   res
     .status(400)
@@ -74,13 +77,16 @@ const requestHandler = (req, res) => {
   data.files = req.files;
 
   //call the method stored on the tasks hash table
-  tasks[id][app][serverMod][fn](data || {}, (err, results) => {
-    if (err) {
-      res.status(err.status || 500).json(errorResponseBuilder(err));
-    } else {
-      res.json(results);
+  ServerManager.moduleHash[id][app][serverMod][fn](
+    data || {},
+    (err, results) => {
+      if (err) {
+        res.status(err.status || 500).json(errorResponseBuilder(err));
+      } else {
+        res.json(results);
+      }
     }
-  });
+  );
 };
 
 const errorResponseBuilder = err => {
