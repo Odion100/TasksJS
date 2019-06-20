@@ -5,26 +5,36 @@ const httpClient = require("request");
 
 class Client {
   request({ method, url, body, json }, cb) {
-    httpClient({ method, url, body, json }, (err, res, body) => {
-      if (err) {
-        if (typeof cb === "function") cb(err);
-      } else if (res.statusCode >= 400) {
-        if (typeof cb === "function") cb(body);
-      } else {
-        if (typeof cb === "function") cb(null, body, res);
-      }
+    return new Promise((resolve, reject) => {
+      httpClient({ method, url, body, json }, (err, res, body) => {
+        if (err) {
+          if (typeof cb === "function") cb(err);
+          reject(err);
+        } else if (res.statusCode >= 400) {
+          if (typeof cb === "function") cb(body);
+          reject(body);
+        } else {
+          if (typeof cb === "function") cb(null, body, res);
+          resolve(body);
+        }
+      });
     });
   }
 
   uploadFile({ url, formData, json }, cb) {
-    httpClient.post({ url, formData, json }, (err, res, body) => {
-      if (err) {
-        if (typeof cb === "function") cb(err);
-      } else if (res.statusCode >= 400) {
-        if (typeof cb === "function") cb(body);
-      } else {
-        if (typeof cb === "function") cb(null, body);
-      }
+    return new Promise((resolve, reject) => {
+      httpClient.post({ url, formData, json }, (err, res, body) => {
+        if (err) {
+          if (typeof cb === "function") cb(err);
+          reject(err);
+        } else if (res.statusCode >= 400) {
+          if (typeof cb === "function") cb(body);
+          reject(body);
+        } else {
+          if (typeof cb === "function") cb(null, body, res);
+          resolve(body);
+        }
+      });
     });
   }
 }
@@ -35,4 +45,12 @@ c.request(
   (err, res) => console.log(err, res)
 );
 
+(async () => {
+  let results = await c.request({
+    method: "GET",
+    url: "https://jsonplaceholder.typicode.com/todos/3"
+  });
+
+  console.log("<><><><><><><", results);
+})();
 exports = Client;

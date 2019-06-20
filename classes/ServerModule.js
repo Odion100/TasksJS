@@ -1,6 +1,8 @@
 const TasksJSModule = require("./Module");
 const Server = require("./Server");
 const shortid = require("shortid");
+exports = ServerModule;
+
 function ServerModule({ name, app, modConstructor, server }, cfCallback) {
   //serverMod is inheriting from TasksJSModule using this weird pattern. Lol
   let serverMod = new TasksJSModule.apply(this, [name, app, modConstructor]);

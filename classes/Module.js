@@ -1,23 +1,24 @@
 //What do they even call this pattern...?
 module.exports = function TasksJSModule({ name, app, modConstructor }) {
-  const tjsModule = this;
+  const TasksJSModule = this;
   const events = {};
 
-  tjsModule.name = name;
-  tjsModule.useModule = modName => {
+  TasksJSModule.name = name;
+
+  TasksJSModule.useModule = modName => {
     app.modules[modName].module;
   };
 
-  tjsModule.useService = serviceName => {
+  TasksJSModule.useService = serviceName => {
     app.service[serviceName].service;
   };
 
-  tjsModule.emit = (eventName, data) => {
+  TasksJSModule.emit = (eventName, data) => {
     if (events[eventName])
       events[eventName].forEach(handler => handler({ ...data }));
   };
 
-  tjsModule.on = (eventName, eventHandler) => {
+  TasksJSModule.on = (eventName, eventHandler) => {
     //if the event doesn't aready exist
     if (!events[eventName]) {
       events[eventName] = [];
@@ -26,6 +27,6 @@ module.exports = function TasksJSModule({ name, app, modConstructor }) {
     events[eventName].push(eventHandler);
   };
 
-  modConstructor.apply(tjsModule, []);
-  return tjsModule;
+  modConstructor.apply(TasksJSModule, []);
+  return TasksJSModule;
 };
