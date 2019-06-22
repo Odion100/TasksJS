@@ -64,7 +64,9 @@ server.use((req, res, next) => {
           return next();
 
   let { host, port } = serv;
-  res.status(400).json({ maps, invalidMap: true, service: `${host}:${port}` });
+  res
+    .status(400)
+    .json({ maps, invalidMapERROR: true, service: `${host}:${port}` });
 });
 
 //all request are handle in the same way.
@@ -137,7 +139,7 @@ const ServerManager = () => {
     let serverMod = shortId();
     /// store info on how to connect / make request to the serveModule
     let map = {
-      route: [id, app, serverMod],
+      route: config.route,
       modName,
       config,
       nsp: `http://${host}:${socketPort}/${nsp}`,

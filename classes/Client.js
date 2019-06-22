@@ -45,12 +45,4 @@ c.request(
   (err, res) => console.log(err, res)
 );
 
-(async () => {
-  let results = await c.request({
-    method: "GET",
-    url: "https://jsonplaceholder.typicode.com/todos/3"
-  });
-
-  console.log("<><><><><><><", results);
-})();
 exports = Client;
