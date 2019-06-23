@@ -17,37 +17,65 @@ async function Service(name, { host, port, route, url }) {
 const createService = maps => {
   const service = {};
   //each map describes a backend ServerModule
-  maps.forEach(({ modName, methods, nsp }) => {
-    service[modName] = {};
-    //for each method on the serverMod, servicerRequestHandler returns a function that will handle requests
-    methods.forEach(
-      method =>
-        (service[modName][method.name] = serviceRequestHandler(method, service))
-    );
+  maps.forEach(map => {
+    service[map.modName] = serverModuleRequestHandler(map);
   });
 
   return service;
 };
 
-const serviceRequestHandler = async ({ url, method, name }, service) => {
-  //create the request url using the serverMod and method data
-  return (data, cb) => {
-    return Client.request({ url, method, data }, (err, results) => {
-      if (err) {
-        if (err.invalidMapERROR) {
-          invalidMapHandler(err);
+const serverModuleRequestHandler = ({ modName, methods, nsp }, service) => {
+  const serverMod = {};
+
+  //for each method on the serverMod, requestHandler returns a function that will handle requests
+  methods.forEach(method => (serverMod[method.name] = requestHandler(method)));
+
+  //these are the routes to the serverMod in the backend
+  const singleFileURL = `http://${host}:${port}/sf/${route}`;
+  const multiFileURL = `http://${host}:${port}/mf/${route}`;
+  const url = `http://${host}:${port}${route}`;
+
+  const requestHandler = ({ method, name }) => {
+    //create the request url using the serverMod and method data
+    return (data, cb) => {
+      const requestCB = (err, results) => {
+        if (err) {
+          if (err.invalidMapERROR) {
+            invalidMapHandler(err);
+          } else {
+            if (typeof cb === "function") cb(err);
+          }
         } else {
-          if (typeof cb === "function") cb(err);
+          if (typeof cb === "function") cb(null, results);
         }
-      } else {
-        if (typeof cb === "function") cb(null, results);
+      };
+
+      //if there is a file or files property on the data object make the
+      //request to the appropriate file upload route
+      switch (true) {
+        case data.file:
+          return Client.uploadFile(
+            { url: `${singleFileURL}/${name}`, method, data },
+            requestCB
+          );
+        case data.files:
+          return Client.uploadFile(
+            { url: `${multiFileURL}/${name}`, method, data },
+            requestCB
+          );
+        default:
+          return Client.request(
+            { url: `${url}/${name}`, method, data },
+            requestCB
+          );
       }
-    });
+    };
   };
 };
 const connectWebSocket = () => {};
 //Attempts to
 const requestErrHandler = errCount => {
+  //throw an error if a request fails three times in a row
   if (errCount >= 3)
     throw Error(
       "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
