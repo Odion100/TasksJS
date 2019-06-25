@@ -24,24 +24,30 @@ const createService = maps => {
   return service;
 };
 
-const serverModuleRequestHandler = ({ modName, methods, nsp }, service) => {
+const serverModuleRequestHandler = (
+  { modName, methods, nsp, host, port, route },
+  service
+) => {
   const serverMod = {};
 
   //for each method on the serverMod, requestHandler returns a function that will handle requests
   methods.forEach(method => (serverMod[method.name] = requestHandler(method)));
 
-  //these are the routes to the serverMod in the backend
-  const singleFileURL = `http://${host}:${port}/sf/${route}`;
-  const multiFileURL = `http://${host}:${port}/mf/${route}`;
-  const url = `http://${host}:${port}${route}`;
+  serverMod.__setConnection = (host, route, port) => {
+    //these are the routes to the serverMod in the backend
+    const singleFileURL = `http://${host}:${port}/sf/${route}`;
+    const multiFileURL = `http://${host}:${port}/mf/${route}`;
+    const url = `http://${host}:${port}${route}`;
+  };
+  serverMod.__setConnection(host, port, route);
 
   const requestHandler = ({ method, name }) => {
     //create the request url using the serverMod and method data
-    return (data, cb) => {
+    return (data, cb, errCount) => {
       const requestCB = (err, results) => {
         if (err) {
           if (err.invalidMapERROR) {
-            invalidMapHandler(err);
+            invalidRouteERROR(err, () => {});
           } else {
             if (typeof cb === "function") cb(err);
           }
@@ -73,17 +79,29 @@ const serverModuleRequestHandler = ({ modName, methods, nsp }, service) => {
   };
 };
 const connectWebSocket = () => {};
-//Attempts to
-const requestErrHandler = errCount => {
+//Use the maps from error object to the path to each ServerModule in the service
+const requestErrHandler = (
+  { maps },
+  service,
+  modName,
+  methodName,
+  errCount
+) => {
   //throw an error if a request fails three times in a row
   if (errCount >= 3)
     throw Error(
       "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
     );
+  //instead of re-instantiating the backend serverModule we use the ___setConnection
+  //method to update the serverModules' connection data
+  maps.forEach(map =>
+    service[map.modName].__setConnection(map.host, map.port, map.route)
+  );
 
-  requestErrHandler();
+  service[modName][methodName];
+  3;
 };
-const invalidMapHandler = () => {};
+const invalidRouteERROR = () => {};
 
 var attempts = 0;
 function mapErrHandler(new_api, req, callBack, handler) {
