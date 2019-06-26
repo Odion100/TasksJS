@@ -18,32 +18,67 @@ const createService = maps => {
   const service = {};
   //each map describes a backend ServerModule
   maps.forEach(map => {
-    service[map.modName] = serverModuleRequestHandler(map);
+    service[map.modName] = serverModuleRequestHandler(map, service);
   });
 
   return service;
 };
 
 const serverModuleRequestHandler = (
-  { modName, methods, nsp, host, port, route },
+  { methods, wsData, host, port, route },
   service
 ) => {
-  const serverMod = {};
+  const serverMod = {}, eventHandlers = {};
+  const singleFileURL ='';
+  const multiFileURL = '';
+  const url = 's';
+  //this method sets up the urls to make request to the backend module
+  serverMod.__setConnection = (host, route, port, wsData) => {
+     singleFileURL = `http://${host}:${port}/sf/${route}`;
+     multiFileURL = `http://${host}:${port}/mf/${route}`;
+     url = `http://${host}:${port}${route}`;
 
-  //for each method on the serverMod, requestHandler returns a function that will handle requests
+    //connectWebSocket function will handle events coming from the backend ServerModules
+    //the callback will be called for every event coming from that module so in the 
+    //callback we dispatch the event to the handler of the particular event
+    connectWebSocket(wsData, (event)=>{
+      if(eventHandlers[event.name])
+        eventHandlers[event.name].forEach(cb=>cb(event))
+    })
+  };
+  serverMod.__setConnection(host, port, route, wsData);
+
+  //adds callback that will be called every time the backend ServerModule fires the given event
+  serverMod.on = (name, cb) =>{
+    eventHandlers[name] = eventHandlers[name] || [];
+    eventHandlers[name].push(cb)
+  }
+  
+  //for each method on the serverMod, requestHandler returns a function 
+  //that will handle sending data to the backend ServerModule
   methods.forEach(method => (serverMod[method.name] = requestHandler(method)));
 
-  //this method sets up the url to make request to the backend module
-  serverMod.__setConnection = (host, route, port) => {
-    const singleFileURL = `http://${host}:${port}/sf/${route}`;
-    const multiFileURL = `http://${host}:${port}/mf/${route}`;
-    const url = `http://${host}:${port}${route}`;
-  };
-  serverMod.__setConnection(host, port, route);
-
   const requestHandler = ({ method, name }) => {
-    //create the request url using the serverMod and method data
-    const fn = (data, cb, errCount = 0) => {
+    const sendData
+    return sendData = (data, cb, errCount = 0) => {
+      //handles callback after each request
+      const callBack = (err, results) => {
+        if (err) {
+          if (err.invalidMapERROR) {
+            //throw an error if a request fails three times in a row
+            if (errCount >= 3)
+              throw Error(
+                "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
+              );
+            //reset the connection then try to make the same request again
+            resetConnection(err.maps, service, () => sendData(data, cb, errCount++));
+          } else {
+            if (typeof cb === "function") cb(err);
+          }
+        } else {
+          if (typeof cb === "function") cb(null, results);
+        }
+      };
       //if there is a file or files property on the data object make the
       //request to the appropriate file upload route
       switch (true) {
@@ -63,37 +98,30 @@ const serverModuleRequestHandler = (
             callBack
           );
       }
-      //handles callback after each request
-      const callBack = (err, results) => {
-        if (err) {
-          if (err.invalidMapERROR) {
-            //throw an error if a request fails three times in a row
-            if (errCount >= 3)
-              throw Error(
-                "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
-              );
-            //reset the connection then try to make the same request again
-            resetConnection(err.maps, service, () => fn(data, cb, errCount++));
-          } else {
-            if (typeof cb === "function") cb(err);
-          }
-        } else {
-          if (typeof cb === "function") cb(null, results);
-        }
-      };
     };
-
-    return fn;
   };
 };
-const connectWebSocket = () => {};
-//Use the maps from error object to the path to each ServerModule in the service
+//Use the maps to update the endpoits to each ServerModule in the service
 const resetConnection = (maps, service, cb) => {
   //instead of re-instantiating the backend serverModule we use the ___setConnection
   //method to update the serverModules' connection data
   maps.forEach(map =>
-    service[map.modName].__setConnection(map.host, map.port, map.route)
+    service[map.modName].__setConnection(map.host, map.port, map.route, map.wsData)
   );
 
   cb();
+};
+
+const connectWebSocket = ({nsp, dispatchCode}, eventHandler) => {
+    const socket = io.connect(nsp);
+
+    socket.on(`dispatch:${dispatchCode}`, (data)=>eventHandler(data))
+
+    socket.on('disconnect', (data)=>{
+
+    })
+
+    socket.on('connect', (data)=>{
+
+    })
 };
