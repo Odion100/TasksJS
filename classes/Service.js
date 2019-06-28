@@ -1,7 +1,7 @@
 const Client = require("./Client.js");
 //this function makes a request to a service to recieve a maps array
 //which provides instruction on how to make request to each serverMod in the service
-async function Service(name, { host, port, route, url }) {
+module.exports = async function Service(name, { host, port, route, url }) {
   //laod the service
   url = url || `http://${host}:${port}${route}`;
 
@@ -101,6 +101,7 @@ const serverModuleRequestHandler = (
     };
   };
 };
+
 //Use the maps to update the endpoits to each ServerModule in the service
 const resetConnection = (maps, service, cb) => {
   //instead of re-instantiating the backend serverModule we use the ___setConnection
@@ -112,10 +113,10 @@ const resetConnection = (maps, service, cb) => {
   cb();
 };
 
-const connectWebSocket = ({nsp, dispatchCode}, eventHandler) => {
+const connectWebSocket = ({nsp, dispatchCode}, eventCallback) => {
     const socket = io.connect(nsp);
 
-    socket.on(`dispatch:${dispatchCode}`, (data)=>eventHandler(data))
+    socket.on(`dispatch:${dispatchCode}`, (data)=>eventCallback(data))
 
     socket.on('disconnect', (data)=>{
 

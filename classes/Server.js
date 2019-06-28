@@ -132,18 +132,21 @@ const ServerManager = () => {
     return manager;
   };
 
-  manager.addModule = (modName, serverModule, config, nsp) => {
+  manager.addModule = (modName, serverModule, { route, port, host }, nsp) => {
     /// randomly generate routes to the serverModule
     let id = shortId();
     let app = shortId();
     let serverMod = shortId();
     /// store info on how to connect / make request to the serveModule
     let map = {
-      route: config.route,
+      route,
+      port,
+      host,
       modName,
       config,
       nsp: `http://${host}:${socketPort}/${nsp}`,
-      methods: Object.getOwnPropertyNames(config)
+      methods: Object.getOwnPropertyNames(config),
+      wsData: {}
     };
     manager.maps.push(map);
     //create a hash to the serverModule

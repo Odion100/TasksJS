@@ -36,20 +36,22 @@ function configurationHandler(serverMod, app, cfCallback) {
   const handler = {};
   const configOptions = {};
   const props = Object.getOwnPropertyNames(serverMod);
-  const reservedProps = ["emit", "useModule", "useService"];
+  const reservedMethods = ["emit", "useModule", "useService"];
   //loop through each property on the serverMod that is a function
   //in order to create a handler that can set configOptions for each method
   props.forEach(prop => {
     if (
-      //exclude serverMod original methods
-      reservedProps.indexOf(pName) === -1 &&
+      //exclude serverMod reserved methods
+      reservedMethods.indexOf(pName) === -1 &&
       typeof thisMod[pName] === "function"
     ) {
       handler[prop] = configurator(prop);
 
       configOptions[prop] = {
         method: "PUT",
-        route: null
+        route: null,
+        port: null,
+        host: null
       };
     }
   });
@@ -72,12 +74,8 @@ function configurationHandler(serverMod, app, cfCallback) {
 
   //the following functions are for configuring all the methods of
   //the serverMod at once
-  handler.setNamespace = value => {
-    configOptions.nsp = value;
-    return handler;
-  };
   handler.setRoutes = value => {
-    props.forEach(prop => handler[prop].setRoute(`${value}/${prop}`));
+    props.forEach(prop => handler[prop].setRoute(value));
     return handler;
   };
   handler.inferRoutes = () => {
