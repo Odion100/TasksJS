@@ -25,7 +25,7 @@ module.exports = function ServerModule({ name, app, modConstructor, server }) {
   const methodConfig = {};
   //manually set the request method for REST purposes
   serverMod.setMethod = (fnName, method) => {
-    methodConfig[name] = method;
+    methodConfig[fnName] = method;
   };
 
   serverMod.inferRoute = root => {
