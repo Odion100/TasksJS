@@ -2,10 +2,7 @@ const TasksJSModule = require("./Module");
 const Server = require("./Server");
 const shortid = require("shortid");
 
-module.exports = function ServerModule(
-  { name, app, modConstructor, server },
-  cfCallback
-) {
+module.exports = function ServerModule({ name, app, modConstructor, server }) {
   //serverMod is inheriting from TasksJSModule using this weird pattern
   const serverMod = new TasksJSModule.apply(this, [name, app, modConstructor]);
   //This sets up a socket.io namespace for this ServerMod
@@ -54,7 +51,7 @@ module.exports = function ServerModule(
     "inferRoute"
   ];
   //loop through each property on the serverMod that is a function
-  //in order to create a handler that can set configurations for each method
+  //in order to create a config object for each method on the serverMod
   props.forEach(name => {
     if (
       //exclude serverMod reserved methods
@@ -65,16 +62,11 @@ module.exports = function ServerModule(
       methods.push({ method, name });
     }
   });
-
-  Server.addModule(
-    name,
-    serverMod,
-    {
-      methods,
-      nsp: nameSpace,
-      nferRoute: serverMod.inferRoute,
-      root: serverMod.root
-    },
-    nameSpace
-  );
+  //pass info need by the Server class to manage routing to the ServerModule
+  Server.addModule(name, serverMod, {
+    methods,
+    nsp: nameSpace,
+    inferRoute: serverMod.inferRoute,
+    root: serverMod.root
+  });
 };
