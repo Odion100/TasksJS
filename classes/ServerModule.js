@@ -1,14 +1,16 @@
 const TasksJSModule = require("./Module");
 const Server = require("./Server");
 const shortid = require("shortid");
-exports = ServerModule;
 
-function ServerModule({ name, app, modConstructor, server }, cfCallback) {
-  //serverMod is inheriting from TasksJSModule using this weird pattern. Lol
-  let serverMod = new TasksJSModule.apply(this, [name, app, modConstructor]);
+module.exports = function ServerModule(
+  { name, app, modConstructor, server },
+  cfCallback
+) {
+  //serverMod is inheriting from TasksJSModule using this weird pattern
+  const serverMod = new TasksJSModule.apply(this, [name, app, modConstructor]);
   //This sets up a socket.io namespace for this ServerMod
-  let nameSpace = shortid();
-  let nsp = server.io.of(`/${nameSpace}`);
+  const nameSpace = shortid();
+  const nsp = server.io.of(`/${nameSpace}`);
 
   serverMod.name = name;
   serverMod.nsp = nsp;
@@ -22,74 +24,57 @@ function ServerModule({ name, app, modConstructor, server }, cfCallback) {
       sent_at: Date()
     });
   };
-  //using modConstructor.apply let's us determine that the this object will be this serveModule
-  modConstructor.apply(serverMod, []);
-  //configuration options determine how routing is handled
-  let options = configurationHandler(serverMod, app, cfCallback);
-  Server.addRoute(name, serverMod, options, nameSpace);
-}
 
-//configurationHandler creates an object that has methods that are used
-//to set configuration options. This object is passed to the configuration
-//callback which is the second parameter of the app.serverMod method
-function configurationHandler(serverMod, app, cfCallback) {
-  const handler = {};
-  const configOptions = {};
+  const methodConfig = {};
+  //manually set the request method for REST purposes
+  serverMod.setMethod = (fnName, method) => {
+    methodConfig[name] = method;
+  };
+
+  serverMod.inferRoute = root => {
+    //create static route using
+    if (!root)
+      throw Error(
+        "(TasksJS): ServerModule.inferRoute(root) requires a root route as the first parameter"
+      );
+    serverMod.root = root;
+    serverMod.inferRoute = true;
+  };
+  //using modConstructor.apply let's us determine that the this object will be the serverMod
+  modConstructor.apply(serverMod, []);
+
+  const methods = [];
   const props = Object.getOwnPropertyNames(serverMod);
-  const reservedMethods = ["emit", "useModule", "useService"];
+  const reservedMethods = [
+    "emit",
+    "useModule",
+    "useService",
+    "setMethod",
+    "setMethods",
+    "inferRoute"
+  ];
   //loop through each property on the serverMod that is a function
-  //in order to create a handler that can set configOptions for each method
-  props.forEach(prop => {
+  //in order to create a handler that can set configurations for each method
+  props.forEach(name => {
     if (
       //exclude serverMod reserved methods
-      reservedMethods.indexOf(pName) === -1 &&
-      typeof thisMod[pName] === "function"
+      reservedMethods.indexOf(name) === -1 &&
+      typeof serverMod[name] === "function"
     ) {
-      handler[prop] = configurator(prop);
-
-      configOptions[prop] = {
-        method: "PUT",
-        route: null,
-        port: null,
-        host: null
-      };
+      let method = methodConfig[name] || "PUT";
+      methods.push({ method, name });
     }
   });
-  //using persistance here so that the configurator will know
-  //what the property it's supposed to set
-  const configurator = fnName => {
-    const setter = {
-      setRoute: value => setOption("route", value),
-      setMethod: value => setOption("request_method", value),
-      inferRoute: () =>
-        setOption("route", `${app.route}/${serverMod.name}/${fnName}`)
-    };
-    const setOption = (optionName, value) => {
-      configOptions[fnName][optionName] = value;
-      //setter returned here to allow chaining
-      return setter;
-    };
-    return setter;
-  };
 
-  //the following functions are for configuring all the methods of
-  //the serverMod at once
-  handler.setRoutes = value => {
-    props.forEach(prop => handler[prop].setRoute(value));
-    return handler;
-  };
-  handler.inferRoutes = () => {
-    props.forEach(prop => handler[prop].inferRoute());
-    return handler;
-  };
-
-  handler.setMethods = value => {
-    props.forEach(prop => handler[prop].setMethod(value));
-    return handler;
-  };
-
-  //inside the cfCallback serverMod configuration should look like this:
-  //example: handler.propertyName.setMeothod('GET').inferRoute()
-  if (typeof cfCallback === "function") cfCallback(handler);
-  return configOptions;
-}
+  Server.addModule(
+    name,
+    serverMod,
+    {
+      methods,
+      nsp: nameSpace,
+      nferRoute: serverMod.inferRoute,
+      root: serverMod.root
+    },
+    nameSpace
+  );
+};

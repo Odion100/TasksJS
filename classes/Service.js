@@ -25,13 +25,13 @@ const createService = maps => {
 };
 
 const serverModuleRequestHandler = (
-  { methods, wsData, host, port, route },
+  { methods, nsp, host, port, route },
   service
 ) => {
   const serverMod = {}, eventHandlers = {};
   const singleFileURL ='';
   const multiFileURL = '';
-  const url = 's';
+  const url = '';
   //this method sets up the urls to make request to the backend module
   serverMod.__setConnection = (host, route, port, wsData) => {
      singleFileURL = `http://${host}:${port}/sf/${route}`;
@@ -41,7 +41,7 @@ const serverModuleRequestHandler = (
     //connectWebSocket function will handle events coming from the backend ServerModules
     //the callback will be called for every event coming from that module so in the 
     //callback we dispatch the event to the handler of the particular event
-    connectWebSocket(wsData, (event)=>{
+    connectWebSocket(nsp, (event)=>{
       if(eventHandlers[event.name])
         eventHandlers[event.name].forEach(cb=>cb(event))
     })
@@ -56,7 +56,7 @@ const serverModuleRequestHandler = (
   
   //for each method on the serverMod, requestHandler returns a function 
   //that will handle sending data to the backend ServerModule
-  methods.forEach(method => (serverMod[method.name] = requestHandler(method)));
+  methods.forEach(fn => (serverMod[fn.name] = requestHandler(fn)));
 
   const requestHandler = ({ method, name }) => {
     const sendData
@@ -113,10 +113,10 @@ const resetConnection = (maps, service, cb) => {
   cb();
 };
 
-const connectWebSocket = ({nsp, dispatchCode}, eventCallback) => {
+const connectWebSocket = (nsp, eventCallback) => {
     const socket = io.connect(nsp);
 
-    socket.on(`dispatch:${dispatchCode}`, (data)=>eventCallback(data))
+    socket.on(`dispatch:`, (data)=>eventCallback(data))
 
     socket.on('disconnect', (data)=>{
 

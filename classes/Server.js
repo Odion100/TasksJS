@@ -53,17 +53,15 @@ server.use((req, res, next) => {
 
 //validate each request to confirm that the route points to a serverMod method
 server.use((req, res, next) => {
-  let { app, mod, serverMod, fn } = req.params;
+  let { app, root, mod, fn } = req.params;
 
-  if (ServerManager.moduleHash[id])
-    if (ServerManager.moduleHash[id][app])
-      if (ServerManager.moduleHash[id][app][serverMod])
-        if (
-          typeof ServerManager.moduleHash[id][app][serverMod][fn] === "function"
-        )
+  if (ServerManager.moduleHash[root])
+    if (ServerManager.moduleHash[root][app])
+      if (ServerManager.moduleHash[root][app][mod])
+        if (typeof ServerManager.moduleHash[root][app][mod][fn] === "function")
           return next();
 
-  let { host, port } = serv;
+  let { host, port, maps } = servManager;
   res
     .status(400)
     .json({ maps, invalidMapERROR: true, service: `${host}:${port}` });
@@ -71,38 +69,35 @@ server.use((req, res, next) => {
 
 //all request are handle in the same way.
 const requestHandler = (req, res) => {
-  let { app, mod, serverMod, fn } = req.params;
+  let { root, app, mod, fn } = req.params;
   let data = req.body.data;
   //in the case where there was a file upload the file/files should be passed with the data
   data.file = req.file;
   data.files = req.files;
 
   //call the method stored on the tasks hash table
-  ServerManager.moduleHash[id][app][serverMod][fn](
-    data || {},
-    (err, results) => {
-      if (err) {
-        res.status(err.status || 500).json(errorResponseBuilder(err));
-      } else {
-        res.json(results);
-      }
+  ServerManager.moduleHash[root][app][mod][fn](data || {}, (err, results) => {
+    if (err) {
+      res.status(err.status || 500).json(errorResponseBuilder(err));
+    } else {
+      res.json(results);
     }
-  );
+  });
 };
 
 const errorResponseBuilder = err => {
   //will add more logic after some experiementation
-  let { host, port, connectionPath } = serv;
+  let { host, port, connectionPath } = servManager;
   err._service = `${host}:${port}${connectionPath}`;
   return err;
 };
 
 //setup routes
-server.get("/:id/:app/:serverMod/:fn", requestHandler);
-server.put("/:id/:app/:serverMod/:fn", requestHandler);
-server.post("/:id/:app/:serverMod/:fn", requestHandler);
-server.post("/sf/:id/:app/:serverMod/:fn", requestHandler);
-server.post("/mf/:id/:app/:serverMod/:fn", requestHandler);
+server.get("/:root/:app/:mod/:fn", requestHandler);
+server.put("/:root/:app/:mod/:fn", requestHandler);
+server.post("/:root/:app/:mod/:fn", requestHandler);
+server.post("/sf/:root/:app/:mod/:fn", requestHandler);
+server.post("/mf/:root/:app/:mod/:fn", requestHandler);
 
 const ServerManager = () => {
   const manager = {};
@@ -129,34 +124,44 @@ const ServerManager = () => {
     console.log(
       `TaskJS -- ${connectionPath} Service listening on ${host}:${port}`
     );
-    return manager;
   };
 
-  manager.addModule = (modName, serverModule, { route, port, host }, nsp) => {
-    /// randomly generate routes to the serverModule
-    let id = shortId();
-    let app = shortId();
-    let serverMod = shortId();
+  manager.addModule = (
+    modName,
+    serverModule,
+    { nsp, methods, inferRoute, root }
+  ) => {
+    let app = "";
+    let mod = "";
+
+    if (inferRoute) {
+      /// routes inferred from the name of the service and module
+      app = manager.connectionPath;
+      mod = modName;
+    } else {
+      /// randomly generate routes to the serverModule
+      root = shortId();
+      app = shortId();
+      mod = shortId();
+    }
+
     /// store info on how to connect / make request to the serveModule
+    const { port, host } = manager;
     let map = {
-      route,
+      nsp: `http://${host}:${socketPort}/${nsp}`,
+      route: `${root}/${app}/${modName}`,
       port,
       host,
       modName,
-      config,
-      nsp: `http://${host}:${socketPort}/${nsp}`,
-      methods: Object.getOwnPropertyNames(config),
-      wsData: {}
+      methods
     };
     manager.maps.push(map);
     //create a hash to the serverModule
-    manager.moduleHash[id] = {};
-    manager.moduleHash[id][app] = {};
-    manager.moduleHash[id][app][serverMod] = serverModule;
-
-    return manager;
+    manager.moduleHash[root] = {};
+    manager.moduleHash[root][app] = {};
+    manager.moduleHash[root][app][mod] = serverModule;
   };
   return manager;
 };
-const serv = new ServerManager();
-module.exports = serv;
+const servManager = new ServerManager();
+module.exports = servManager;
