@@ -87,8 +87,8 @@ const requestHandler = (req, res) => {
 
 const errorResponseBuilder = err => {
   //will add more logic after some experiementation
-  let { host, port, connectionPath } = servManager;
-  err._service = `${host}:${port}${connectionPath}`;
+  let { host, port, route } = servManager;
+  err._service = `${host}:${port}${route}`;
   return err;
 };
 
@@ -105,7 +105,7 @@ const ServerManager = () => {
   manager.maps = [];
   manager.moduleHash = {};
 
-  manager.init = (connectionPath, port, host, middleware) => {
+  manager.init = (route, port, host, middleware) => {
     //add any middlware passed
     middleware = Array.isArray(middleware) ? middleware : [middleware];
     middleware.forEach(mw => {
@@ -114,16 +114,14 @@ const ServerManager = () => {
     //save server connection data
     manager.host = host;
     manager.port = port;
-    manager.connectionPath = connectionPath;
+    manager.route = route;
     //create route to request the maps make request to this service
-    server.get(connectionPath, (req, res) => {
+    server.get(route, (req, res) => {
       res.json({ maps: manager.maps, host: `${host}:${port}` });
     });
     //Listen for request on the given route
     server.listen(port);
-    console.log(
-      `TaskJS -- ${connectionPath} Service listening on ${host}:${port}`
-    );
+    console.log(`TaskJS -- ${route} Service listening on ${host}:${port}`);
   };
 
   manager.addModule = (
@@ -136,7 +134,7 @@ const ServerManager = () => {
 
     if (inferRoute) {
       /// routes inferred from the name of the service and module
-      app = manager.connectionPath;
+      app = manager.route;
       mod = modName;
     } else {
       /// randomly generate routes to the serverModule
