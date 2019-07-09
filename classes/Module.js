@@ -1,16 +1,16 @@
 //What do they even call this pattern...?
-module.exports = function TasksJSModule({ name, app, modConstructor }) {
+module.exports = function TasksJSModule({ name, sysObjs, modConstructor }) {
   const TasksJSModule = this;
   const events = {};
 
   TasksJSModule.name = name;
 
   TasksJSModule.useModule = modName => {
-    app.modules[modName].module;
+    sysObjs.modules[modName].module;
   };
 
   TasksJSModule.useService = serviceName => {
-    app.service[serviceName].service;
+    sysObjs.service[serviceName].modules;
   };
 
   TasksJSModule.emit = (eventName, data) => {

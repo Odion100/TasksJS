@@ -1,10 +1,8 @@
 const Client = require("./Client.js");
 //this function makes a request to a service to recieve a maps array
 //which provides instruction on how to make request to each serverMod in the service
-module.exports = async function Service(name, { host, port, route, url }) {
+module.exports = async function Service(name, url ) {
   //laod the service
-  url = url || `http://${host}:${port}${route}`;
-
   try {
     const serviceData = await Client.request({ method: "GET", url });
     //use maps return from service to recreate the serverModule api
