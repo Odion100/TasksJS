@@ -3,7 +3,7 @@
 
 ***Organization*** - TasksJS offers a convenient abstraction for developing distribututed systems. With TasksJS your system is comprised of blocks of code, called components and services. These components and services can be developed, deployed and maintained separately, yet  all are able to work seamlessly together as a single software system. Services handle all operations on the backend, while components are used on the frontend of an application. TasksJS’ services and components have a modular API which offers an object-orientated way to think about developing web APIs. TasksJS allows us to focus on creating objects that comprises the software system, rather than on how clients and services should communicate. 
 
-***RESTable*** - Use REST only where its necessary. TasksJS will take care of all the routing and requests between services under hood. Yet It's built on top of express making it easy to add RESTful routing where needed. What's more, with some slight configurations TasksJS can interpet and create RESTful routes from your modules. 
+***RESTable*** - Use REST only where its necessary. TasksJS will take care of all the routing and requests between services under the hood. Yet It's built on top of express making it easy to add RESTful routing where needed. What's more, with some slight configurations TasksJS can interpet and create RESTful routes from your modules. 
 
 # Quick Start
 ## First Create An App
