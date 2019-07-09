@@ -5,9 +5,10 @@ module.exports = async function App() {
   const app = {};
   const onComplete = [];
   const status = "loading services";
-  const systemObjects = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
+  const sysObjs = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
   const serviceQueue = [];
   const moduleQueue = [];
+  const currentService = "";
   const initializer_set = false;
   app.server = null; //remember to implement app.server
 
@@ -19,17 +20,12 @@ module.exports = async function App() {
 
     return app;
   };
-  //register onComplete handlers
-  app.initComplete = handler => {
-    if (typeof handler === "function") onComplete.push(handler);
 
-    return app;
-  };
   //register a service to be loaded later or load a service and return a service immediately
   app.loadService = (name, { host, port, route, url }) => {
     const url = url || `http://${host}:${port}${route}`;
 
-    systemObjects.services[name] = {
+    sysObjs.services[name] = {
       name,
       url,
       modules: {},
@@ -39,7 +35,7 @@ module.exports = async function App() {
     if (status === "laoding services") {
       //when loading services outside the module return app so you can chain methods
       //and add the service to the serviceQueue to be loaded later
-      serviceQueue.push(systemObjects.services[name]);
+      serviceQueue.push(sysObjs.services[name]);
       setInititializer();
       return app;
     } else if (status === "loading modules") {
@@ -49,15 +45,25 @@ module.exports = async function App() {
     }
   };
 
-  app.config = () => {};
+  app.onLoad = handler => {
+    sysObjs.services[currentService].onLoad = handler;
+    return app;
+  };
 
-  app.onLoad = () => {};
+  app.config = () => {};
 
   app.module = () => {};
 
   app.serverMod = () => {};
 
   app._maps = () => {};
+
+  //register onComplete handlers
+  app.initComplete = handler => {
+    if (typeof handler === "function") onComplete.push(handler);
+
+    return app;
+  };
 
   //modules need to be initialized only after services have been loaded
   //so we're collect modules, services, and config init functions to be run in
@@ -72,21 +78,3 @@ module.exports = async function App() {
 
   const initApp = () => {};
 };
-
-function loadService(name, option) {
-  var uri = "http://" + option.host + ":" + option.port + option.route;
-
-  services[name] = {
-    dependents: [],
-    name: name,
-    uri: uri,
-    connection_attemps: 0,
-    service: {}
-  };
-
-  initAsync.unshift(new getService(uri, name).run);
-  setInit();
-
-  _serv = name;
-  return tasks;
-}
