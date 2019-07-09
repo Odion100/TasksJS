@@ -3,6 +3,7 @@ const ServerManager = require("./Server");
 
 module.exports = async function App() {
   const app = {};
+  const onComplete = [];
   app.server = null; //remember to implement app.server
 
   //use ServerManager to initialize the express server that will handle routing
@@ -10,9 +11,15 @@ module.exports = async function App() {
     app.route = route;
     app.host = host || "localhost";
     ServerManager.init(route, port, app.host, middlewear);
-  };
 
-  app.initComplete = () => {};
+    return app;
+  };
+  //register onComplete handlers
+  app.initComplete = handler => {
+    if (typeof handler === "function") onComplete.push(handler);
+
+    return app;
+  };
 
   app.loadService = () => {};
 

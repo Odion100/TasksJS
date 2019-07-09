@@ -7,11 +7,12 @@ module.exports = async function Service(name, { host, port, route, url }) {
 
   try {
     const serviceData = await Client.request({ method: "GET", url });
+    //use maps return from service to recreate the serverModule api
+    return createService(serviceData.maps);
   } catch (err) {
     throw err;
   }
-  //use maps return from service to recreate the serverModule api
-  return createService(serviceData.maps);
+  
 }
 
 const createService = maps => {
