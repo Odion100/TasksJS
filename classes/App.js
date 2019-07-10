@@ -11,6 +11,7 @@ module.exports = async function App() {
   const moduleQueue = [];
   const currentService = "";
   const initializer_set = false;
+  const configHandler = null;
   app.server = null; //remember to implement app.server
 
   //use ServerManager to initialize the express server that will handle routing
@@ -73,7 +74,9 @@ module.exports = async function App() {
     setInititializer();
   };
 
-  app.config = () => {};
+  app.config = handler => {
+    if (typeof config === "function") configHandler = handler;
+  };
 
   app._maps = () => {};
 
@@ -99,16 +102,3 @@ module.exports = async function App() {
 
   return app;
 };
-function addModule(modName, modConstructor) {
-  modules[modName] = {
-    modConstructor: modConstructor,
-    dependencies: [],
-    dependents: [],
-    service_dependencies: [],
-    name: modName
-  };
-
-  mods.push(modules[modName]);
-  setInit();
-  return tasks;
-}
