@@ -1,5 +1,6 @@
 const Service = require("./Service");
 const ServerManager = require("./Server");
+const Module = require("./Module");
 
 module.exports = async function App() {
   const app = {};
@@ -50,11 +51,29 @@ module.exports = async function App() {
     return app;
   };
 
+  app.module = (name, constructor) => {
+    //register the module to be created later
+    sysObjs.modules[name] = {
+      name,
+      constructor
+    };
+    //use unshift to ensure modules are placed before serverModules
+    moduleQueue.unshift(sysObjs.modules[name]);
+    //set initalizer
+    setInititializer();
+  };
+
+  app.serverMod = (name, constructor) => {
+    sysObjs.serverMods[name] = {
+      name,
+      constructor
+    };
+    moduleQueue.push(sysObjs.serverMods[name]);
+    //set initializer
+    setInititializer();
+  };
+
   app.config = () => {};
-
-  app.module = () => {};
-
-  app.serverMod = () => {};
 
   app._maps = () => {};
 
@@ -77,4 +96,19 @@ module.exports = async function App() {
   };
 
   const initApp = () => {};
+
+  return app;
 };
+function addModule(modName, modConstructor) {
+  modules[modName] = {
+    modConstructor: modConstructor,
+    dependencies: [],
+    dependents: [],
+    service_dependencies: [],
+    name: modName
+  };
+
+  mods.push(modules[modName]);
+  setInit();
+  return tasks;
+}
