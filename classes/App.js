@@ -78,8 +78,6 @@ module.exports = async function App() {
     if (typeof config === "function") configHandler = handler;
   };
 
-  app._maps = () => {};
-
   //register onComplete handlers
   app.initComplete = handler => {
     if (typeof handler === "function") onComplete.push(handler);
@@ -99,6 +97,8 @@ module.exports = async function App() {
   };
 
   const initApp = () => {};
+
+  app._maps = () => ServerManager.maps;
 
   return app;
 };
