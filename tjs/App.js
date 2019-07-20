@@ -1,11 +1,11 @@
 const Service = require("./Service");
 const ServerManager = require("./Server");
-const Module = require("./Module");
+const tjsModule = require("./Module");
+const ServerModule = require("./ServerModule");
 
 module.exports = async function App() {
   const app = {};
   const onComplete = [];
-  const status = "loading services";
   const sysObjs = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
   const serviceQueue = [];
   const moduleQueue = [];
@@ -34,17 +34,13 @@ module.exports = async function App() {
       connection_attemps: 0
     };
 
-    if (status === "laoding services") {
-      //when loading services outside the module return app so you can chain methods
-      //and add the service to the serviceQueue to be loaded later
-      serviceQueue.push(sysObjs.services[name]);
-      setInititializer();
-      return app;
-    } else if (status === "loading modules") {
-      //laod and return the service directly which will return a promise so async await can be used
-      //also which won't register the service so it cannot be access by the Module.useService method
-      return new Service(name, url);
-    }
+    //add the service to the serviceQueue to be loaded later
+    serviceQueue.push(sysObjs.services[name]);
+    //setup modules to be loaded later
+    setInititializer();
+    //so that you can chain onLoad behind a loadService method
+    currentService = name;
+    return app;
   };
 
   app.onLoad = handler => {
@@ -96,9 +92,26 @@ module.exports = async function App() {
     }
   };
 
-  const initApp = () => {};
+  const initApp = () => {
+    //load all services
+    loadServices();
+    //load all modules and serverMods
+    loadModules();
+    //call onCompleteHandlers
+  };
+  const loadServices = () => {};
+
+  const loadModules = () => {};
 
   app._maps = () => ServerManager.maps;
 
   return app;
 };
+function init() {
+  //last fn to call is intiMods
+  initSync.push(initModules);
+  multiTaskHandler()
+    .addMultiTask(initSync)
+    .addMultiTaskAsync(initAsync)
+    .runTasks(loadComplete);
+}

@@ -83,7 +83,7 @@
     "url": "git+https://github.com/Odion100/tasksJS.git"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "version": "1.28.11",

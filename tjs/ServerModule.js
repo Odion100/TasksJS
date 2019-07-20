@@ -1,10 +1,10 @@
-const TasksJSModule = require("./Module");
+const tjsModule = require("./Module");
 const Server = require("./Server");
 const shortid = require("shortid");
 
 module.exports = function ServerModule({ name, app, modConstructor, server }) {
-  //serverMod is inheriting from TasksJSModule using this weird pattern
-  const serverMod = new TasksJSModule.apply(this, [name, app, modConstructor]);
+  //serverMod is inheriting from tjsModule using this weird pattern
+  const serverMod = new tjsModule.apply(this, [name, app, modConstructor]);
   //This sets up a socket.io namespace for this ServerMod
   const nameSpace = shortid();
   const nsp = server.io.of(`/${nameSpace}`);

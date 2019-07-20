@@ -1,7 +1,7 @@
 const Client = require("./Client.js");
 //this function makes a request to a service to recieve a maps array
 //which provides instruction on how to make request to each serverMod in the service
-module.exports = async function Service(name, url ) {
+module.exports = async function Service( url ) {
   //laod the service
   try {
     const serviceData = await Client.request({ method: "GET", url });
