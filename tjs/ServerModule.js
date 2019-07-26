@@ -1,5 +1,5 @@
 const tjsModule = require("./Module");
-const Server = require("./Server");
+const ServerManager = require("./ServerManager");
 const shortid = require("shortid");
 
 module.exports = function ServerModule({ name, app, modConstructor, server }) {
@@ -63,7 +63,7 @@ module.exports = function ServerModule({ name, app, modConstructor, server }) {
     }
   });
   //pass info need by the Server class to manage routing to the ServerModule
-  Server.addModule(name, serverMod, {
+  ServerManager.addModule(name, serverMod, {
     methods,
     nsp: nameSpace,
     inferRoute: serverMod.inferRoute,

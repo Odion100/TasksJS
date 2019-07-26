@@ -1,5 +1,5 @@
 const Service = require("./Service");
-const ServerManager = require("./Server");
+const ServerManager = require("./ServerManager");
 const tjsModule = require("./Module");
 const ServerModule = require("./ServerModule");
 const LoadBalancer = require("./LoadBalancer");
@@ -10,6 +10,7 @@ module.exports = async function App() {
   const sysObjs = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
   const serviceQueue = [];
   const moduleQueue = [];
+  const serverModuleQueue = [];
   const currentService = "";
   const initializer_set = false;
   const configHandler = null;
@@ -62,9 +63,11 @@ module.exports = async function App() {
   };
 
   const loadModules = () => {
+    //first load modules
     moduleQueue.forEach(mod => {
       mod.module = tjsModule(mod.name, mod.constructor, sysObjs);
     });
+    //then load  and register server modules with the ServerManager
   };
 
   const initializationComplete = () => {};
@@ -122,7 +125,7 @@ module.exports = async function App() {
       name,
       constructor
     };
-    moduleQueue.push(sysObjs.serverMods[name]);
+    serverModuleQueue.push(sysObjs.serverMods[name]);
     //set initializer
     setInititializer();
   };
