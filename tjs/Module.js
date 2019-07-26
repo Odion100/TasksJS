@@ -1,5 +1,5 @@
 //What do they even call this pattern...?
-module.exports = function TasksJSModule(name, sysObjs, modConstructor) {
+module.exports = function TasksJSModule(name, modConstructor, sysObjs) {
   const TasksJSModule = this;
   const events = {};
 

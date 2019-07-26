@@ -2,6 +2,7 @@ const Service = require("./Service");
 const ServerManager = require("./Server");
 const tjsModule = require("./Module");
 const ServerModule = require("./ServerModule");
+const LoadBalancer = require("./LoadBalancer");
 
 module.exports = async function App() {
   const app = {};
@@ -12,6 +13,62 @@ module.exports = async function App() {
   const currentService = "";
   const initializer_set = false;
   const configHandler = null;
+
+  const initApp = async () => {
+    //load all services
+    await loadServices(serviceQueue);
+    //load all modules and serverMods
+
+    if (configHandler) {
+      configHandler(() => {
+        loadModules();
+        //call onCompleteHandlers
+        initializationComplete();
+      });
+    } else {
+      loadModules();
+      initializationComplete();
+    }
+  };
+
+  const loadServices = services => {
+    const getServices = services.map(service =>
+      Promise((resolve, reject) => {
+        //get service
+        try {
+          service.modules = Service(service.url);
+          resolve(service.modules);
+        } catch (err) {
+          service.connection_error = err;
+          service.connection_attemps++;
+          //attempt to connect to a service up to ten times
+          if (service.connection_attemps < 10)
+            return setTimeout(
+              () => loadServices[service],
+              service.connection_attemps * 1500
+            );
+
+          reject(err);
+
+          console.log(
+            `(${service.name} Service): Failed To connect after ${
+              service.connection_attemps
+            } attempts.`
+          );
+        }
+      })
+    );
+    return Promise.all(getServices);
+  };
+
+  const loadModules = () => {
+    moduleQueue.forEach(mod => {
+      mod.module = tjsModule(mod.name, mod.constructor, sysObjs);
+    });
+  };
+
+  const initializationComplete = () => {};
+
   app.server = null; //remember to implement app.server
 
   //use ServerManager to initialize the express server that will handle routing
@@ -60,7 +117,7 @@ module.exports = async function App() {
     setInititializer();
   };
 
-  app.serverMod = (name, constructor) => {
+  app.serverModule = (name, constructor) => {
     sysObjs.serverMods[name] = {
       name,
       constructor
@@ -92,26 +149,7 @@ module.exports = async function App() {
     }
   };
 
-  const initApp = () => {
-    //load all services
-    loadServices();
-    //load all modules and serverMods
-    loadModules();
-    //call onCompleteHandlers
-  };
-  const loadServices = () => {};
-
-  const loadModules = () => {};
-
   app._maps = () => ServerManager.maps;
 
   return app;
 };
-function init() {
-  //last fn to call is intiMods
-  initSync.push(initModules);
-  multiTaskHandler()
-    .addMultiTask(initSync)
-    .addMultiTaskAsync(initAsync)
-    .runTasks(loadComplete);
-}
