@@ -1,20 +1,18 @@
-module.exports = function ServerManager() {
-  const manager = {};
-  manager.server = server;
-  manager.maps = [];
-  manager.moduleHash = {};
+//ServerManager handles routing and maping request to ServerModules
+module.exports = (function ServerManager() {
+  manager.init = (route, port, host, middleware) => {
+    //start the Express and WebSocket Servers
+    const { server, io } = initializeServers(manager);
+    const manager = {};
+    //add properties to manager object that will be returned
+    manager.io = io;
+    manager.server = server;
+    manager.maps = [];
+    manager.moduleHash = {};
 
-  manager.startServer = (route, port, host, middleware) => {
-    //add any middlware passed
-    //save server connection data
-    manager.host = host;
-    manager.port = port;
-    manager.route = route;
-    //start the server
-    const server = initializeServer(manager);
     //create route that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
-      //The route will return an array of map objects which contain instruction on how to
+      //The route will return an array of maps (objects) which contain instruction on how to
       // make request to this service
       res.json({ maps: manager.maps, host: `${host}:${port}` });
     });
@@ -22,47 +20,42 @@ module.exports = function ServerManager() {
     server.listen(port);
     console.log(`(TaskJS): ${route} Service listening on ${host}:${port}`);
   };
-
-  manager.addModule = (
-    modName,
-    serverModule,
-    { nsp, methods, inferRoute, root }
-  ) => {
+  manager.addModule = (modName, ServerModule) => {
+    let { nsp, methods, inferRoute } = ServerModule;
     let app = "";
     let mod = "";
 
     if (inferRoute) {
       /// routes inferred from the name of the service and module
-      app = manager.route;
+      app = route;
       mod = modName;
     } else {
-      /// randomly generate routes to the serverModule
-      root = shortId();
+      /// randomly generate routes to the ServerModule
       app = shortId();
       mod = shortId();
     }
 
-    /// store info on how to connect / make request to the serveModule
+    /// store info on how to connect / make request to the ServerModule
     const { port, host } = manager;
     let map = {
       nsp: `http://${host}:${socketPort}/${nsp}`,
-      route: `${root}/${app}/${modName}`,
+      route: `${app}/${modName}`,
       port,
       host,
       modName,
       methods
     };
     manager.maps.push(map);
-    //create a hash to the serverModule
-    manager.moduleHash[root] = {};
-    manager.moduleHash[root][app] = {};
-    manager.moduleHash[root][app][mod] = serverModule;
+    //create a hash to the ServerModule
+
+    manager.moduleHash[app] = {};
+    manager.moduleHash[app][mod] = ServerModule;
   };
 
   return manager;
-};
+})();
 
-function initializeServer(_serverManager) {
+function initializeServers(_serverManager) {
   const cwd = process.cwd();
   //express server
   const express = require("express");
@@ -120,15 +113,12 @@ function initializeServer(_serverManager) {
 
   //validate each request to confirm that the route points to a serverMod method
   server.use((req, res, next) => {
-    let { app, root, mod, fn } = req.params;
+    let { app, mod, fn } = req.params;
 
-    if (_serverManager.moduleHash[root])
-      if (_serverManager.moduleHash[root][app])
-        if (_serverManager.moduleHash[root][app][mod])
-          if (
-            typeof _serverManager.moduleHash[root][app][mod][fn] === "function"
-          )
-            return next();
+    if (_serverManager.moduleHash[app])
+      if (_serverManager.moduleHash[app][mod])
+        if (typeof _serverManager.moduleHash[app][mod][fn] === "function")
+          return next();
 
     let { host, port, maps } = _serverManager;
     res
@@ -138,23 +128,20 @@ function initializeServer(_serverManager) {
 
   //all request are handle in the same way.
   const requestHandler = (req, res) => {
-    let { root, app, mod, fn } = req.params;
+    let { app, mod, fn } = req.params;
     let data = req.body.data;
     //in the case where there was a file upload the file/files should be passed with the data
     data.file = req.file;
     data.files = req.files;
 
     //call the method stored on the tasks hash table
-    _serverManager.moduleHash[root][app][mod][fn](
-      data || {},
-      (err, results) => {
-        if (err) {
-          res.status(err.status || 500).json(errorResponseBuilder(err));
-        } else {
-          res.json(results);
-        }
+    _serverManager.moduleHash[app][mod][fn](data || {}, (err, results) => {
+      if (err) {
+        res.status(err.status || 500).json(errorResponseBuilder(err));
+      } else {
+        res.json(results);
       }
-    );
+    });
   };
 
   const errorResponseBuilder = err => {
@@ -165,11 +152,11 @@ function initializeServer(_serverManager) {
   };
 
   //setup routes
-  server.get("/:root/:app/:mod/:fn", requestHandler);
-  server.put("/:root/:app/:mod/:fn", requestHandler);
-  server.post("/:root/:app/:mod/:fn", requestHandler);
-  server.post("/sf/:root/:app/:mod/:fn", requestHandler);
-  server.post("/mf/:root/:app/:mod/:fn", requestHandler);
+  server.get("/:app/:mod/:fn", requestHandler);
+  server.put("/:app/:mod/:fn", requestHandler);
+  server.post("/:app/:mod/:fn", requestHandler);
+  server.post("/sf/:app/:mod/:fn", requestHandler);
+  server.post("/mf/:app/:mod/:fn", requestHandler);
 
-  return server;
+  return { server, io };
 }

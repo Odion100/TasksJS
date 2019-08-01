@@ -1,12 +1,11 @@
+//App.js provides an interface and lifecycle for loading and creating modules
 const Service = require("./Service");
-const ServerManager = require("./ServerManager");
 const tjsModule = require("./Module");
 const ServerModule = require("./ServerModule");
 const LoadBalancer = require("./LoadBalancer");
 
 module.exports = async function App() {
   const app = {};
-  const onComplete = [];
   const sysObjs = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
   const serviceQueue = [];
   const moduleQueue = [];
@@ -14,6 +13,18 @@ module.exports = async function App() {
   const currentService = "";
   const initializer_set = false;
   const configHandler = null;
+  const onCompleteHandlers = [];
+
+  //modules need to be initialized only after services have been loaded
+  //so we're collect modules, services, and config init functions to be run in
+  //a paricular sequence. this is done in the initApp function
+  const setInititializer = () => {
+    //setTimeout will send the initApp function to the end of the call stack
+    if (!initializer_set) {
+      initializer_set = true;
+      setTimeout(initApp, 1);
+    }
+  };
 
   const initApp = async () => {
     //load all services
@@ -35,10 +46,10 @@ module.exports = async function App() {
   const loadServices = services => {
     const getServices = services.map(service =>
       Promise((resolve, reject) => {
-        //get service
         try {
+          //get service
           service.modules = Service(service.url);
-          resolve(service.modules);
+          resolve();
         } catch (err) {
           service.connection_error = err;
           service.connection_attemps++;
@@ -64,25 +75,25 @@ module.exports = async function App() {
 
   const loadModules = () => {
     //first load modules
-    moduleQueue.forEach(mod => {
-      mod.module = tjsModule(mod.name, mod.constructor, sysObjs);
-    });
-    //then load  and register server modules with the ServerManager
+    moduleQueue.forEach(
+      mod => (mod.module = tjsModule(mod.name, mod.constructor, sysObjs))
+    );
+    //then load each ServerModule
+    serverModuleQueue.forEach(ServerModule(mod.name, mod.constructor, sysObjs));
   };
 
-  const initializationComplete = () => {};
-
-  app.server = null; //remember to implement app.server
-
+  const initializationComplete = () => {
+    onCompleteHandlers.forEach(handler => handler());
+  };
   //use ServerManager to initialize the express server that will handle routing
   app.initService = ({ host, port, route, middlewear }) => {
+    host = host || "localhost";
     app.route = route;
     app.host = host || "localhost";
-    ServerManager.init(route, port, app.host, middlewear);
 
+    app.server = ServerModule.startServer({ route, port, host, middlewear });
     return app;
   };
-
   //register a service to be loaded later or load a service and return a service immediately
   app.loadService = (name, { host, port, route, url }) => {
     const url = url || `http://${host}:${port}${route}`;
@@ -133,26 +144,12 @@ module.exports = async function App() {
   app.config = handler => {
     if (typeof config === "function") configHandler = handler;
   };
-
   //register onComplete handlers
   app.initComplete = handler => {
     if (typeof handler === "function") onComplete.push(handler);
 
     return app;
   };
-
-  //modules need to be initialized only after services have been loaded
-  //so we're collect modules, services, and config init functions to be run in
-  //a paricular sequence. this is handled by multiTaskHandler in inti function below
-  const setInititializer = () => {
-    //setTimeout will send the initApp function to the end of the call stack
-    if (!initializer_set) {
-      initializer_set = true;
-      setTimeout(initApp, 1);
-    }
-  };
-
-  app._maps = () => ServerManager.maps;
 
   return app;
 };

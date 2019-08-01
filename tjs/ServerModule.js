@@ -1,31 +1,25 @@
 const tjsModule = require("./Module");
-const ServerManager = require("./ServerManager");
 const shortid = require("shortid");
+const ServerManager = require("./ServerManager");
 
-module.exports = function ServerModule({ name, app, modConstructor, server }) {
+module.exports = function ServerModule(name, constructor, App) {
   //serverMod is inheriting from tjsModule using this weird pattern
-  const serverMod = new tjsModule.apply(this, [name, app, modConstructor]);
-  //This sets up a socket.io namespace for this ServerMod
-  const nameSpace = shortid();
-  const nsp = server.io.of(`/${nameSpace}`);
-
+  const serverMod = new tjsModule.apply(this, [name, null, App]);
+  //This creates a socket.io namespace for this ServerMod
+  const nsp = shortid();
+  const namespace = ServerManager.io.of(`/${nsp}`);
   serverMod.name = name;
-  serverMod.nsp = nsp;
+  serverMod.namespace = nsp;
+
   //here we're using the socket.io namespace to fire an event called dispatch
   serverMod.emit = (name, data) => {
-    nsp.emit("dispatch", {
+    namespace.emit("dispatch", {
       id: shortid(),
       name,
       data,
       sent_by: "",
       sent_at: Date()
     });
-  };
-
-  const methodConfig = {};
-  //manually set the request method for REST purposes
-  serverMod.setMethod = (fnName, method) => {
-    methodConfig[fnName] = method;
   };
 
   serverMod.inferRoute = root => {
@@ -37,8 +31,9 @@ module.exports = function ServerModule({ name, app, modConstructor, server }) {
     serverMod.root = root;
     serverMod.inferRoute = true;
   };
-  //using modConstructor.apply let's us determine that the this object will be the serverMod
-  modConstructor.apply(serverMod, []);
+
+  //using constructor.apply let's us determine that the this object will be the serverMod
+  constructor.apply(serverMod, []);
 
   const methods = [];
   const props = Object.getOwnPropertyNames(serverMod);
@@ -62,11 +57,12 @@ module.exports = function ServerModule({ name, app, modConstructor, server }) {
       methods.push({ method, name });
     }
   });
-  //pass info need by the Server class to manage routing to the ServerModule
-  ServerManager.addModule(name, serverMod, {
-    methods,
-    nsp: nameSpace,
-    inferRoute: serverMod.inferRoute,
-    root: serverMod.root
-  });
+
+  ServerManager.addModule(name, serverMod);
+  return serverMod;
+};
+
+ServerModule.startServer = ({ port, host, route, middleware }) => {
+  ServerManager.init(route, port, host, middleware);
+  return ServerManager.server;
 };

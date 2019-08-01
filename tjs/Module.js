@@ -1,24 +1,27 @@
+//Modules is used by App.js to provide closures and to
+//controll the lifecycle of code initialization
+
 //What do they even call this pattern...?
-module.exports = function TasksJSModule(name, modConstructor, sysObjs) {
-  const TasksJSModule = this;
+module.exports = function TasksJSModule(name, constructor, App) {
+  const tjsModule = {};
   const events = {};
 
-  TasksJSModule.name = name;
+  tjsModule.name = name;
 
-  TasksJSModule.useModule = modName => {
-    sysObjs.modules[modName].module;
+  tjsModule.useModule = modName => {
+    if (App) App.modules[modName].module;
   };
 
-  TasksJSModule.useService = serviceName => {
-    sysObjs.service[serviceName].modules;
+  tjsModule.useService = serviceName => {
+    if (App) App.service[serviceName].modules;
   };
 
-  TasksJSModule.emit = (eventName, data) => {
+  tjsModule.emit = (eventName, data) => {
     if (events[eventName])
       events[eventName].forEach(handler => handler({ ...data }));
   };
 
-  TasksJSModule.on = (eventName, eventHandler) => {
+  tjsModule.on = (eventName, eventHandler) => {
     //if the event doesn't aready exist
     if (!events[eventName]) {
       events[eventName] = [];
@@ -26,7 +29,7 @@ module.exports = function TasksJSModule(name, modConstructor, sysObjs) {
 
     events[eventName].push(eventHandler);
   };
-
-  modConstructor.apply(TasksJSModule, []);
-  return TasksJSModule;
+  //this is where all modules are initialized
+  if (constructor) constructor.apply(tjsModule, []);
+  return tjsModule;
 };
