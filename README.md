@@ -1,18 +1,15 @@
-# TasksJS
-Framework for microservice software systems
+# TasksJS Overview
+***Microservices*** - TasksJS is a JavaScript framework designed for developing micro-service software systems in nodeJS. It's an abstraction on top of expressJS, and Socket.io, allowing developers to simply create objects/modules whose methods and events can be accessed by other TasksJS modules across the web. You provide one static route and the app will handle routing the requests to your modules under the hood. This makes communication between numerous services a breeze.
 
-# Overview
+***Organization*** - TasksJS offers a convenient abstraction for developing distribututed systems. With TasksJS your system is comprised of blocks of code, called components and services. These components and services can be developed, deployed and maintained separately, yet  all are able to work seamlessly together as a single software system. Services handle all operations on the backend, while components are used on the frontend of an application. TasksJS’ services and components have a modular API which offers an object-orientated way to think about developing web APIs. TasksJS allows us to focus on creating objects that comprises the software system, rather than on how clients and services should communicate. 
 
-TasksJS is a JavaScript framework designed for developing micro-service software systems in nodeJS. With TasksJS your system is comprised of blocks of code, called components and services that can be developed, deployed and maintained separately, yet which all work seamlessly together as a single software system. Services are your codes that run in the backend, while components are those parts of your system with which the user interfaces. 
-
-TasksJS’ services and components have a module API which allows you to create a module (or object) that can easily be loaded and used in another module running elsewhere. This abstraction allows the developer to focus on simply creating objects that comprises the software system, rather than on how clients and services should communicate. 
+***RESTable*** - Use REST only where it's necessary. TasksJS will take care of all the routing and handle requests between services under the hood. Yet It's built on top of express making it easy to add RESTful routing where needed. What's more, with some slight configurations TasksJS can interpet and create RESTful routes from your modules. 
 
 # Quick Start
 ## First Create An App
 
 ```
 const app = require(“sht-tasks”).app() 
-
 ```
 
 ---
@@ -25,11 +22,11 @@ app.initService({
     host  : "localhost"
 })
 ```
-The ``` app.initService(options) ``` method is used to initialize a  new instance of a server that will handle client-to-server communications between services. Pass an object as the first parameter of this method with three required properties: route, port and host. These values will be used by others services to load and use the modules you create in this service. See the ```app.loadService(name, options)``` method. 
+The ``` app.initService(options) ``` method is used to initialize a  new instance of an express server that will handle creating routes and mapping requests between services. Pass an object as the first parameter of this method with three required properties: route, port and host. These values will be used by others services to load and use the modules you create in this service. See the ```app.loadService(name, options)``` method. 
 
 ---
 ## Create a ServerModule (serverMod)
-Software development in TasksJS simply comes down to  the creation of modules. Modules serve as containers for your code, while at the same time are used to construct objects whose methods and events can be accessed by others modules. Use the ``` app.severMod(name, constructorFn) ``` method to create a *ServerModule*.
+Software development in TasksJS simply comes down to  the creation of modules. Modules serve as containers for your code, while at the same time are used to construct objects whose methods and events can be accessed by others modules across the web. Use the ``` app.severMod(name, constructorFn) ``` method to create a *ServerModule*.
 
 ```
 app.serverMod("queue", function(){
@@ -45,7 +42,7 @@ app.serverMod("queue", function(){
 })
 ```
 
-In the code above we created a *ServerModule* named queue and assigned the ``` this ``` object of its constructor function to a constant with the same name. The ``` this ``` object represents the module. Every method added to the ```this``` object can be called from others services. *ServerModules* can also emit web socket events that can be listened to from others services. Use the ```this.emit(eventName, data) ``` method to emit an event. 
+In the code above we created a *ServerModule* named queue and assigned the ```this``` object of its constructor function to a constant with the same name. The ```this``` object represents the module. Every method added to the ```this``` object can be called from others services across the web. *ServerModules* can also emit web socket events that can be listened to by others services. Use the ```this.emit(eventName, data)``` method to emit an event. 
 
 ```
 app.serverMod("queue", function(){
@@ -65,8 +62,8 @@ app.serverMod("queue", function(){
 ```
           
 ---
-## Loading and Using a Another Service
-Create a new TasksJS service in another file following the same step we did above. 
+## Loading and Using Another Service
+Create a new TasksJS service in another file following the same steps we did above. 
 
 ```
 const app = require(“sht-tasks”).app() 
@@ -95,13 +92,13 @@ app.initService({
 })
 ```
 
-The first parameter of the ``` app.loadService(name, options) ``` method is a name that will be assigned to the service (object) once it has been loaded. The second parameter is an object with the properties route, port and host, identifying the service that is to be loaded.  
+The first parameter of the ``` app.loadService(name, options) ``` method is a name that will be assigned to the service (object) once it has been loaded. The second parameter is an object with the properties route, port and host, identifying the endpoint of the service that is to be loaded.  
 
 In this file, instead of creating another *ServerModule*,  let's create a simple *Module* named "worker" using the ``` app.module(name, constructorFn)``` method. Inside the module we can access the service we just loaded using the ``` this.useService(name) ``` method.
 
 ```
 app.module("worker", function (){
-	const orders = this.useService("orders");
+     const orders = this.useService("orders");
 })
 ```
 
@@ -139,8 +136,9 @@ This is how client-to-sever communication is handled in TasksJS. No need to writ
 - ``` app.onLoad(handlerFn) ```:
 - ``` app.config(configFn) ```:
 - ``` app.module(name, constructorFn) ```:
-- ``` app.severMod(name, constructorFn) ```: (services)
-- ``` app.scope(name, constructorFn) ```: (components)
+- ``` app.severMod(name, constructorFn) ```: (services only)
+- ``` app.scope(name, constructorFn) ```: (components only)
+- ``` app.server ``` (the expressJS app handling routing)
 
 ---
 ## TasksJS module API
