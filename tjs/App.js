@@ -4,7 +4,7 @@ const tjsModule = require("./Module");
 const ServerModule = require("./ServerModule");
 const LoadBalancer = require("./LoadBalancer");
 
-module.exports = async function App() {
+module.exports = (async function App() {
   const app = {};
   const sysObjs = { services: {}, modules: {}, serverMods: {} }; //hash for all loaded Services and modules
   const serviceQueue = [];
@@ -22,7 +22,7 @@ module.exports = async function App() {
     //setTimeout will send the initApp function to the end of the call stack
     if (!initializer_set) {
       initializer_set = true;
-      setTimeout(initApp, 1);
+      setTimeout(initApp, 0);
     }
   };
 
@@ -85,7 +85,7 @@ module.exports = async function App() {
   const initializationComplete = () => {
     onCompleteHandlers.forEach(handler => handler());
   };
-  //use ServerManager to initialize the express server that will handle routing
+  //use ServerModule to initialize the express server that will handle routing
   app.initService = ({ host, port, route, middlewear }) => {
     host = host || "localhost";
     app.route = route;
@@ -94,7 +94,7 @@ module.exports = async function App() {
     app.server = ServerModule.startServer({ route, port, host, middlewear });
     return app;
   };
-  //register a service to be loaded later or load a service and return a service immediately
+  //register a service to be loaded later
   app.loadService = (name, { host, port, route, url }) => {
     const url = url || `http://${host}:${port}${route}`;
 
@@ -152,4 +152,4 @@ module.exports = async function App() {
   };
 
   return app;
-};
+})();

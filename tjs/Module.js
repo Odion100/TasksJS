@@ -29,7 +29,7 @@ module.exports = function TasksJSModule(name, constructor, App) {
 
     events[eventName].push(eventHandler);
   };
-  //this is where all modules are initialized
+  //allow for creating a modules without constructors as a way of doing inheritance
   if (constructor) constructor.apply(tjsModule, []);
   return tjsModule;
 };

@@ -14,7 +14,8 @@ module.exports = (function ServerManager() {
     server.get(route, (req, res) => {
       //The route will return an array of maps (objects) which contain instruction on how to
       // make request to this service
-      res.json({ maps: manager.maps, host: `${host}:${port}` });
+      const { maps } = manager;
+      res.json({ maps, host: `${host}:${port}` });
     });
     //Listen for request on the given route
     server.listen(port);
