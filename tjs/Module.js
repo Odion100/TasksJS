@@ -9,11 +9,11 @@ module.exports = function TasksJSModule(name, constructor, App) {
   tjsModule.name = name;
 
   tjsModule.useModule = modName => {
-    if (App) App.modules[modName].module;
+    if (App) App.Modules[modName].module;
   };
 
   tjsModule.useService = serviceName => {
-    if (App) App.service[serviceName].modules;
+    if (App) App.Services[serviceName].serverModules;
   };
 
   tjsModule.emit = (eventName, data) => {
@@ -30,6 +30,6 @@ module.exports = function TasksJSModule(name, constructor, App) {
     events[eventName].push(eventHandler);
   };
   //allow for creating a modules without constructors as a way of doing inheritance
-  if (constructor) constructor.apply(tjsModule, []);
+  if (typeof constructor === "function") constructor.apply(tjsModule, []);
   return tjsModule;
 };
