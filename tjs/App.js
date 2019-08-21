@@ -100,7 +100,7 @@ module.exports = (async function App() {
   //register a service to be loaded later
   app.loadService = (name, { host, port, route, url }) => {
     const url = url || `http://${host}:${port}${route}`;
-
+    //add service to sysObjs
     sysObjs.Services[name] = {
       name,
       url,
@@ -112,13 +112,15 @@ module.exports = (async function App() {
 
     //add the service to the serviceQueue to be loaded later
     serviceQueue.push(sysObjs.Services[name]);
-    //setup modules to be loaded later
+    //setup "app" to initialize at the end of the callstack
     setInititializer();
     //so that you can chain (.onLoad) behind a loadService method
     last_service = name;
     return app;
   };
   //set onLoad handler for the last service added to the serviceQueue
+  //this is so that immediately after typeing app.loadService(data) you
+  //can chain onLoad event for that particular service: app.loadService(data).onLoad(handler)
   app.onLoad = handler => {
     sysObjs.Services[last_service].onLoad = handler;
     return app;
