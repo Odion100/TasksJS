@@ -1,10 +1,10 @@
-const tjsModule = require("./Module");
+const TasksJSModule = require("./Module");
 const shortid = require("shortid");
 const ServerManager = require("./ServerManager");
 
-module.exports = function ServerModule(name, constructor, App) {
-  //serverMod is inheriting from tjsModule using this weird pattern
-  const serverMod = new tjsModule.apply(this, [name, null, App]);
+module.exports = function ServerModule(name, constructor, systemObjects) {
+  //serverMod is inheriting from TasksJSModule
+  const serverMod = new TasksJSModule(name, null, systemObjects);
   //This creates a socket.io namespace for this ServerMod
   const nsp = shortid();
   const namespace = ServerManager.io.of(`/${nsp}`);
@@ -22,15 +22,7 @@ module.exports = function ServerModule(name, constructor, App) {
     });
   };
 
-  serverMod.inferRoute = root => {
-    //create static route using
-    if (!root)
-      throw Error(
-        "(TasksJS): ServerModule.inferRoute(root) requires a root route as the first parameter"
-      );
-    serverMod.root = root;
-    serverMod.inferRoute = true;
-  };
+  serverMod.inferRoute = () => (serverMod.inferRoute = true);
 
   //using constructor.apply let's us determine that the this object will be the serverMod
   constructor.apply(serverMod, []);

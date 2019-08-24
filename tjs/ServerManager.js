@@ -1,10 +1,12 @@
 //ServerManager handles routing and maping request to ServerModules
 module.exports = (function ServerManager() {
+  const manager = {};
+
   manager.init = (route, port, host, middleware) => {
     //start the Express and WebSocket Servers
     const { server, io } = initializeServers(manager);
-    const manager = {};
-    //add properties to manager object that will be returned
+
+    //add properties to manager object
     manager.io = io;
     manager.server = server;
     manager.maps = [];
@@ -12,12 +14,12 @@ module.exports = (function ServerManager() {
 
     //create route that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
-      //The route will return an array of maps (objects) which contain instruction on how to
-      // make request to this service
+      //The route will return connection data for the service including an array of
+      //maps (objects) which contain instruction on how to make request to this service
       const { maps } = manager;
       res.json({ maps, host: `${host}:${port}` });
     });
-    //Listen for request on the given route
+    //Listen for request on the given port
     server.listen(port);
     console.log(`(TaskJS): ${route} Service listening on ${host}:${port}`);
   };
@@ -62,7 +64,7 @@ function initializeServers(_serverManager) {
   const express = require("express");
   const server = express();
 
-  //scoket.io server setup;
+  //scoket.io server setup
   const socketApp = express();
   const socketServer = require("http").Server(socketApp);
   const io = require("socket.io")(socketServer);
