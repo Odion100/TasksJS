@@ -1,4 +1,7 @@
 //ServerManager handles routing and maping request to ServerModules
+const socketPort =
+    parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
+
 module.exports = (function ServerManager() {
   const manager = {};
 
@@ -68,8 +71,6 @@ function initializeServers(_serverManager) {
   const socketApp = express();
   const socketServer = require("http").Server(socketApp);
   const io = require("socket.io")(socketServer);
-  const socketPort =
-    parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
   socketServer.listen(socketPort);
 
   //express middleware
