@@ -38,7 +38,7 @@ module.exports = (async function App() {
         `(TasksJS App): Initialization Error - failed to load all services`
       );
     }
-
+    //kinda is kinda awesome
     if (typeof config.constructor === "function") {
       const { config } = systemObjects;
       //give config constructor access to the systemObject so any loaded services can be accessed
