@@ -3,7 +3,7 @@
 
 //What do they even call this pattern...?
 module.exports = function TasksJSModule(name, constructor, systemObjects) {
-  const tjsModule = this;
+  const tjsModule = {};
   const events = {};
 
   tjsModule.name = name;

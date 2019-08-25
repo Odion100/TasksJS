@@ -87,5 +87,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "version": "1.28.11",
-  "devDependencies": {}
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0"
+  }
 }
