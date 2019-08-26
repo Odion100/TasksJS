@@ -40,10 +40,10 @@ class Client {
   }
 }
 
-let c = new Client();
+let c = Client();
 c.request(
   { method: "GET", url: "https://jsonplaceholder.typicode.com/todos/3" },
   (err, res) => console.log(err, res)
 );
 
-exports = Client;
+exports = Client();
