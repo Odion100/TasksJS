@@ -1,11 +1,12 @@
-//The purpose of the client class is to have just one abstraction for sending request
-//that will be used by all other classes. Even if I decide to change what module i use
+//The purpose of the client factory is to have just one abstraction for sending request
+//that will be used by all other modules. Even if I decide to change what module i use
 //to actually send the request, the abstraction remains the same
 const httpClient = require("request");
 const json = true;
 
-class Client {
-  request({ method, url, body }, cb) {
+function TasksJSClient() {
+  const Client = {};
+  Client.request = ({ method, url, body }, cb) => {
     return new Promise((resolve, reject) => {
       httpClient({ method, url, body, json }, (err, res, body) => {
         if (err) {
@@ -20,9 +21,9 @@ class Client {
         }
       });
     });
-  }
+  };
 
-  uploadFile({ url, formData }, cb) {
+  Client.uploadFile = ({ url, formData }, cb) => {
     return new Promise((resolve, reject) => {
       httpClient.post({ url, formData, json }, (err, res, body) => {
         if (err) {
@@ -37,13 +38,8 @@ class Client {
         }
       });
     });
-  }
+  };
+  return Client;
 }
 
-let c = Client();
-c.request(
-  { method: "GET", url: "https://jsonplaceholder.typicode.com/todos/3" },
-  (err, res) => console.log(err, res)
-);
-
-exports = Client();
+module.exports = TasksJSClient();
