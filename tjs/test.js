@@ -59,13 +59,12 @@ describe("Client", () => {
       expect(delResponse).to.have.property("test", true);
     });
   });
+  it("should be able to upload a file", () => {
+    //todo
+  });
   return;
   it("should handle bad requests", () => {
     //to do
-  });
-
-  it("should be able to upload a file", () => {
-    //todo
   });
 });
 
