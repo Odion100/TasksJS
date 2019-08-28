@@ -6,7 +6,7 @@ const fs = require("fs");
 describe("TasksJSClient && TasksJSServer Tests", () => {
   //1. Launch an express server
   const { server } = require("../tjs/Server");
-  const port = 4000;
+  const port = 4444;
   const url = `http://localhost:${port}/test`;
   const singleFileUrl = `http://localhost:${port}/sf/test`;
 
@@ -41,7 +41,7 @@ describe("TasksJSClient && TasksJSServer Tests", () => {
       server.delete("/test", response);
 
       server.listen(port, async () => {
-        console.log(`(TestServer) listening on port:${port}`);
+        //console.log(`(TestServer) listening on port:${port}`);
 
         const get = await Client.request({ method: "GET", url });
         const put = await Client.request({ method: "PUT", url, body });
@@ -81,17 +81,12 @@ describe("TasksJSClient && TasksJSServer Tests", () => {
         .that.has.property("testPassed", true);
       expect(uploadResponse)
         .to.have.property("file")
-        .that.is.an("object");
-      expect(uploadResponse).to.have.property("fileUploadTest", true);
-
-      expect(uploadResponse.file)
-        .to.be.an("object")
+        .that.is.an("object")
         .has.property("originalname", "testFile.json");
+      expect(uploadResponse).to.have.property("fileUploadTest", true);
     });
-    return;
-    it("should handle bad requests", () => {
-      //to do
-    });
+
+    // it("should handle bad requests", () => {});
   });
 });
 
@@ -126,13 +121,78 @@ describe("TasksJSModule", function() {
       expect(eventWasHandled).to.be.true;
       expect(eventWasHandled2).to.be.true;
     });
-    return;
-    it("should return null when attempting to retrieve systemObjects: (i.e., TasksJSModules, ServerModules, and Services)", () => {});
+
+    it("should return undefined when attempting to retrieve systemObjects", () => {
+      const mod = tjsMod.useModule();
+      const service = tjsMod.useService();
+      const config = tjsMod.useConfig();
+
+      expect(mod).to.be.undefined;
+      expect(service).to.be.undefined;
+      expect(config).to.be.undefined;
+    });
   });
-  return;
+
   describe("Create a TasksJSModule instance with all parameters: TasksJSModules(name, constructor, systemObjects)", () => {
-    it("should have extra methods and properties set inside the constructor function", () => {});
-    it("should be able to retrieve systemObjects: : (i.e., TasksJSModules, ServerModules, and Services)", () => {});
+    const mockSystemObjects = {
+      Services: { mockService: { ServerModules: { testPassed: true } } },
+      Modules: { mockModule: { module: { testPassed: true } } },
+      ServerModules: {},
+      config: { module: { testPassed: true } }
+    };
+    const tjsMod = TasksJSModule(
+      "testMod", //module name
+      function() {
+        //constructor function
+        const testMod = this;
+        testMod.testPassed = true;
+        testMod.test = () => {};
+        testMod.test2 = () => {};
+      },
+      mockSystemObjects
+    );
+    it("should have extra methods and properties added inside the constructor function", () => {
+      expect(tjsMod)
+        .to.be.an("Object")
+        .that.has.all.keys(
+          "on",
+          "emit",
+          "useModule",
+          "useService",
+          "useConfig",
+          "name",
+          "testPassed",
+          "test",
+          "test2"
+        )
+        .that.respondsTo("on")
+        .that.respondsTo("emit")
+        .that.respondsTo("useModule")
+        .that.respondsTo("useService")
+        .that.respondsTo("useConfig")
+        .that.respondsTo("test")
+        .that.respondsTo("test2")
+        .that.has.property("testPassed", true);
+    });
+
+    it("should be able to retrieve systemObjects: : (i.e., Modules, ServerModules, and Services)", () => {
+      const mod = tjsMod.useModule("mockModule");
+      const service = tjsMod.useService("mockService");
+      const config = tjsMod.useConfig();
+      const undefinedModule = tjsMod.useModule("nonExisting");
+      const undefinedService = tjsMod.useService("nonExisting");
+      expect(mod)
+        .to.be.an("object")
+        .has.property("testPassed", true);
+      expect(service)
+        .to.be.an("object")
+        .has.property("testPassed", true);
+      expect(config)
+        .to.be.an("object")
+        .has.property("testPassed", true);
+      expect(undefinedModule).to.be.undefined;
+      expect(undefinedService).to.be.undefined;
+    });
   });
 });
 return;
