@@ -1,31 +1,33 @@
 //ServerManager handles routing and maping request to ServerModules
 
 //start the Express and WebSocket Servers
-const { server, io, socketPort } = require("./Server");
+const { server, io, socketPort, errorResponseBuilder } = require("./Server");
 
-module.exports = (function ServerManager() {
-  const manager = {};
+module.exports = (function TasksJSServerManager() {
+  const ServerManager = {};
   const ServerModHash = {};
   const maps = [];
-  //add properties to manager object
-  manager.io = io;
-  manager.server = server;
+  //add properties to ServerManager object
+  ServerManager.io = io;
+  ServerManager.server = server;
 
-  manager.initServer = (route, port, host, middleware) => {
-    //add route that will be used to handle request to "connect" to the Service
+  ServerManager.startServer = (route, port, host, middleware) => {
+    //save conection data on the ServerManager Object
+    ServerManager.route = route;
+    ServerManager.port = port;
+    ServerManager.host = host;
+    //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
-      //maps (objects) which contain instruction on how to make request to this service
-      res.json({ maps, host: `${host}:${port}` });
+      //maps (objects) which contain instruction on how to make request to each ServerModule
+      res.json({ maps, TasksJSService: `${host}:${port}/${route}` });
     });
     //Setup server to handle ServerModule request
-    initializeServer(server);
-    //Listen for request on the given port
-    server.listen(port);
-    console.log(`(TaskJS): ${route} Service listening on ${host}:${port}`);
+    initializeServer(ServerManager);
   };
-  manager.addModule = (modName, ServerModule) => {
-    let { nsp, methods, inferRoute } = ServerModule;
+
+  ServerManager.addModule = (modName, ServerModule) => {
+    const { nsp, methods, inferRoute } = ServerModule;
     let app = "";
     let mod = "";
 
@@ -40,7 +42,7 @@ module.exports = (function ServerManager() {
     }
 
     /// store info on how to connect / make request to the ServerModule
-    const { port, host } = manager;
+    const { port, host } = ServerManager;
     let map = {
       nsp: `http://${host}:${socketPort}/${nsp}`,
       route: `${app}/${modName}`,
@@ -56,8 +58,8 @@ module.exports = (function ServerManager() {
     ServerModHash[app][mod] = ServerModule;
   };
 
-  const initializeServer = server => {
-    //validate each request to confirm that the route points to a ServerModule
+  const initializeServer = ({ route, port, host }) => {
+    //validate each request to confirm that the route points to a {route, port, host}Module
     server.use((req, res, next) => {
       const { app, mod, fn } = req.params;
 
@@ -66,7 +68,6 @@ module.exports = (function ServerManager() {
           if (typeof ServerModHash[app][mod][fn] === "function") return next();
 
       //return an error
-      const { host, port, maps } = manager;
       res
         .status(400)
         .json({ maps, invalidMapERROR: true, service: `${host}:${port}` });
@@ -81,20 +82,18 @@ module.exports = (function ServerManager() {
       data.files = req.files;
 
       //call the method stored on the ServerModule hash table
-      ServerModHash[app][mod][fn](data || {}, (err, results) => {
-        if (err) {
-          res.status(err.status || 500).json(errorResponseBuilder(err));
-        } else {
-          res.json(results);
-        }
-      });
-    };
-
-    const errorResponseBuilder = err => {
-      //will add more logic after some experiementation
-      const { host, port, route } = manager;
-      err._service = `${host}:${port}${route}`;
-      return err;
+      ServerModHash[app][mod][fn](
+        data || {},
+        (err, results) => {
+          if (err) {
+            res.status(err.status || 500).json(errorResponseBuilder(err));
+          } else {
+            res.json(results);
+          }
+        },
+        req,
+        res
+      );
     };
 
     //setup routes
@@ -103,6 +102,10 @@ module.exports = (function ServerManager() {
     server.post("/:app/:mod/:fn", requestHandler);
     server.post("/sf/:app/:mod/:fn", requestHandler);
     server.post("/mf/:app/:mod/:fn", requestHandler);
+
+    //Listen for request on the given port
+    server.listen(port);
+    console.log(`(TaskJS): ${route} Service listening on ${host}:${port}`);
   };
-  return manager;
+  return ServerManager;
 })();

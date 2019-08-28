@@ -32,15 +32,23 @@ function TasksJSServer() {
   const mf = multer({ storage: storage }).array("files");
   //the sf and mf functions are used to a extract file from the req during a file upload
   //a property named file and files will be added to the req object respectively
-  const singleFileUpload = (req, res, next) => {
+  const singleFileUpload = (req, res, next) =>
     sf(req, res, err => {
-      if (err) console.log(err, "single file upload error");
+      if (err) res.json(errorResponseBuilder(err));
       else next();
     });
-  };
-  const multiFileUpload = (req, res, next) =>
-    mf(req, res, (req, res) => next());
 
+  const multiFileUpload = (req, res, next) =>
+    mf(req, res, err => {
+      if (err) res.json(errorResponseBuilder(err));
+      else next();
+    });
+
+  const errorResponseBuilder = (err, { route, port, host }) => {
+    //will add more logic after some experiementation
+    err.TasksJSServerError = { service: `${host}:${port}${route}` };
+    return err;
+  };
   server.use("/sf", singleFileUpload);
   server.use("/mf", multiFileUpload);
   server.use(express.static(cwd + "/public"));
@@ -56,6 +64,6 @@ function TasksJSServer() {
     next();
   });
 
-  return { server, io, socketPort };
+  return { server, io, socketPort, errorResponseBuilder };
 }
 module.exports = TasksJSServer();
