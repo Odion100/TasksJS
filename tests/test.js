@@ -1,70 +1,97 @@
 const { expect } = require("chai");
-const TasksJSModule = require("./Module");
-const Client = require("./Client");
+const TasksJSModule = require("../tjs/Module");
+const Client = require("../tjs/Client");
+const fs = require("fs");
 
-describe("Client", () => {
+describe("TasksJSClient && TasksJSServer Tests", () => {
   //1. Launch an express server
-  const express = require("express");
-  const expressApp = express();
-  const bodyParser = require("body-parser");
-  expressApp.use(bodyParser.json({ limit: "5mb" }));
+  const { server } = require("../tjs/Server");
   const port = 4000;
   const url = `http://localhost:${port}/test`;
+  const singleFileUrl = `http://localhost:${port}/sf/test`;
+
+  const body = { testPassed: false };
 
   const response = (req, res) => {
     const { body, method } = req;
+    body.testPassed = true;
     res.json({ method, ...body });
   };
 
-  expressApp.get("/test", response);
-  expressApp.put("/test", response);
-  expressApp.post("/test", response);
-  expressApp.delete("/test", response);
+  const uploadResponse = (req, res) => {
+    const { file } = req;
+    const json = JSON.parse(fs.readFileSync(file.path));
 
-  it("should be a TasksJSClient Object", () => {
-    expect(Client)
-      .to.be.an("object")
-      .that.has.all.keys("request", "uploadFile")
-      .that.respondsTo("request")
-      .that.respondsTo("uploadFile");
-  });
-
-  it("should be able to succesfully make http requests returning a promise", () => {
-    expressApp.listen(port, async () => {
-      console.log(`(TestServer) listening on port:${port}`);
-
-      const body = { test: true };
-
-      const getResponse = await Client.request({ method: "GET", url });
-      const putResponse = await Client.request({ method: "PUT", url, body });
-      const postResponse = await Client.request({ method: "POST", url, body });
-      const delResponse = await Client.request({ method: "DELETE", url, body });
-
-      expect(Client.request({ method: "GET", url })).to.be.a("promise");
-
-      expect(getResponse)
-        .to.be.an("object")
-        .that.has.property("method", "GET");
-
-      expect(putResponse).to.be.an("object");
-      expect(putResponse).to.have.property("method", "PUT");
-      expect(putResponse).to.have.property("test", true);
-
-      expect(postResponse).to.be.an("object");
-      expect(postResponse).to.have.property("method", "POST");
-      expect(postResponse).to.have.property("test", true);
-
-      expect(delResponse).to.be.an("object");
-      expect(delResponse).to.have.property("method", "DELETE");
-      expect(delResponse).to.have.property("test", true);
+    res.json({ file, ...json });
+  };
+  server.post("/sf/test", uploadResponse);
+  describe("Client", () => {
+    it("should be a TasksJSClient Object", () => {
+      expect(Client)
+        .to.be.an("Object")
+        .that.has.all.keys("request", "uploadFile")
+        .that.respondsTo("request")
+        .that.respondsTo("uploadFile");
     });
-  });
-  it("should be able to upload a file", () => {
-    //todo
-  });
-  return;
-  it("should handle bad requests", () => {
-    //to do
+
+    it("should be able to succesfully make http requests returning a promise", () => {
+      server.get("/test", response);
+      server.put("/test", response);
+      server.post("/test", response);
+      server.delete("/test", response);
+
+      server.listen(port, async () => {
+        console.log(`(TestServer) listening on port:${port}`);
+
+        const get = await Client.request({ method: "GET", url });
+        const put = await Client.request({ method: "PUT", url, body });
+        const post = await Client.request({ method: "POST", url, body });
+        const del = await Client.request({ method: "DELETE", url, body });
+
+        expect(Client.request({ method: "GET", url })).to.be.a("promise");
+
+        expect(get)
+          .to.be.an("Object")
+          .that.has.property("method", "GET");
+
+        expect(put).to.be.an("Object");
+        expect(put).to.have.property("method", "PUT");
+        expect(put).to.have.property("testPassed", true);
+
+        expect(post).to.be.an("Object");
+        expect(post).to.have.property("method", "POST");
+        expect(post).to.have.property("testPassed", true);
+
+        expect(del).to.be.an("Object");
+        expect(del).to.have.property("method", "DELETE");
+        expect(del).to.have.property("testPassed", true);
+      });
+    });
+
+    it("should be able to upload a file", async () => {
+      const file = fs.createReadStream(__dirname + "\\testFile.json");
+
+      const uploadResponse = await Client.uploadFile({
+        url: singleFileUrl,
+        formData: { file }
+      });
+
+      expect(uploadResponse)
+        .to.be.an("Object")
+        .that.has.property("testPassed", true);
+      expect(uploadResponse)
+        .to.have.property("file")
+        .that.is.an("object");
+      expect(uploadResponse).to.have.property("fileUploadTest", true);
+
+      expect(uploadResponse.file)
+        .to.be.an("object")
+        .has.property("originalname", "testFile.json");
+    });
+    return;
+    it("should handle bad requests", () => {
+      //to do
+    });
   });
 });
 
@@ -73,7 +100,7 @@ describe("TasksJSModule", function() {
     const tjsMod = TasksJSModule();
     it("Should return a TaskJSModule instance with all basic properties and methods", () => {
       expect(tjsMod)
-        .to.be.an("object")
+        .to.be.an("Object")
         .that.has.all.keys(
           "on",
           "emit",

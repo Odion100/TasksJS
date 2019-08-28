@@ -9,6 +9,8 @@ function TasksJSServer() {
   const socketApp = express();
   const socketServer = require("http").Server(socketApp);
   const io = require("socket.io")(socketServer);
+  const socketPort =
+    parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
   socketServer.listen(socketPort);
 
   //express middleware
@@ -16,14 +18,13 @@ function TasksJSServer() {
   const multer = require("multer");
 
   //express middleware setup
-  const TEMP_LOCATION = __dirname + "/temp";
+  const TEMP_LOCATION = "./temp";
   const mime = require("mime");
   const shortId = require("shortid");
-
   const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, TEMP_LOCATION),
     filename: (req, file, cb) =>
-      cb(null, `${shortId()} . ${mime.getExtension(file.mimetype)}`)
+      cb(null, `${shortId()}.${mime.getExtension(file.mimetype)}`)
   });
 
   //middleware functions
@@ -31,8 +32,12 @@ function TasksJSServer() {
   const mf = multer({ storage: storage }).array("files");
   //the sf and mf functions are used to a extract file from the req during a file upload
   //a property named file and files will be added to the req object respectively
-  const singleFileUpload = (req, res, next) =>
-    sf(req, res, (req, res) => next());
+  const singleFileUpload = (req, res, next) => {
+    sf(req, res, err => {
+      if (err) console.log(err, "single file upload error");
+      else next();
+    });
+  };
   const multiFileUpload = (req, res, next) =>
     mf(req, res, (req, res) => next());
 

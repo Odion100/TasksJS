@@ -92,7 +92,7 @@ module.exports = (function ServerManager() {
 
     const errorResponseBuilder = err => {
       //will add more logic after some experiementation
-      let { host, port, route } = manager;
+      const { host, port, route } = manager;
       err._service = `${host}:${port}${route}`;
       return err;
     };
