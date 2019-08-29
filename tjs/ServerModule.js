@@ -2,18 +2,20 @@ const TasksJSModule = require("./Module");
 const shortid = require("shortid");
 const ServerManager = require("./ServerManager");
 
-module.exports = function ServerModule(name, constructor, systemObjects) {
-  //serverMod is inheriting from TasksJSModule
-  const serverMod = new TasksJSModule(name, null, systemObjects);
-  //This creates a socket.io namespace for this ServerMod
-  const nsp = shortid();
-  const namespace = ServerManager.io.of(`/${nsp}`);
-  serverMod.name = name;
-  serverMod.namespace = nsp;
+module.exports = function TasksJSServerModule(
+  name,
+  constructor,
+  systemObjects
+) {
+  //ServerModule is inheriting from TasksJSModule
+  const ServerModule = new TasksJSModule(name, null, systemObjects);
+  //This creates a socket.io namespace for this ServerModule
+  const namespace = shortid();
+  const nsp = ServerManager.io.of(`/${namespace}`);
 
   //here we're using the socket.io namespace to fire an event called dispatch
-  serverMod.emit = (name, data) => {
-    namespace.emit("dispatch", {
+  ServerModule.emit = (name, data) => {
+    nsp.emit("dispatch", {
       id: shortid(),
       name,
       data,
@@ -22,13 +24,13 @@ module.exports = function ServerModule(name, constructor, systemObjects) {
     });
   };
 
-  serverMod.inferRoute = () => (serverMod.inferRoute = true);
+  ServerModule.inferRoute = () => (ServerModule.inferRoute = true);
 
-  //using constructor.apply let's us determine that the this object will be the serverMod
-  constructor.apply(serverMod, []);
+  //using constructor.apply let's us determine that the this object will be the ServerModule
+  constructor.apply(ServerModule, []);
 
   const methods = [];
-  const props = Object.getOwnPropertyNames(serverMod);
+  const props = Object.getOwnPropertyNames(ServerModule);
   const reservedMethods = [
     "emit",
     "useModule",
@@ -37,24 +39,27 @@ module.exports = function ServerModule(name, constructor, systemObjects) {
     "setMethods",
     "inferRoute"
   ];
-  //loop through each property on the serverMod that is a function
-  //in order to create a config object for each method on the serverMod
+  //loop through each property on the ServerModule that is a function
+  //in order to create a config object for each method on the ServerModule
   props.forEach(name => {
     if (
-      //exclude serverMod reserved methods
+      //exclude ServerModule reserved methods
       reservedMethods.indexOf(name) === -1 &&
-      typeof serverMod[name] === "function"
+      typeof ServerModule[name] === "function"
     ) {
       let method = methodConfig[name] || "PUT";
       methods.push({ method, name });
     }
   });
 
-  ServerManager.addModule(name, serverMod);
-  return serverMod;
+  ServerManager.addModule({
+    name,
+    ServerModule,
+    namespace,
+    inferRoute,
+    methods
+  });
+  return ServerModule;
 };
 
-ServerModule.startServer = ({ port, host, route, middleware }) => {
-  ServerManager.init(route, port, host, middleware);
-  return ServerManager.server;
-};
+TasksJSServerModule.startServer = ServerManager.startServer;

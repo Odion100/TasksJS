@@ -41,11 +41,6 @@ describe("TasksJSClient && TasksJSServer Tests", async () => {
   server.post("/mf/test", multiUploadResponse);
   server.listen(port, console.log(`(TestServer) listening on port:${port}`));
 
-  // server.listen(port, () => {
-  //   console.log(`(TestServer) listening on port:${port}`);
-  // });
-
-  console.log("jdlksjfljsolljfsljkkkkkkkkk");
   describe("Client", () => {
     it("should be a TasksJSClient Object", () => {
       expect(Client)
@@ -220,27 +215,68 @@ describe("TasksJSModule", function() {
     });
   });
 });
-return;
-describe("ServerManager && ServerModule Tests", () => {
-  describe("Creating a ServerManager instance", () => {
-    //to do
+
+describe("ServerManager", () => {
+  const ServerManager = require("../tjs/ServerManager");
+
+  const route = "/testService";
+  const port = 4400;
+  const method = "GET";
+  const url = `http://localhost:${port}${route}`;
+  ServerManager.startServer({ route, port });
+
+  it("should accepts requests for connectionData on given route", async () => {
+    //make a request expecting to recieve an empty maps array in the response
+    const connectionData = await Client.request({ method, url });
+    expect(connectionData)
+      .to.be.an("object")
+      .has.property("maps")
+      .that.is.an("array").that.is.empty;
   });
 
-  describe("Initializing ServerManager-Sever with ServerManagere.init(port, host, route, middleware)", () => {
-    it("should be able to recieve get request for maps", () => {
-      //todo
-    });
-  });
-  describe("Creating a ServerModule instnace without parameters", () => {
-    //should throw an error
-  });
-
-  describe("Creating a ServerModule with name and construnctor parameters", () => {
-    //todo
-  });
-
-  describe("Creating a ServerModule with inferred routes", () => {
-    //test if route is what's expected
+  //just confirming that modules and be added and retrieved remotely
+  it("should be able to added new ServerModule", async () => {
+    const options = {
+      name: "TestModule",
+      namespace: "TestNamespace",
+      methods: [],
+      inferRoutes: false,
+      ServerModule: {}
+    };
+    ServerManager.addModule(options);
+    const connectionData1 = await Client.request({ method, url });
+    expect(connectionData1)
+      .to.be.an("object")
+      .has.property("maps")
+      .that.is.an("array")
+      .that.has.a.lengthOf(1);
+    expect(connectionData1.maps[0])
+      .to.be.an("object")
+      .that.has.all.keys(
+        "name",
+        "namespace",
+        "methods",
+        "route",
+        "port",
+        "host"
+      );
+    ServerManager.addModule(options);
+    const connectionData2 = await Client.request({ method, url });
+    expect(connectionData2)
+      .to.be.an("object")
+      .has.property("maps")
+      .that.is.an("array")
+      .that.has.a.lengthOf(2);
+    expect(connectionData2.maps[1])
+      .to.be.an("object")
+      .that.has.all.keys(
+        "name",
+        "namespace",
+        "methods",
+        "route",
+        "port",
+        "host"
+      );
   });
 });
 

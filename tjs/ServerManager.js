@@ -2,6 +2,7 @@
 
 //start the Express and WebSocket Servers
 const { server, io, socketPort, errorResponseBuilder } = require("./Server");
+const shortId = require("shortid");
 
 module.exports = (function TasksJSServerManager() {
   const ServerManager = {};
@@ -11,7 +12,14 @@ module.exports = (function TasksJSServerManager() {
   ServerManager.io = io;
   ServerManager.server = server;
 
-  ServerManager.startServer = (route, port, host, middleware) => {
+  ServerManager.startServer = ({
+    route,
+    port,
+    host = "localhost",
+    middleware
+  }) => {
+    //ensure route begins with a slash
+    route = route.charAt(0) === "/" ? route : "/" + route;
     //save conection data on the ServerManager Object
     ServerManager.route = route;
     ServerManager.port = port;
@@ -26,15 +34,20 @@ module.exports = (function TasksJSServerManager() {
     initializeServer(ServerManager);
   };
 
-  ServerManager.addModule = (modName, ServerModule) => {
-    const { nsp, methods, inferRoute } = ServerModule;
+  ServerManager.addModule = ({
+    name,
+    namespace,
+    methods,
+    inferRoute,
+    ServerModule
+  }) => {
     let app = "";
     let mod = "";
 
     if (inferRoute) {
       /// routes inferred from the name of the service and module
       app = route;
-      mod = modName;
+      mod = name;
     } else {
       /// randomly generate routes to the ServerModule
       app = shortId();
@@ -44,11 +57,11 @@ module.exports = (function TasksJSServerManager() {
     /// store info on how to connect / make request to the ServerModule
     const { port, host } = ServerManager;
     let map = {
-      nsp: `http://${host}:${socketPort}/${nsp}`,
-      route: `${app}/${modName}`,
+      namespace: `http://${host}:${socketPort}/${namespace}`,
+      route: `${app}/${name}`,
       port,
       host,
-      modName,
+      name,
       methods
     };
     maps.push(map);

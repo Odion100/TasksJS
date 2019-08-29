@@ -2,7 +2,7 @@ const Client = require("./Client.js");
 const TasksJSModule = require("./Module");
 //this function makes a request to a service to recieve a maps array
 //which provides instruction on how to make request to each serverMod in the service
-module.exports = function Service(url, limit = 10, wait = 1500) {
+module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
   let connectionErrors = [];
   let connection_attemps = 0;
 
@@ -28,14 +28,14 @@ const createService = maps => {
   const service = new TasksJSModule();
   //each map describes a backend ServerModule
   maps.forEach(map => {
-    service[map.modName] = serverModuleRequestHandler(map, service);
+    service[map.name] = serverModuleRequestHandler(map, service);
   });
 
   return service;
 };
 
 const serverModuleRequestHandler = (
-  { methods, nsp, host, port, route },
+  { methods, namespace, host, port, route },
   service
 ) => {
   const serverMod = {};
@@ -44,7 +44,7 @@ const serverModuleRequestHandler = (
   const multiFileURL = "";
   const url = "";
   //this method sets up the urls to make request to the backend module
-  serverMod.__setConnection = (host, route, port, nsp) => {
+  serverMod.__setConnection = (host, route, port, namespace) => {
     singleFileURL = `http://${host}:${port}/sf/${route}`;
     multiFileURL = `http://${host}:${port}/mf/${route}`;
     url = `http://${host}:${port}${route}`;
@@ -52,12 +52,12 @@ const serverModuleRequestHandler = (
     //connectWebSocket function will handle events coming from the backend ServerModules
     //the callback will be called for every event coming from that module so in the
     //callback we dispatch the event to the handler of the particular event
-    connectWebSocket(nsp, event => {
+    connectWebSocket(namespace, event => {
       if (eventHandlers[event.name])
         eventHandlers[event.name].forEach(cb => cb(event));
     });
   };
-  serverMod.__setConnection(host, port, route, nsp);
+  serverMod.__setConnection(host, port, route, namespace);
 
   //adds callback that will be called every time the backend ServerModule fires the given event
   serverMod.on = (name, cb) => {
@@ -121,14 +121,19 @@ const resetConnection = (maps, service, cb) => {
   //instead of re-instantiating the backend serverModule we use the ___setConnection
   //method to update the serverModules' connection data
   maps.forEach(map =>
-    service[map.modName].__setConnection(map.host, map.port, map.route, map.nsp)
+    service[map.name].__setConnection(
+      map.host,
+      map.port,
+      map.route,
+      map.namespace
+    )
   );
 
   cb();
 };
 
-const connectWebSocket = (nsp, dispatch) => {
-  const socket = io.connect(nsp);
+const connectWebSocket = (namespace, dispatch) => {
+  const socket = io.connect(namespace);
 
   socket.on(`dispatch:`, data => dispatch(data));
 
