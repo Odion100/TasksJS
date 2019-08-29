@@ -23,7 +23,7 @@ function TasksJSClient() {
     });
   };
 
-  Client.uploadFile = ({ url, formData }, cb) => {
+  Client.upload = ({ url, formData }, cb) => {
     return new Promise((resolve, reject) => {
       httpClient.post({ url, formData, json }, (err, res, body) => {
         if (err) {

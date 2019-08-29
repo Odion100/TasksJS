@@ -97,12 +97,12 @@ const serverModuleRequestHandler = (
       //request to the appropriate file upload route
       switch (true) {
         case data.file:
-          return Client.uploadFile(
+          return Client.upload(
             { url: `${singleFileURL}/${name}`, method, data },
             callBack
           );
         case data.files:
-          return Client.uploadFile(
+          return Client.upload(
             { url: `${multiFileURL}/${name}`, method, data },
             callBack
           );
