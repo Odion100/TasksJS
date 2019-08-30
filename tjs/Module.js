@@ -6,7 +6,6 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
   const tjsModule = {};
   const events = {};
 
-  tjsModule.name = name;
   //return other modules in the same App by name
   tjsModule.useModule = modName => {
     if (systemObjects) return (systemObjects.Modules[modName] || {}).module;

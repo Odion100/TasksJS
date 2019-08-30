@@ -1,11 +1,26 @@
 const { expect } = require("chai");
-const TasksJSModule = require("../tjs/Module");
-const Client = require("../tjs/Client");
 const fs = require("fs");
+const {
+  //Export these pre-created objects for convenient object destructuring
+  //These are the main utilities for app development
+  App,
+  Client,
+  LoadBalancer,
+  ServerModule,
+  Service,
+  //export all factory functions themselves
+  TasksJSApp,
+  TasksJSLoadBalancer,
+  TasksJSServerModule,
+  TasksJSServer,
+  TasksJSService,
+  TasksJSClient,
+  TasksJSModule,
+  TasksJServerManager
+} = require("../index")();
 
 describe("TasksJSClient && TasksJSServer Tests", async () => {
   //1. Launch an express server
-  const { server } = require("../tjs/Server");
   const port = 4789;
   const url = `http://localhost:${port}/test`;
   const singleFileUrl = `http://localhost:${port}/sf/test`;
@@ -32,7 +47,7 @@ describe("TasksJSClient && TasksJSServer Tests", async () => {
 
     res.json({ files, ...json });
   };
-
+  const { server } = TasksJSServer();
   server.get("/test", response);
   server.put("/test", response);
   server.post("/test", response);
@@ -116,14 +131,7 @@ describe("TasksJSModule", function() {
     it("Should return a TaskJSModule instance with all basic properties and methods", () => {
       expect(tjsMod)
         .to.be.an("Object")
-        .that.has.all.keys(
-          "on",
-          "emit",
-          "useModule",
-          "useService",
-          "useConfig",
-          "name"
-        )
+        .that.has.all.keys("on", "emit", "useModule", "useService", "useConfig")
         .that.respondsTo("on")
         .that.respondsTo("emit")
         .that.respondsTo("useModule")
@@ -180,7 +188,6 @@ describe("TasksJSModule", function() {
           "useModule",
           "useService",
           "useConfig",
-          "name",
           "testPassed",
           "test",
           "test2"
@@ -216,8 +223,8 @@ describe("TasksJSModule", function() {
   });
 });
 
-describe("ServerManager", () => {
-  const ServerManager = require("../tjs/ServerManager");
+describe("TasksJSServerManager", () => {
+  const ServerManager = TasksJServerManager();
 
   const route = "/testService";
   const port = 4400;
@@ -262,7 +269,8 @@ describe("ServerManager", () => {
       );
     ServerManager.addModule(options);
     const connectionData2 = await Client.request({ method, url });
-    expect(connectionData2)
+
+    expect(connectionData2, "<--- right here connectionData2")
       .to.be.an("object")
       .has.property("maps")
       .that.is.an("array")
@@ -279,12 +287,45 @@ describe("ServerManager", () => {
       );
   });
 });
+return;
+describe("TasksJSService && TasksJSServerModule Tests", () => {
+  const ServerModule = TasksJSServerModule();
+  const mockServerModule = ServerModule("testMod", function() {
+    this.testMethod = (data, cb) => {
+      data.testPassed = true;
+      cb(data);
+    };
 
-describe("Service && ServerModule Tests", () => {
-  //to do
-  describe("Loading a Service", () => {
-    //todo
+    this.testMethod2 = (data, cb) => {
+      data.testPassed = true;
+      cb(data);
+    };
   });
+
+  describe("Creating a ServerModule instance without systemObjects", () => {
+    it("Should return a TasksJSServerModule instance with all basic properties and methods", () => {
+      expect(mockServerModule)
+        .to.be.an("Object")
+        .that.has.all.keys(
+          "on",
+          "emit",
+          "useModule",
+          "useService",
+          "useConfig",
+          "inferRoute",
+          "testMethod",
+          "testMethod2"
+        )
+        .that.respondsTo("on")
+        .that.respondsTo("emit")
+        .that.respondsTo("useModule")
+        .that.respondsTo("useService")
+        .that.respondsTo("useConfig")
+        .that.respondsTo("testMethod")
+        .that.respondsTo("testMethod2");
+    });
+  });
+  return;
   describe("Calling methods on a loaded Service", () => {
     //todo
   });

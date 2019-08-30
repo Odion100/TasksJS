@@ -5,9 +5,9 @@
 //through this service by having serveral different services register with
 //the same loadbalancer so they can be all be reached at the same host
 module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
-  const ServerModule = require("./ServerModule");
+  const ServerModule = require("./ServerModule")();
   const server = ServerModule.startServer({ port, host, route });
-  const Client = require("./Client");
+  const Client = require("./Client")();
 
   return ServerModule("clones", function() {
     const clones = this;

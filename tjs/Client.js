@@ -4,7 +4,7 @@
 const httpClient = require("request");
 const json = true;
 
-function TasksJSClient() {
+module.exports = function TasksJSClient() {
   const Client = {};
   Client.request = ({ method, url, body }, cb) => {
     return new Promise((resolve, reject) => {
@@ -40,6 +40,4 @@ function TasksJSClient() {
     });
   };
   return Client;
-}
-
-module.exports = TasksJSClient();
+};

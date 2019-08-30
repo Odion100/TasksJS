@@ -1,5 +1,5 @@
 //express server, socket.io server and middleware needed for TasksJS basic functionality
-function TasksJSServer() {
+module.exports = function TasksJSServer() {
   const cwd = process.cwd();
   //express server
   const express = require("express");
@@ -65,5 +65,4 @@ function TasksJSServer() {
   });
 
   return { server, io, socketPort, errorResponseBuilder };
-}
-module.exports = TasksJSServer();
+};

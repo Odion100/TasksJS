@@ -1,17 +1,17 @@
 //ServerManager handles routing and maping request to ServerModules
 
 //start the Express and WebSocket Servers
-const { server, io, socketPort, errorResponseBuilder } = require("./Server");
+const { server, io, socketPort, errorResponseBuilder } = require("./Server")();
 const shortId = require("shortid");
 
-module.exports = (function TasksJSServerManager() {
+module.exports = function TasksJSServerManager() {
   const ServerManager = {};
   const ServerModHash = {};
   const maps = [];
+  ServerManager.count = 0;
   //add properties to ServerManager object
   ServerManager.io = io;
   ServerManager.server = server;
-
   ServerManager.startServer = ({
     route,
     port,
@@ -118,7 +118,7 @@ module.exports = (function TasksJSServerManager() {
 
     //Listen for request on the given port
     server.listen(port);
-    console.log(`(TaskJS): ${route} Service listening on ${host}:${port}`);
+    console.log(`(TasksJSService): ${route} --> Listening on ${host}:${port}`);
   };
   return ServerManager;
-})();
+};

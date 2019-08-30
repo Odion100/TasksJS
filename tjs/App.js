@@ -2,9 +2,9 @@
 //and (eventually) a lifecycle for injecting unit tests and other intergrations
 const Service = require("./Service");
 const TasksJSModule = require("./Module");
-const ServerModule = require("./ServerModule");
+const ServerModule = require("./ServerModule")();
 
-module.exports = (async function App() {
+module.exports = async function App() {
   const app = new TasksJSModule();
   const systemObjects = {
     Services: {},
@@ -101,7 +101,7 @@ module.exports = (async function App() {
   };
   //register a service to be loaded later
   app.loadService = (name, { host, port, route, url }) => {
-    const url = url || `http://${host}:${port}${route}`;
+    url = url || `http://${host}:${port}${route}`;
     //add service to systemObjects
     systemObjects.Services[name] = {
       name,
@@ -156,4 +156,4 @@ module.exports = (async function App() {
   };
 
   return app;
-})();
+};
