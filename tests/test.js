@@ -126,7 +126,7 @@ describe("TasksJSClient && TasksJSServer Tests", async () => {
 });
 
 describe("TasksJSModule", function() {
-  describe("TasksJSModule instance with all parameters as null: TasksJSModule()", () => {
+  describe("...instance without parameters", () => {
     const tjsMod = TasksJSModule();
     it("Should return a TaskJSModule instance with all basic properties and methods", () => {
       expect(tjsMod)
@@ -161,7 +161,7 @@ describe("TasksJSModule", function() {
     });
   });
 
-  describe("Create a TasksJSModule instance with all parameters: TasksJSModules(name, constructor, systemObjects)", () => {
+  describe("...instance with all parameters", () => {
     const mockSystemObjects = {
       Services: { mockService: { ServerModules: { testPassed: true } } },
       Modules: { mockModule: { module: { testPassed: true } } },
@@ -242,7 +242,7 @@ describe("TasksJSServerManager", () => {
   });
 
   //just confirming that modules and be added and retrieved remotely
-  it("should be able to added new ServerModule", async () => {
+  it("should be able to add ServerModule data that can be accessed on the give route", async () => {
     const options = {
       name: "TestModule",
       namespace: "TestNamespace",
@@ -270,7 +270,7 @@ describe("TasksJSServerManager", () => {
     ServerManager.addModule(options);
     const connectionData2 = await Client.request({ method, url });
 
-    expect(connectionData2, "<--- right here connectionData2")
+    expect(connectionData2)
       .to.be.an("object")
       .has.property("maps")
       .that.is.an("array")
@@ -302,36 +302,27 @@ describe("TasksJSService && TasksJSServerModule Tests", () => {
     };
   });
 
-  describe("Creating a ServerModule instance without systemObjects", () => {
-    it("Should return a TasksJSServerModule instance with all basic properties and methods", () => {
-      expect(mockServerModule)
-        .to.be.an("Object")
-        .that.has.all.keys(
-          "on",
-          "emit",
-          "useModule",
-          "useService",
-          "useConfig",
-          "inferRoute",
-          "testMethod",
-          "testMethod2"
-        )
-        .that.respondsTo("on")
-        .that.respondsTo("emit")
-        .that.respondsTo("useModule")
-        .that.respondsTo("useService")
-        .that.respondsTo("useConfig")
-        .that.respondsTo("testMethod")
-        .that.respondsTo("testMethod2");
+  describe("ServerModule", () => {
+    it("should be able to start as TasksJSServer via TasksJSServerManager", () => {});
+    describe("...instance without systemObjects", () => {
+      it("should be a valid TasksJSServerModule instance", () => {});
+      it("should add connection data to the TasksJSServerManager", () => {});
     });
   });
-  return;
-  describe("Calling methods on a loaded Service", () => {
-    //todo
+  describe("Service", () => {
+    it("Should be able to load and recreate ServerModules on the client end", () => {});
+
+    it("should be able to call methods on backend ServerModules it loaded", () => {});
+
+    it("Service should be able to call ServerModule Methods", () => {});
+
+    it(
+      "should be able to recieve WebSocket Events emitted from the ServerModule"
+    );
   });
 
-  describe("Emitting an event from the ServerModule && handling the event from the Service", () => {
-    //todo
+  describe("Service && ServerModule interactions", () => {
+    describe("TasksJSService", () => {});
   });
 });
 
