@@ -16,7 +16,7 @@ const {
   TasksJSService,
   TasksJSClient,
   TasksJSModule,
-  TasksJServerManager
+  TasksJSServerManager
 } = require("../index")();
 
 describe("TasksJSClient && TasksJSServer Tests", async () => {
@@ -224,7 +224,7 @@ describe("TasksJSModule", function() {
 });
 
 describe("TasksJSServerManager", () => {
-  const ServerManager = TasksJServerManager();
+  const ServerManager = TasksJSServerManager();
 
   const route = "/testService";
   const port = 4400;

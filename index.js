@@ -9,7 +9,7 @@ const TasksJSServer = require("./tjs/Server");
 const TasksJSService = require("./tjs/Service");
 const TasksJSClient = require("./tjs/Client");
 const TasksJSModule = require("./tjs/Module");
-const TasksJServerManager = require("./tjs/ServerManager");
+const TasksJSServerManager = require("./tjs/ServerManager");
 //this index file returns a function the ensure new instances
 //of objects on export
 module.exports = function TasksJS() {
@@ -36,6 +36,6 @@ module.exports = function TasksJS() {
     TasksJSService,
     TasksJSClient,
     TasksJSModule,
-    TasksJServerManager
+    TasksJSServerManager
   };
 };

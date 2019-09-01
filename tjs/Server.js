@@ -44,7 +44,7 @@ module.exports = function TasksJSServer() {
       else next();
     });
 
-  const errorResponseBuilder = (err, { route, port, host }) => {
+  const errorResponseBuilder = (err, { route, port, host } = {}) => {
     //will add more logic after some experiementation
     err.TasksJSServerError = { service: `${host}:${port}${route}` };
     return err;
