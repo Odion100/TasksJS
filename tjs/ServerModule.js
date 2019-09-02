@@ -14,8 +14,9 @@ function ServerModuleFactory(ServerManager) {
     const ServerModule = TasksJSModule(name, null, systemObjects);
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
-    const config = { methods: {} };
-    const inferRoute = false;
+    let inferRoute = false;
+    let config = { methods: {} };
+
     //save TasksJSModule.emit function now as it's overwritten below
     const emit = ServerModule.emit;
     //This creates a socket.io namespace for this ServerModulessss
@@ -41,6 +42,7 @@ function ServerModuleFactory(ServerManager) {
     const reservedMethods = [
       "on",
       "emit",
+      "config",
       "useModule",
       "useService",
       "useConfig"

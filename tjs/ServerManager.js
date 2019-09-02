@@ -20,6 +20,7 @@ module.exports = function TasksJSServerManager() {
     middleware
   }) => {
     ServerManager.host = host;
+    ServerManager.route = route;
     //ensure route begins with a slash
     route = route.charAt(0) === "/" ? route : "/" + route;
     //add route to server that will be used to handle request to "connect" to the Service
@@ -44,7 +45,7 @@ module.exports = function TasksJSServerManager() {
     inferRoute,
     ServerModule
   }) => {
-    const { host } = ServerManager;
+    const { host, route } = ServerManager;
     if (!host)
       throw Error(
         `(TasksJSSeverManagerError): You must first call startServer({route, port, host}) before adding new modules`
