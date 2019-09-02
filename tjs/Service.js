@@ -1,5 +1,6 @@
-const Client = require("./Client.js");
+const Client = require("./Client.js")();
 const TasksJSModule = require("./Module");
+const io = require("socket.io-client");
 //this function makes a request to a service to recieve a mods array
 //which provides instruction on how to make request to each serverMod in the service
 module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
@@ -41,14 +42,14 @@ const serverModuleRequestHandler = (
 ) => {
   const serverMod = {};
   const eventHandlers = {};
-  const singleFileURL = "";
-  const multiFileURL = "";
-  const url = "";
+  let singleFileURL = "";
+  let multiFileURL = "";
+  let url = "";
   //this method sets up the urls to make request to the backend module
-  serverMod.__setConnection = (host, route, port, namespace) => {
+  serverMod.__setConnection = (host, port, route, namespace) => {
     singleFileURL = `http://${host}:${port}/sf/${route}`;
     multiFileURL = `http://${host}:${port}/mf/${route}`;
-    url = `http://${host}:${port}${route}`;
+    url = `http://${host}:${port}/${route}`;
 
     //connectWebSocket function will handle events coming from the backend ServerModules
     //the callback will be called for every event coming from that module so in the
@@ -70,12 +71,12 @@ const serverModuleRequestHandler = (
   //that will handle sending data to the backend ServerModule
   methods.forEach(fn => (serverMod[fn.name] = requestHandler(fn)));
 
-  const requestHandler = ({ method, name }) => {
+  function requestHandler({ method, name }) {
     return function sendData(data, cb, errCount = 0) {
       //handles callback after each request
       const callBack = (err, results) => {
         if (err) {
-          if (err.invalidmodERROR) {
+          if (err.invalidModERROR) {
             //throw an error if a request fails three times in a row
             if (errCount >= 3)
               throw Error(
@@ -96,25 +97,26 @@ const serverModuleRequestHandler = (
 
       //if there is a file or files property on the data object make the
       //request to the appropriate file upload route
+      const body = { data };
       switch (true) {
         case data.file:
           return Client.upload(
-            { url: `${singleFileURL}/${name}`, method, data },
+            { url: `${singleFileURL}/${name}`, method, body },
             callBack
           );
-        case data.files:
+        case body.files:
           return Client.upload(
-            { url: `${multiFileURL}/${name}`, method, data },
+            { url: `${multiFileURL}/${name}`, method, body },
             callBack
           );
         default:
           return Client.request(
-            { url: `${url}/${name}`, method, data },
+            { url: `${url}/${name}`, method, body },
             callBack
           );
       }
     };
-  };
+  }
 
   return serverMod;
 };

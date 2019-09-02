@@ -23,8 +23,9 @@ function ServerModuleFactory(ServerManager) {
     //here we're using the socket.io namespace to fire an event called dispatch
     ServerModule.emit = (name, data) => {
       const id = shortid();
+      const type = "WebSocket";
       //emit WebSocket Event
-      nsp.emit("dispatch", { id, name, data });
+      nsp.emit("dispatch", { id, name, data, type });
       //emit the same event locally
       emit(name, data);
     };

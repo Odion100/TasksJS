@@ -48,7 +48,8 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
     };
     ServerModule2.startServer({ port: port2, route: route2 });
     const testMod2 = ServerModule2("testMod2", testModule2);
-
+    //add another module
+    ServerModule2("testMod3", testModule);
     describe("ServerModule", () => {
       it("should be able to start as TasksJSServer via TasksJSServerManager", async () => {
         ServerModule.startServer({ port, route });
@@ -104,7 +105,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .to.be.an("object")
           .has.property("mods")
           .that.is.an("array")
-          .that.has.a.lengthOf(1);
+          .that.has.a.lengthOf(2);
         expect(connectionData.mods[0])
           .to.be.an("object")
           .that.has.all.keys("namespace", "route", "name", "methods")
@@ -139,11 +140,53 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         expect(eventWasHandled2).to.be.true;
       });
     });
-    return;
+
     describe("Service", () => {
-      it("Should be able to load and recreate ServerModules on the client end", () => {});
-      it("should be able to call methods on backend ServerModules it loaded", () => {});
-      it("should be able to recieve WebSocket Events emitted from the ServerModule", () => {});
+      it("should be able to load and recreate ServerModules on the client end", async () => {
+        const service = await TasksJSService(url);
+        expect(service.testMod)
+          .to.be.an("object")
+          .that.has.all.keys(
+            "on",
+            "testMethod",
+            "testMethod2",
+            "__setConnection"
+          )
+          .that.respondsTo("on")
+          .that.respondsTo("testMethod")
+          .that.respondsTo("testMethod2")
+          .that.respondsTo("__setConnection");
+      });
+
+      it("should be able to call methods on backend ServerModules it loaded", async () => {
+        const service = await TasksJSService(url);
+        const testResults = await service.testMod.testMethod({
+          testPassed: false
+        });
+        expect(testResults)
+          .to.be.an("object")
+          .that.has.property("testPassed", true);
+
+        let test2Results;
+        try {
+          test2Results = await service.testMod.testMethod2({
+            testPassed: false
+          });
+        } catch (err) {
+          test2Results = err;
+        }
+        expect(test2Results)
+          .to.be.an("object")
+          .that.has.property("TasksJSServerError");
+        expect(test2Results).to.have.property("testPassed", true);
+      });
+
+      it("should be able to upload one are more files to the ServerModule", () => {
+        //
+      });
+      it("should be able to recieve WebSocket Events emitted from the ServerModule", () => {
+        //
+      });
     });
   };
 };

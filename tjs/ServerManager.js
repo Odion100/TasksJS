@@ -66,7 +66,7 @@ module.exports = function TasksJSServerManager() {
     /// store info on how to connect / make request to the ServerModule
     const mod = {
       namespace: `http://${host}:${socketPort}/${namespace}`,
-      route: `${appname}/${name}`,
+      route: `${appname}/${modname}`,
       name,
       methods
     };
@@ -78,7 +78,7 @@ module.exports = function TasksJSServerManager() {
 
   const initializeServer = ({ route, port, host }) => {
     //validate each request to confirm that the route points to a ServerModule
-    server.use((req, res, next) => {
+    server.use("/:app/:mod/:fn", (req, res, next) => {
       const { app, mod, fn } = req.params;
 
       if (ServerModHash[app])
@@ -88,7 +88,7 @@ module.exports = function TasksJSServerManager() {
       //return an error
       res
         .status(400)
-        .json({ mods, invalidmodERROR: true, service: `${host}:${port}` });
+        .json({ mods, invalidModERROR: true, service: `${host}:${port}` });
     });
 
     //all request are handle in the same way.
@@ -104,7 +104,9 @@ module.exports = function TasksJSServerManager() {
         data || {},
         (err, results) => {
           if (err) {
-            res.status(err.status || 500).json(errorResponseBuilder(err));
+            res
+              .status(err.status || 500)
+              .json(errorResponseBuilder(err, { route, port, host }));
           } else {
             res.json(results);
           }
