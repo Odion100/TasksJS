@@ -12,11 +12,12 @@ module.exports = (TasksJSServerManager, Client) => {
       ServerManager.startServer({ route, port });
 
       it("should accepts requests for connectionData on given route", async () => {
-        //make a request expecting to recieve an empty maps array in the response
+        //make a request expecting to recieve an empty mods array in the response
         const connectionData = await Client.request({ method, url });
         expect(connectionData)
           .to.be.an("object")
-          .has.property("maps")
+          .that.has.all.keys("TasksJSService", "host", "port", "mods")
+          .that.has.property("mods")
           .that.is.an("array").that.is.empty;
       });
 
@@ -33,37 +34,25 @@ module.exports = (TasksJSServerManager, Client) => {
         const connectionData1 = await Client.request({ method, url });
         expect(connectionData1)
           .to.be.an("object")
-          .has.property("maps")
+          .that.has.all.keys("TasksJSService", "host", "port", "mods")
+          .that.has.property("mods")
           .that.is.an("array")
           .that.has.a.lengthOf(1);
-        expect(connectionData1.maps[0])
+        expect(connectionData1.mods[0])
           .to.be.an("object")
-          .that.has.all.keys(
-            "name",
-            "namespace",
-            "methods",
-            "route",
-            "port",
-            "host"
-          );
+          .that.has.all.keys("name", "namespace", "methods", "route");
         ServerManager.addModule(options);
         const connectionData2 = await Client.request({ method, url });
 
         expect(connectionData2)
           .to.be.an("object")
-          .has.property("maps")
+          .that.has.all.keys("TasksJSService", "host", "port", "mods")
+          .that.has.property("mods")
           .that.is.an("array")
           .that.has.a.lengthOf(2);
-        expect(connectionData2.maps[1])
+        expect(connectionData2.mods[1])
           .to.be.an("object")
-          .that.has.all.keys(
-            "name",
-            "namespace",
-            "methods",
-            "route",
-            "port",
-            "host"
-          );
+          .that.has.all.keys("name", "namespace", "methods", "route");
       });
     });
   };

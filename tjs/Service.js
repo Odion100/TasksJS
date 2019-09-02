@@ -119,7 +119,7 @@ const serverModuleRequestHandler = (
   return serverMod;
 };
 
-//Use the mods to update the endpoits to each ServerModule in the service
+//Use mods to update the endpoits to each ServerModule in the service
 const resetConnection = ({ mods, host, port }, service, cb) => {
   //instead of re-instantiating the backend serverModule we use the ___setConnection
   //method to update the serverModules' connection data
