@@ -127,8 +127,16 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .that.has.property("method", "DELETE");
       });
 
-      it("should be able to emit WebSocket and local events", () => {
-        //you know what to do bro
+      it("should be able to emit local events", () => {
+        let eventWasHandled = false;
+        let eventWasHandled2 = false;
+        //ensuring the ability to set multiple event handlers
+        testMod2.on("test", event => (eventWasHandled = event.data.test));
+        testMod2.on("test", event => (eventWasHandled2 = event.data.test));
+
+        testMod2.emit("test", { test: true });
+        expect(eventWasHandled).to.be.true;
+        expect(eventWasHandled2).to.be.true;
       });
     });
     return;

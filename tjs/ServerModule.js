@@ -26,7 +26,7 @@ function ServerModuleFactory(ServerManager) {
       //emit WebSocket Event
       nsp.emit("dispatch", { id, name, data });
       //emit the same event locally
-      emit(name, { id, name, data });
+      emit(name, data);
     };
 
     ServerModule.config = conf => {
