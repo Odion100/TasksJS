@@ -3,11 +3,11 @@ const fs = require("fs");
 
 module.exports = (TasksJSClient, TasksJSServer) => {
   return async () => {
-    //1. Launch an express server
     const port = 4789;
     const url = `http://localhost:${port}/test`;
     const singleFileUrl = `http://localhost:${port}/sf/test`;
     const multiFileUrl = `http://localhost:${port}/mf/test`;
+    //get pre-setup express server &  Client
     const { server } = TasksJSServer();
     const Client = TasksJSClient();
 

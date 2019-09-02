@@ -61,7 +61,7 @@ module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
       const method = "GET";
       let location_index = 0;
 
-      //attempt to retrieve maps for the service from the registered clone locations
+      //attempt to retrieve connectionData for the service from the registered clone locations
       const getService = async cb => {
         if (locations.length > 0) {
           const location_index =
@@ -92,10 +92,10 @@ module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
         const service = serviceQueue.find(service => service.route === route);
 
         if (service) {
-          getService(service, (err, maps) => {
+          getService(service, (err, connectionData) => {
             if (err) {
             } else {
-              res.json(maps);
+              res.json(connectionData);
             }
           });
         } else {

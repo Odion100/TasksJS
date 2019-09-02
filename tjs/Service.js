@@ -1,6 +1,6 @@
 const Client = require("./Client.js");
 const TasksJSModule = require("./Module");
-//this function makes a request to a service to recieve a maps array
+//this function makes a request to a service to recieve a mods array
 //which provides instruction on how to make request to each serverMod in the service
 module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
   let connectionErrors = [];
@@ -8,9 +8,9 @@ module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
 
   const loadService = async () => {
     try {
-      const serviceData = await Client.request({ method: "GET", url });
-      //use maps return from service to recreate the serverModule api
-      return createService(serviceData.maps);
+      const connectionData = await Client.request({ method: "GET", url });
+      //use connectionData returned from the service to recreate the serverModule api
+      return createService(connectionData);
     } catch (err) {
       connectionErrors.push(err);
       connection_attemps++;
@@ -24,18 +24,19 @@ module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
   return loadService();
 };
 
-const createService = maps => {
+const createService = connData => {
   const service = new TasksJSModule();
-  //each map describes a backend ServerModule
-  maps.forEach(map => {
-    service[map.name] = serverModuleRequestHandler(map, service);
+  //each mod describes a backend ServerModule
+  connData.mods.forEach(mod => {
+    service[mod.name] = serverModuleRequestHandler(mod, connData, service);
   });
 
   return service;
 };
 
 const serverModuleRequestHandler = (
-  { methods, namespace, host, port, route },
+  { methods, namespace, route },
+  { port, host },
   service
 ) => {
   const serverMod = {};
@@ -74,14 +75,14 @@ const serverModuleRequestHandler = (
       //handles callback after each request
       const callBack = (err, results) => {
         if (err) {
-          if (err.invalidMapERROR) {
+          if (err.invalidmodERROR) {
             //throw an error if a request fails three times in a row
             if (errCount >= 3)
               throw Error(
                 "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
               );
             //reset the connection then try to make the same request again
-            resetConnection(err.maps, service, () =>
+            resetConnection(err.mods, service, () =>
               sendData(data, cb, errCount++)
             );
           } else {
@@ -114,19 +115,16 @@ const serverModuleRequestHandler = (
       }
     };
   };
+
+  return serverMod;
 };
 
-//Use the maps to update the endpoits to each ServerModule in the service
-const resetConnection = (maps, service, cb) => {
+//Use the mods to update the endpoits to each ServerModule in the service
+const resetConnection = ({ mods, host, port }, service, cb) => {
   //instead of re-instantiating the backend serverModule we use the ___setConnection
   //method to update the serverModules' connection data
-  maps.forEach(map =>
-    service[map.name].__setConnection(
-      map.host,
-      map.port,
-      map.route,
-      map.namespace
-    )
+  mods.forEach(mod =>
+    service[mod.name].__setConnection(host, port, mod.route, mod.namespace)
   );
 
   cb();

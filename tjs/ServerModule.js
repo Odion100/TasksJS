@@ -8,14 +8,14 @@ module.exports = function TasksJSServerModule(testName) {
   return ServerModuleFactory(ServerManager);
 };
 
-function ServerModuleFactory(ServerManager,) {
+function ServerModuleFactory(ServerManager) {
   function ServerModule(name, constructor, systemObjects) {
     //ServerModule is inheriting from TasksJSModule
     const ServerModule = TasksJSModule(name, null, systemObjects);
     //This creates a socket.io namespace for this ServerModule
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
-    const methodConfig = {};
+    const config = {};
     const inferRoute = false;
     //here we're using the socket.io namespace to fire an event called dispatch
     ServerModule.emit = (name, data) => {
@@ -26,7 +26,10 @@ function ServerModuleFactory(ServerManager,) {
       });
     };
 
-    ServerModule.inferRoute = () => (ServerModule.inferRoute = true);
+    ServerModule.config = conf => {
+      inferRoute = conf.inferRoute;
+      config = conf;
+    };
 
     //using constructor.apply let's us determine that the this object will be the ServerModule
     constructor.apply(ServerModule, []);
@@ -38,8 +41,7 @@ function ServerModuleFactory(ServerManager,) {
       "emit",
       "useModule",
       "useService",
-      "useConfig",
-      "inferRoute"
+      "useConfig"
     ];
     //loop through each property on the ServerModule that is a function
     //in order to create a config object for each method on the ServerModule
@@ -49,7 +51,7 @@ function ServerModuleFactory(ServerManager,) {
         reservedMethods.indexOf(name) === -1 &&
         typeof ServerModule[name] === "function"
       ) {
-        let method = methodConfig[name] || "PUT";
+        let method = (config[name] || "PUT").toUpperCase();
         methods.push({ method, name });
       }
     });

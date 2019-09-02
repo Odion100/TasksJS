@@ -1,5 +1,5 @@
 const {
-  //Import these pre-created objects for convenient object destructuring
+  //Import these pre-created objects
   //These are the main utilities for app development
   App,
   Client,
@@ -22,7 +22,7 @@ const {
 const ClientServerTest = require("./units/ClientServer");
 const ModuleTest = require("./units/Module");
 const ServerManagerTest = require("./units/ServerManager");
-const ServiceServerModuleTest = require("./units/ServerModuleService");
+const ServerModuleServiceTest = require("./units/ServerModuleService");
 
 /* describe(
   "TasksJSClient && TasksJSServer Tests",
@@ -38,5 +38,5 @@ describe(
 
 describe(
   "TasksJSServerModule && TasksJSService Tests",
-  ServiceServerModuleTest(TasksJSServerModule, TasksJSService, Client)
+  ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client)
 );

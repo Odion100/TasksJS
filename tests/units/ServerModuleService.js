@@ -32,11 +32,11 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
 
         expect(connectionData)
           .to.be.an("object")
-          .has.property("maps")
+          .has.property("mods")
           .that.is.an("array").that.is.empty;
       });
 
-      it("Should retrun a TasksJSServerModule instance with all basic properties and methods, plus methods added in the constructor", () => {
+      it("Should retrun a TasksJSServerModule instance with methods added in the constructor", () => {
         const testMod = ServerModule("testModx", testModule);
 
         expect(testMod)
@@ -44,7 +44,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .that.has.all.keys(
             "on",
             "emit",
-            "inferRoute",
+            "config",
             "useModule",
             "useService",
             "useConfig",
@@ -65,7 +65,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         console.log(connectionData);
         expect(connectionData)
           .to.be.an("object")
-          .has.property("maps")
+          .has.property("mods")
           .that.is.an("array")
           .that.has.a.lengthOf(1);
       });

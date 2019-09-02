@@ -1,13 +1,11 @@
-//ServerManager handles routing and maping request to ServerModules
-
-//start the Express and WebSocket Servers
+//ServerManager handles routing and moding request to ServerModuless
 const TasksJSServer = require("./Server");
 const shortId = require("shortid");
 
-module.exports = function TasksJSServerManager(testName) {
-  const ServerManager = { testName };
+module.exports = function TasksJSServerManager() {
+  const ServerManager = {};
   const ServerModHash = {};
-  const maps = [];
+  const mods = [];
 
   //start the Express and WebSocket Servers
   const { server, io, socketPort, errorResponseBuilder } = TasksJSServer();
@@ -21,20 +19,22 @@ module.exports = function TasksJSServerManager(testName) {
     host = "localhost",
     middleware
   }) => {
+    ServerManager.host = host;
     //ensure route begins with a slash
     route = route.charAt(0) === "/" ? route : "/" + route;
-    //save conection data on the ServerManager Object
-    ServerManager.route = route;
-    ServerManager.port = port;
-    ServerManager.host = host;
     //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
-      //maps (objects) which contain instruction on how to make request to each ServerModule
-      res.json({ maps, TasksJSService: `${host}:${port}${route}`, testName });
+      //mods (objects) which contain instructions on how to make request to each ServerModule
+      res.json({
+        mods,
+        port,
+        host,
+        TasksJSService: `${host}:${port}${route}`
+      });
     });
     //Setup server to handle ServerModule request
-    initializeServer(ServerManager);
+    initializeServer({ route, port, host });
   };
 
   ServerManager.addModule = ({
@@ -44,37 +44,39 @@ module.exports = function TasksJSServerManager(testName) {
     inferRoute,
     ServerModule
   }) => {
-    let app = "";
-    let mod = "";
+    const { host } = ServerManager;
+    if (!host)
+      throw Error(
+        `(TasksJSSeverManagerError): You must first call ServerModule.startServer({route, port, host}) before adding new modules`
+      );
+    let appname = "";
+    let modname = "";
 
     if (inferRoute) {
       /// routes inferred from the name of the service and module
-      app = route;
-      mod = name;
+      appname = route;
+      modname = name;
     } else {
       /// randomly generate routes to the ServerModule
-      app = shortId();
-      mod = shortId();
+      appname = shortId();
+      modname = shortId();
     }
 
     /// store info on how to connect / make request to the ServerModule
-    const { port, host } = ServerManager;
-    let map = {
+    const mod = {
       namespace: `http://${host}:${socketPort}/${namespace}`,
-      route: `${app}/${name}`,
-      port,
-      host,
+      route: `${appname}/${name}`,
       name,
       methods
     };
-    maps.push(map);
-    //create a hash to the ServerModule
-    ServerModHash[app] = {};
-    ServerModHash[app][mod] = ServerModule;
+    mods.push(mod);
+    //store ServerModule on the ServerModuleHash
+    ServerModHash[appname] = {};
+    ServerModHash[appname][modname] = ServerModule;
   };
 
   const initializeServer = ({ route, port, host }) => {
-    //validate each request to confirm that the route points to a {route, port, host}Module
+    //validate each request to confirm that the route points to a ServerModule
     server.use((req, res, next) => {
       const { app, mod, fn } = req.params;
 
@@ -85,7 +87,7 @@ module.exports = function TasksJSServerManager(testName) {
       //return an error
       res
         .status(400)
-        .json({ maps, invalidMapERROR: true, service: `${host}:${port}` });
+        .json({ mods, invalidmodERROR: true, service: `${host}:${port}` });
     });
 
     //all request are handle in the same way.
