@@ -22,8 +22,9 @@ const {
 const ClientServerTest = require("./units/ClientServer");
 const ModuleTest = require("./units/Module");
 const ServerManagerTest = require("./units/ServerManager");
-const ServiceServerModuleTest = require("./units/ServiceServerModule");
-describe(
+const ServiceServerModuleTest = require("./units/ServerModuleService");
+
+/* describe(
   "TasksJSClient && TasksJSServer Tests",
   ClientServerTest(TasksJSClient, TasksJSServer)
 );
@@ -33,9 +34,9 @@ describe("TasksJSModule", ModuleTest(TasksJSModule));
 describe(
   "TasksJSServerManager",
   ServerManagerTest(TasksJSServerManager, Client)
-);
+); */
 
-// describe(
-//   "TasksJSServerModule && TasksJSService Tests",
-//   ServiceServerModuleTest(TasksJSModule, TasksJSService)
-// );
+describe(
+  "TasksJSServerModule && TasksJSService Tests",
+  ServiceServerModuleTest(TasksJSServerModule, TasksJSService, Client)
+);

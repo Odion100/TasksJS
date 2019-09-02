@@ -1,8 +1,14 @@
 const TasksJSModule = require("./Module");
+const TasksJSServerManager = require("./ServerManager");
 const shortid = require("shortid");
-const ServerManager = require("./ServerManager")();
 
-module.exports = function TasksJSServerModule() {
+module.exports = function TasksJSServerModule(testName) {
+  ServerManager = TasksJSServerManager(testName);
+
+  return ServerModuleFactory(ServerManager);
+};
+
+function ServerModuleFactory(ServerManager,) {
   function ServerModule(name, constructor, systemObjects) {
     //ServerModule is inheriting from TasksJSModule
     const ServerModule = TasksJSModule(name, null, systemObjects);
@@ -16,9 +22,7 @@ module.exports = function TasksJSServerModule() {
       nsp.emit("dispatch", {
         id: shortid(),
         name,
-        data,
-        sent_by: "",
-        sent_at: Date()
+        data
       });
     };
 
@@ -30,6 +34,7 @@ module.exports = function TasksJSServerModule() {
     const methods = [];
     const props = Object.getOwnPropertyNames(ServerModule);
     const reservedMethods = [
+      "on",
       "emit",
       "useModule",
       "useService",
@@ -38,13 +43,13 @@ module.exports = function TasksJSServerModule() {
     ];
     //loop through each property on the ServerModule that is a function
     //in order to create a config object for each method on the ServerModule
-    props.forEach(methodName => {
+    props.forEach(name => {
       if (
         //exclude ServerModule reserved methods
-        reservedMethods.indexOf(methodName) === -1 &&
-        typeof ServerModule[methodName] === "function"
+        reservedMethods.indexOf(name) === -1 &&
+        typeof ServerModule[name] === "function"
       ) {
-        let method = methodConfig[methodName] || "PUT";
+        let method = methodConfig[name] || "PUT";
         methods.push({ method, name });
       }
     });
@@ -56,9 +61,10 @@ module.exports = function TasksJSServerModule() {
       inferRoute,
       methods
     });
+
     return ServerModule;
   }
 
   ServerModule.startServer = ServerManager.startServer;
   return ServerModule;
-};
+}

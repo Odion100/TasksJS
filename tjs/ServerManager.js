@@ -1,17 +1,20 @@
 //ServerManager handles routing and maping request to ServerModules
 
 //start the Express and WebSocket Servers
-const { server, io, socketPort, errorResponseBuilder } = require("./Server")();
+const TasksJSServer = require("./Server");
 const shortId = require("shortid");
 
-module.exports = function TasksJSServerManager() {
-  const ServerManager = {};
+module.exports = function TasksJSServerManager(testName) {
+  const ServerManager = { testName };
   const ServerModHash = {};
   const maps = [];
-  ServerManager.count = 0;
+
+  //start the Express and WebSocket Servers
+  const { server, io, socketPort, errorResponseBuilder } = TasksJSServer();
   //add properties to ServerManager object
   ServerManager.io = io;
   ServerManager.server = server;
+
   ServerManager.startServer = ({
     route,
     port,
@@ -28,7 +31,7 @@ module.exports = function TasksJSServerManager() {
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
       //maps (objects) which contain instruction on how to make request to each ServerModule
-      res.json({ maps, TasksJSService: `${host}:${port}/${route}` });
+      res.json({ maps, TasksJSService: `${host}:${port}${route}`, testName });
     });
     //Setup server to handle ServerModule request
     initializeServer(ServerManager);
@@ -66,7 +69,6 @@ module.exports = function TasksJSServerManager() {
     };
     maps.push(map);
     //create a hash to the ServerModule
-
     ServerModHash[app] = {};
     ServerModHash[app][mod] = ServerModule;
   };
