@@ -47,7 +47,7 @@ module.exports = function TasksJSServerManager() {
     const { host } = ServerManager;
     if (!host)
       throw Error(
-        `(TasksJSSeverManagerError): You must first call ServerModule.startServer({route, port, host}) before adding new modules`
+        `(TasksJSSeverManagerError): You must first call startServer({route, port, host}) before adding new modules`
       );
     let appname = "";
     let modname = "";

@@ -73,6 +73,10 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       it("should be able to configure methods during the construction phase", () => {
         //test something
       });
+
+      it("should be able to emit event and catch them locally", () => {
+        //you know what to do bro
+      });
     });
     return;
     describe("Service", () => {

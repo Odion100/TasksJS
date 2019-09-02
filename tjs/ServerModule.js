@@ -12,18 +12,20 @@ function ServerModuleFactory(ServerManager) {
   function ServerModule(name, constructor, systemObjects) {
     //ServerModule is inheriting from TasksJSModule
     const ServerModule = TasksJSModule(name, null, systemObjects);
-    //This creates a socket.io namespace for this ServerModule
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
-    const config = {};
+    const config = { methods: {} };
     const inferRoute = false;
+    //save TasksJSModule.emit function now as it's overwritten below
+    const emit = ServerModule.emit;
+    //This creates a socket.io namespace for this ServerModulessss
     //here we're using the socket.io namespace to fire an event called dispatch
     ServerModule.emit = (name, data) => {
-      nsp.emit("dispatch", {
-        id: shortid(),
-        name,
-        data
-      });
+      const id = shortid();
+      //emit WebSocket Event
+      nsp.emit("dispatch", { id, name, data });
+      //emit the same event locally
+      emit(name, { id, name, data });
     };
 
     ServerModule.config = conf => {
@@ -51,7 +53,7 @@ function ServerModuleFactory(ServerManager) {
         reservedMethods.indexOf(name) === -1 &&
         typeof ServerModule[name] === "function"
       ) {
-        let method = (config[name] || "PUT").toUpperCase();
+        let method = (config.methods[name] || "PUT").toUpperCase();
         methods.push({ method, name });
       }
     });

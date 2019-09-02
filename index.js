@@ -1,22 +1,19 @@
-//The following modules return functions to ensure new
-//instances are created on each function call
+//These are all the abstractions that make up TasksJS
 const TasksJSApp = require("./tjs/App");
 const TasksJSLoadBalancer = require("./tjs/LoadBalancer");
 const TasksJSServerModule = require("./tjs/ServerModule");
 const TasksJSServer = require("./tjs/Server");
-//The following don't need to return new intances
-//or already are functions
+const TasksJSServerManager = require("./tjs/ServerManager");
 const TasksJSService = require("./tjs/Service");
 const TasksJSClient = require("./tjs/Client");
 const TasksJSModule = require("./tjs/Module");
-const TasksJSServerManager = require("./tjs/ServerManager");
-//this index file returns a function the ensure new instances
-//of objects on export
+
+//this index file exports a function to ensure non-singleton behavior
 module.exports = function TasksJS() {
   const App = TasksJSApp();
   const Client = TasksJSClient();
   const ServerModule = TasksJSServerModule();
-  //return the function itself
+  //create separate names for these main utilites
   const Service = TasksJSService;
   const LoadBalancer = TasksJSLoadBalancer;
 
@@ -28,7 +25,9 @@ module.exports = function TasksJS() {
     LoadBalancer,
     ServerModule,
     Service,
-    //export all factory functions themselves
+    //export all modules themselves
+    //all these modules export factory functions
+    //to ensure non-singleton behavior
     TasksJSApp,
     TasksJSLoadBalancer,
     TasksJSServerModule,

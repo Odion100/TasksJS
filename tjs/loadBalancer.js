@@ -103,5 +103,5 @@ module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
         }
       });
     };
-  }).confMethods({ register: "GET", shareEvent: "PUT" });
+  });
 };
