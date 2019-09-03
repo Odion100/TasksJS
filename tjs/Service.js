@@ -80,12 +80,13 @@ const serverModuleRequestHandler = (
             //throw an error if a request fails three times in a row
             if (errCount >= 3)
               throw Error(
-                "(TasksJS): Invalid route. Failed to reconnect after 3 attempts."
+                "(TasksJSService invalidModERROR): Invalid route. Failed to reconnect after 3 attempts."
               );
             //reset the connection then try to make the same request again
-            resetConnection(err.mods, service, () =>
-              sendData(data, cb, errCount++)
-            );
+            resetConnection(err, service, () => {
+              errCount++;
+              sendData(data, cb, errCount);
+            });
           } else {
             service.emit("failed_request", { err, serverMod, fn_name: name });
             if (typeof cb === "function") cb(err);
@@ -97,23 +98,22 @@ const serverModuleRequestHandler = (
 
       //if there is a file or files property on the data object make the
       //request to the appropriate file upload route
-      const body = { data };
-      switch (true) {
-        case data.file:
-          return Client.upload(
-            { url: `${singleFileURL}/${name}`, method, body },
-            callBack
-          );
-        case body.files:
-          return Client.upload(
-            { url: `${multiFileURL}/${name}`, method, body },
-            callBack
-          );
-        default:
-          return Client.request(
-            { url: `${url}/${name}`, method, body },
-            callBack
-          );
+
+      if (data.file)
+        return Client.upload(
+          { url: `${singleFileURL}/${name}`, method, formData: data },
+          callBack
+        );
+      else if (data.files)
+        return Client.upload(
+          { url: `${multiFileURL}/${name}`, method, formData: data },
+          callBack
+        );
+      else {
+        return Client.request(
+          { url: `${url}/${name}`, method, body: { data } },
+          callBack
+        );
       }
     };
   }

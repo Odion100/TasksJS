@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-
+const fs = require("fs");
 module.exports = (TasksJSServerModule, TasksJSService, Client) => {
   return () => {
     const ServerModule = TasksJSServerModule();
@@ -28,21 +28,22 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
     const route2 = "test/service";
     const url2 = `http://localhost:${port2}/${route2}`;
     const testModule2 = function() {
-      this.testMethod = (data, cb, req, res) => {
-        data.testPassed = true;
-        data.method = req.method;
+      this.uploadTest = (data, cb, req, res) => {
+        const { file } = data;
+        const json = JSON.parse(fs.readFileSync(file.path));
         //send a success response with the second parameter
-        cb(null, data);
+        cb(null, { file, ...json });
       };
 
-      this.testMethod2 = (data, cb, req, res) => {
-        data.testPassed = true;
-        data.method = req.method;
-        //respond with an error with the first parameter
-        cb(data);
+      this.multiUploadTest = (data, cb) => {
+        const { files } = data;
+        const json = JSON.parse(fs.readFileSync(files[0].path));
+
+        cb(null, { files, ...json });
       };
+
       this.config({
-        methods: { testMethod: "post", testMethod2: "delete" },
+        methods: { uploadTest: "post", multiUploadTest: "POST" },
         inferRoute: true
       });
     };
@@ -116,16 +117,16 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .that.has.a.lengthOf(2);
         expect(connectionData.mods[0].methods[0])
           .to.be.an("object")
-          .that.has.property("name", "testMethod");
+          .that.has.property("name", "uploadTest");
         expect(connectionData.mods[0].methods[0])
           .to.be.an("object")
           .that.has.property("method", "POST");
         expect(connectionData.mods[0].methods[1])
           .to.be.an("object")
-          .that.has.property("name", "testMethod2");
+          .that.has.property("name", "multiUploadTest");
         expect(connectionData.mods[0].methods[1])
           .to.be.an("object")
-          .that.has.property("method", "DELETE");
+          .that.has.property("method", "POST");
       });
 
       it("should be able to emit local events", () => {
@@ -181,8 +182,33 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         expect(test2Results).to.have.property("testPassed", true);
       });
 
-      it("should be able to upload one are more files to the ServerModule", () => {
-        //
+      it("should be able to upload one are more files to the ServerModule", async () => {
+        const service = await TasksJSService(url2);
+        const file = fs.createReadStream(__dirname + "\\testFile.json");
+
+        const results = await service.testMod2.uploadTest({ file });
+
+        expect(results)
+          .to.be.an("Object")
+          .that.has.property("testPassed", true);
+        expect(results)
+          .to.have.property("file")
+          .that.is.an("object")
+          .that.has.property("originalname", "testFile.json");
+
+        const files = [
+          fs.createReadStream(__dirname + "\\testFile.json"),
+          fs.createReadStream(__dirname + "\\testFile.json")
+        ];
+        const results2 = await service.testMod2.multiUploadTest({ files });
+
+        expect(results2)
+          .to.be.an("Object")
+          .that.has.property("testPassed", true);
+        expect(results2)
+          .to.have.property("files")
+          .that.is.an("Array");
+        expect(results2).to.have.property("fileUploadTest", true);
       });
       it("should be able to recieve WebSocket Events emitted from the ServerModule", () => {
         //
