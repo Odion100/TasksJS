@@ -64,9 +64,7 @@ module.exports = async function App() {
           resolve();
         } catch (err) {
           console.log(
-            `(${service.name} Service): Failed to connect to ${
-              service.url
-            } after ${err.connection_attemps} attempts.`
+            `(TasksJSAppWarning)(${service.name} Service): Failed to connect to ${service.url} after ${err.connection_attemps} attempts.`
           );
           app.emit("failed_connection", { service, err });
           resolve();
