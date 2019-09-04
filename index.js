@@ -14,7 +14,7 @@ module.exports = function TasksJS() {
   const Client = TasksJSClient();
   const ServerModule = TasksJSServerModule();
   //create separate names for these main utilites
-  const Service = TasksJSService;
+  const Service = TasksJSService();
   const LoadBalancer = TasksJSLoadBalancer;
 
   return {

@@ -1,11 +1,11 @@
 //App.js provides an interface and lifecycle for loading and creating modules
-//and (eventually) a lifecycle for injecting unit tests and other intergrations
-const Service = require("./Service");
+const TasksJSService = require("./Service");
 const TasksJSModule = require("./Module");
-const ServerModule = require("./ServerModule")();
+const TasksJSServerModule = require("./ServerModule");
 
 module.exports = async function App() {
   const app = new TasksJSModule();
+  const ServerModule = TasksJSServerModule();
   const systemObjects = {
     Services: {},
     Modules: {},

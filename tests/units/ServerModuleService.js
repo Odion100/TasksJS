@@ -2,6 +2,7 @@ const { expect } = require("chai");
 const fs = require("fs");
 module.exports = (TasksJSServerModule, TasksJSService, Client) => {
   return () => {
+    const Service = TasksJSService();
     const ServerModule = TasksJSServerModule();
     const port = 6542;
     const route = "test/service";
@@ -144,7 +145,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
 
     describe("Service", () => {
       it("should be able to load and recreate ServerModules on the client end", async () => {
-        const service = await TasksJSService(url);
+        const service = await Service(url);
         expect(service.testMod)
           .to.be.an("object")
           .that.has.all.keys(
@@ -160,7 +161,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       });
 
       it("should be able to call methods on backend ServerModules it loaded", async () => {
-        const service = await TasksJSService(url);
+        const service = await Service(url);
         const testResults = await service.testMod.testMethod({
           testPassed: false
         });
@@ -183,7 +184,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       });
 
       it("should be able to upload one are more files to the ServerModule", async () => {
-        const service = await TasksJSService(url2);
+        const service = await Service(url2);
         const file = fs.createReadStream(__dirname + "\\testFile.json");
 
         const results = await service.testMod2.uploadTest({ file });
@@ -212,7 +213,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       });
       it("should be able to recieve WebSocket Events emitted from the ServerModule", () =>
         new Promise(async resolve => {
-          const service = await TasksJSService(url2, true);
+          const service = await Service(url2, true);
           service.testMod2.on("connect", () => {
             let eventWasHandled = false;
             let eventWasHandled2 = false;
