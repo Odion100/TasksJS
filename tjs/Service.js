@@ -128,16 +128,12 @@ const resetConnection = ({ mods, host, port }, service, cb) => {
   mods.forEach(mod =>
     service[mod.name].__setConnection(host, port, mod.route, mod.namespace)
   );
-
   cb();
 };
 
 const connectWebSocket = (namespace, dispatch) => {
   const socket = io.connect(namespace);
-
-  socket.on(`dispatch:`, data => dispatch(data));
-
-  socket.on("disconnect", data => {});
-
-  socket.on("connect", data => {});
+  socket.on(`dispatch`, data => dispatch(data));
+  socket.on("disconnect", data => dispatch({ name: "connect", data }));
+  socket.on("connect", data => dispatch({ name: "connect", data }));
 };

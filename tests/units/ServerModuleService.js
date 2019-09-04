@@ -210,9 +210,32 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .that.is.an("Array");
         expect(results2).to.have.property("fileUploadTest", true);
       });
-      it("should be able to recieve WebSocket Events emitted from the ServerModule", () => {
-        //
-      });
+      it("should be able to recieve WebSocket Events emitted from the ServerModule", () =>
+        new Promise(async resolve => {
+          const service = await TasksJSService(url2);
+          service.testMod2.on("connect", () => {
+            let eventWasHandled = false;
+            let eventWasHandled2 = false;
+            //listen for WebSocket events from the client
+            service.testMod2.on("test", event => {
+              eventWasHandled = event.data.test;
+              expect(eventWasHandled).to.be.true;
+              if (eventWasHandled && eventWasHandled2) {
+                resolve();
+              }
+            });
+            service.testMod2.on("test", event => {
+              eventWasHandled2 = event.data.test;
+              expect(eventWasHandled2).to.be.true;
+              if (eventWasHandled && eventWasHandled2) {
+                resolve();
+              }
+            });
+
+            //emit Websocket (and local) events from the ServerModule
+            testMod2.emit("test", { test: true });
+          });
+        }));
     });
   };
 };
