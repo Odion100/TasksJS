@@ -1,17 +1,26 @@
 const Client = require("./Client.js")();
 const TasksJSModule = require("./Module");
 const io = require("socket.io-client");
+const loadedServices = {};
 //this function makes a request to a service to recieve a mods array
 //which provides instruction on how to make request to each serverMod in the service
-module.exports = function TasksJSService(url, limit = 10, wait = 1500) {
-  let connectionErrors = [];
+module.exports = function TasksJSService(
+  url,
+  forceReload = false,
+  limit = 10,
+  wait = 1500
+) {
+  const connectionErrors = [];
   let connection_attemps = 0;
+  //avoid loading connection data from Service already loaded
+  if (loadedServices[url] && !forceReload) return loadedServices[url];
 
   const loadService = async () => {
     try {
       const connectionData = await Client.request({ method: "GET", url });
       //use connectionData returned from the service to recreate the serverModule api
-      return createService(connectionData);
+      loadedServices[url] = createService(connectionData);
+      return loadedServices[url];
     } catch (err) {
       connectionErrors.push(err);
       connection_attemps++;
@@ -134,6 +143,6 @@ const resetConnection = ({ mods, host, port }, service, cb) => {
 const connectWebSocket = (namespace, dispatch) => {
   const socket = io.connect(namespace);
   socket.on(`dispatch`, data => dispatch(data));
-  socket.on("disconnect", data => dispatch({ name: "connect", data }));
+  socket.on("disconnect", data => dispatch({ name: "disconnect", data }));
   socket.on("connect", data => dispatch({ name: "connect", data }));
 };
