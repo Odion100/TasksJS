@@ -3,7 +3,7 @@ const TasksJSService = require("./Service");
 const TasksJSModule = require("./Module");
 const TasksJSServerModule = require("./ServerModule");
 
-module.exports = async function App() {
+module.exports = async function TasksJSApp() {
   const app = new TasksJSModule();
   const ServerModule = TasksJSServerModule();
   const Service = TasksJSService();
@@ -62,8 +62,9 @@ module.exports = async function App() {
           //use apply to ensure that the onLoad handler function
           service.onLoad.apply(service.ServerModules, []);
           //emit sevice_loaded event after loading each Service
-          app.emit("service_loaded", service);
-          app.emit(`service_loaded:${service.name}`, service);
+          app
+            .emit("service_loaded", service)
+            .emit(`service_loaded:${service.name}`, service);
           resolve();
         } catch (err) {
           console.log(
@@ -105,7 +106,7 @@ module.exports = async function App() {
     return app;
   };
   //register a service to be loaded later
-  app.loadService = (name, { host, port, route, url }) => {
+  app.loadService = (name, { host = "localhost", port, route, url }) => {
     url = url || `http://${host}:${port}${route}`;
     //add service to systemObjects
     systemObjects.Services[name] = {

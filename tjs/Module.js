@@ -8,21 +8,23 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
 
   //return other modules in the same App by name
   tjsModule.useModule = modName => {
-    if (systemObjects) return (systemObjects.Modules[modName] || {}).module;
+    if (systemObjects)
+      return (systemObjects.Modules[modName] || {}).module || {};
   };
   //returns any service that has been loaded by name
   tjsModule.useService = serviceName => {
     if (systemObjects)
-      return (systemObjects.Services[serviceName] || {}).ServerModules;
+      return (systemObjects.Services[serviceName] || {}).ServerModules || {};
   };
   //return config module
   tjsModule.useConfig = () => {
-    if (systemObjects) return systemObjects.config.module;
+    if (systemObjects) return systemObjects.config.module || {};
   };
   //emit events to other modules
   tjsModule.emit = (eventName, data) => {
     if (events[eventName])
       events[eventName].forEach(handler => handler({ data, type: "local" }));
+    return tjsModule;
   };
   //register event handler by event name
   tjsModule.on = (eventName, eventHandler) => {
@@ -32,6 +34,7 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
     }
 
     events[eventName].push(eventHandler);
+    return tjsModule;
   };
   //allow for creating a modules without constructors as a way of doing inheritance
   if (typeof constructor === "function") constructor.apply(tjsModule, []);
