@@ -6,6 +6,7 @@ const TasksJSServerModule = require("./ServerModule");
 module.exports = async function App() {
   const app = new TasksJSModule();
   const ServerModule = TasksJSServerModule();
+  const Service = TasksJSService();
   const systemObjects = {
     Services: {},
     Modules: {},
@@ -57,16 +58,18 @@ module.exports = async function App() {
         try {
           //pass the service's url to the Service class, that will handle loading
           //the service's data and recreating its ServerModules on the client side
-          service.ServerModules = await Service(service.url);
+          service.ServerModules[service.name] = await Service(service.url);
           //use apply to ensure that the onLoad handler function
-          service.onLoad().apply(service, []);
+          service.onLoad.apply(service.ServerModules, []);
+          //emit sevice_loaded event after loading each Service
           app.emit("service_loaded", service);
+          app.emit(`service_loaded:${service.name}`, service);
           resolve();
         } catch (err) {
           console.log(
             `(TasksJSAppWarning)(${service.name} Service): Failed to connect to ${service.url} after ${err.connection_attemps} attempts.`
           );
-          app.emit("failed_connection", { service, err });
+          app.emit("failed_connection", err);
           resolve();
         }
       })
@@ -90,11 +93,15 @@ module.exports = async function App() {
 
   //use ServerModule to initialize the express server that will handle routing
   app.initService = ({ host, port, route, middlewear }) => {
+    //Start ServerManager via the ServerModule
     host = host || "localhost";
-    app.route = route;
-    app.host = host;
-
-    app.server = ServerModule.startServer({ route, port, host, middlewear });
+    const { server } = ServerModule.startServer({
+      route,
+      port,
+      host,
+      middlewear
+    });
+    app.server = server;
     return app;
   };
   //register a service to be loaded later
@@ -105,8 +112,6 @@ module.exports = async function App() {
       name,
       url,
       ServerModules: {},
-      connection_attemps: 0,
-      connectionErrors: [],
       onLoad: null
     };
 
@@ -119,7 +124,7 @@ module.exports = async function App() {
     return app;
   };
   //set onLoad handler for the last service added to the serviceQueue
-  //this is so that immediately after typeing app.loadService(data) you
+  //this is so that immediately after typing app.loadService(data) you
   //can chain onLoad event for that particular service: app.loadService(data).onLoad(handler)
   app.onLoad = handler => {
     systemObjects.Services[last_service].onLoad = handler;
