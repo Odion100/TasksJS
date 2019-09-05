@@ -8,17 +8,19 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
 
   //return other modules in the same App by name
   tjsModule.useModule = modName => {
-    if (systemObjects)
-      return (systemObjects.Modules[modName] || {}).module || {};
+    return systemObjects
+      ? (systemObjects.Modules[modName] || {}).module || {}
+      : {};
   };
   //returns any service that has been loaded by name
   tjsModule.useService = serviceName => {
-    if (systemObjects)
-      return (systemObjects.Services[serviceName] || {}).ServerModules || {};
+    return systemObjects
+      ? (systemObjects.Services[serviceName] || {}).ServerModules || {}
+      : {};
   };
   //return config module
   tjsModule.useConfig = () => {
-    if (systemObjects) return systemObjects.config.module || {};
+    return systemObjects ? systemObjects.config.module || {} : {};
   };
   //emit events to other modules
   tjsModule.emit = (eventName, data) => {

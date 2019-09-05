@@ -33,14 +33,14 @@ module.exports = TasksJSModule => {
         expect(eventWasHandled2).to.be.true;
       });
 
-      it("should return undefined when attempting to retrieve systemObjects", () => {
+      it("should return an empty object when attempting to retrieve systemObjects", () => {
         const mod = tjsMod.useModule();
         const service = tjsMod.useService();
         const config = tjsMod.useConfig();
 
-        expect(mod).to.be.undefined;
-        expect(service).to.be.undefined;
-        expect(config).to.be.undefined;
+        expect(mod, "mod").an("object").that.is.empty;
+        expect(service, "service").an("object").that.is.empty;
+        expect(config, "config").an("object").that.is.empty;
       });
     });
 
@@ -101,8 +101,8 @@ module.exports = TasksJSModule => {
         expect(config)
           .to.be.an("object")
           .has.property("testPassed", true);
-        expect(undefinedModule).to.be.undefined;
-        expect(undefinedService).to.be.undefined;
+        expect(undefinedModule).an("object").that.is.empty;
+        expect(undefinedService).an("object").that.is.empty;
       });
     });
   };

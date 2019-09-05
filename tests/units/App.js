@@ -15,7 +15,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       };
     };
     ServerModule.startServer({ route: smRoute, port: smPort }, testModule);
-    ServerModule("testServerModule");
+    ServerModule("testServerModule", testModule);
 
     //initialize an app and load the ServerModule into the app
     const appPort = 5498;

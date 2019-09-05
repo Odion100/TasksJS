@@ -41,4 +41,4 @@ describe(
   ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client)
 );
 
-describe("TasksJSApp", AppTest(TasksJSApp, Service));
+//describe("TasksJSApp", AppTest(TasksJSApp, ServerModule, Service));
