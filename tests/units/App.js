@@ -20,6 +20,10 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
     //initialize an app and load the ServerModule into the app
     const appPort = 5498;
     const appRoute = "app";
+    let init_complete = false;
+    let service_loaded = false;
+    let targeted_service_loaded = false;
+    let failed_connection = false;
     app
       .initService({ route: appRoute, port: appPort })
       //load the service launched by the ServerModule
@@ -34,17 +38,18 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       .config(function() {
         this.confTestPassed = true;
       })
-      .on("init_complete", () => {
+      .on("init_complete", systemObjects => {
         //confirm that this was called
+        init_complete = true;
       })
-      .on("service_loaded", () => {
-        //
+      .on("service_loaded", service => {
+        service_loaded = true;
       })
-      .on("service_loaded:loadedService", () => {
-        //
+      .on("service_loaded:loadedService", service => {
+        targeted_service_loaded = true;
       })
-      .on("failed_connection", () => {
-        //
+      .on("failed_connection", err => {
+        failed_connection = true;
       });
 
     //user Service to laod the app

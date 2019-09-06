@@ -2,13 +2,9 @@ const TasksJSModule = require("./Module");
 const TasksJSServerManager = require("./ServerManager");
 const shortid = require("shortid");
 
-module.exports = function TasksJSServerModule(testName) {
-  ServerManager = TasksJSServerManager(testName);
+module.exports = function TasksJSServerModule() {
+  const ServerManager = TasksJSServerManager();
 
-  return ServerModuleFactory(ServerManager);
-};
-
-function ServerModuleFactory(ServerManager) {
   function ServerModule(name, constructor, systemObjects) {
     //ServerModule is inheriting from TasksJSModule
     const ServerModule = TasksJSModule(name, null, systemObjects);
@@ -74,4 +70,4 @@ function ServerModuleFactory(ServerManager) {
 
   ServerModule.startServer = ServerManager.startServer;
   return ServerModule;
-}
+};
