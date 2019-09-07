@@ -46,7 +46,8 @@ module.exports = function TasksJSServer() {
 
   const errorResponseBuilder = (err, serviceUrl) => {
     //will add more logic after some experiementation
-    err.TasksJSServerError = { serviceUrl };
+    err.TasksJSServerError = true;
+    err.TasksJSService = { serviceUrl };
     return err;
   };
   server.use("/sf", singleFileUpload);

@@ -15,7 +15,7 @@ module.exports = function TasksJSService() {
     //avoid loading connection data from Service already loaded
     if (loadedServices[url] && !forceReload) return loadedServices[url];
 
-    const loadConnectionData = async () => {
+    const loadConnectionData = async (limit, wait) => {
       const connectionErrors = [];
 
       try {
@@ -24,7 +24,7 @@ module.exports = function TasksJSService() {
       } catch (err) {
         connectionErrors.push(err);
         //attempt to load the service recursively up to ten times
-        if (connection_attemps < limit)
+        if (connectionErrors.length < limit)
           setTimeout(() => loadConnectionData(), connection_attemps * wait);
         else {
           const connection_attemps = connectionErrors.length;
@@ -84,17 +84,17 @@ module.exports = function TasksJSService() {
           //handles callback after each request
           const callBack = (err, results) => {
             if (err) {
-              if (err.invalidModERROR) {
+              //if the err object doesn't have TasksJSServerError value as true
+              //we know the request never reached the server
+              if (!err.TasksJSServerError) {
                 //throw an error if a request fails three times in a row
                 if (errCount >= 3)
                   throw Error(
-                    "(TasksJSService invalidModERROR): Invalid route. Failed to reconnect after 3 attempts."
+                    "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
                   );
                 //reset the connection then try to make the same request again
-                resetConnection(err, service, () => {
-                  errCount++;
-                  sendData(data, cb, errCount);
-                });
+                errCount++;
+                resetConnection(() => sendData(data, cb, errCount));
               } else {
                 service.emit("failed_request", {
                   err,
@@ -110,22 +110,34 @@ module.exports = function TasksJSService() {
 
           //if there is a file or files property on the data object make the
           //request to the appropriate file upload route
-
-          if (data.file)
-            return Client.upload(
-              { url: `${singleFileURL}/${name}`, method, formData: data },
-              callBack
-            );
-          else if (data.files)
-            return Client.upload(
-              { url: `${multiFileURL}/${name}`, method, formData: data },
-              callBack
-            );
-          else {
-            return Client.request(
-              { url: `${url}/${name}`, method, body: { data } },
-              callBack
-            );
+          try {
+            if (data.file)
+              return Client.upload(
+                { url: `${singleFileURL}/${name}`, method, formData: data },
+                callBack
+              );
+            else if (data.files)
+              return Client.upload(
+                { url: `${multiFileURL}/${name}`, method, formData: data },
+                callBack
+              );
+            else {
+              return Client.request(
+                { url: `${url}/${name}`, method, body: { data } },
+                callBack
+              );
+            }
+          } catch (err) {
+            if (!err.TasksJSServerError) {
+              //throw an error if a request fails three times in a row
+              if (errCount >= 3)
+                throw Error(
+                  "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
+                );
+              //reset the connection then try to make the same request again
+              errCount++;
+              resetConnection(() => sendData(data, cb, errCount));
+            } else throw err;
           }
         };
       }
@@ -134,8 +146,9 @@ module.exports = function TasksJSService() {
     };
 
     //Use mods to update the endpoits to each ServerModule in the service
-    const resetConnection = ({ mods, host, port }, service, cb) => {
-      //instead of re-instantiating the backend serverModule we use the ___setConnection
+    const resetConnection = async cb => {
+      const { mods, host, port } = await loadConnectionData(1, 0);
+      //instead of re-instantiating the backend ServerModules we use the ___setConnection
       //method to update the serverModules' connection data
       mods.forEach(mod =>
         service[mod.name].__setConnection(host, port, mod.route, mod.namespace)
@@ -145,15 +158,13 @@ module.exports = function TasksJSService() {
 
     const connectWebSocket = (namespace, dispatch) => {
       const socket = io.connect(namespace);
-      socket.on(`dispatch`, data => dispatch(data));
-      socket.on("disconnect", data => dispatch({ name: "disconnect", data }));
-      socket.on("connect", data => dispatch({ name: "connect", data }));
+      socket.on("dispatch", event => dispatch(event));
+      socket.on("disconnect", () => dispatch({ name: "disconnect" }));
+      socket.on("connect", () => dispatch({ name: "connect" }));
     };
 
-    const reconnectService = () => {};
-
     //use connectionData returned from the service to recreate the serverModule api
-    const connectionData = await loadConnectionData();
+    const connectionData = await loadConnectionData(limit, wait);
     loadedServices[url] = createService(connectionData);
     return loadedServices[url];
   };
