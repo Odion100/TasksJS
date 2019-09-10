@@ -7,25 +7,22 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
   const events = {};
 
   //return other modules in the same App by name
-  tjsModule.useModule = modName => {
-    return systemObjects
-      ? (systemObjects.Modules[modName] || {}).module || {}
-      : {};
-  };
-  //returns any service that has been loaded by name
-  tjsModule.useService = serviceName => {
-    return systemObjects
-      ? (systemObjects.Services[serviceName] || {}).ServerModules || {}
-      : {};
-  };
-  //return config module
-  tjsModule.useConfig = () => {
-    return systemObjects ? systemObjects.config.module || {} : {};
-  };
+  if (systemObjects) {
+    tjsModule.useModule = modName =>
+      (systemObjects.Modules[modName] || {}).module || {};
+    //returns any service that has been loaded by name
+    tjsModule.useService = serviceName =>
+      (systemObjects.Services[serviceName] || {}).ServerModules || {};
+    //return config module
+    tjsModule.useConfig = () => systemObjects.config.module || {};
+  }
+
   //emit events to other modules
   tjsModule.emit = (eventName, data) => {
     if (events[eventName])
-      events[eventName].forEach(handler => handler({ data, type: "local" }));
+      events[eventName].forEach(handler =>
+        handler(data, { data, type: "local" })
+      );
     return tjsModule;
   };
   //register event handler by event name

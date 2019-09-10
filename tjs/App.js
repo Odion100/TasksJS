@@ -3,7 +3,7 @@ const TasksJSService = require("./Service");
 const TasksJSModule = require("./Module");
 const TasksJSServerModule = require("./ServerModule");
 
-module.exports = async function TasksJSApp() {
+module.exports = function TasksJSApp() {
   const app = new TasksJSModule();
   const ServerModule = TasksJSServerModule();
   const Service = TasksJSService();
@@ -16,8 +16,8 @@ module.exports = async function TasksJSApp() {
   const serviceQueue = [];
   const moduleQueue = [];
   const serverModuleQueue = [];
-  const last_service = "";
-  const isInitialized = false;
+  let last_service = "";
+  let isInitialized = false;
 
   //modules need to be initialized only after services have been loaded
   //so we're collect modules, services, and config functions to be run in
@@ -35,15 +35,13 @@ module.exports = async function TasksJSApp() {
     try {
       await loadServices(serviceQueue);
     } catch (err) {
-      console.log(
-        `(TasksJS App): Initialization Error - failed to load all services`
-      );
+      throw `(TasksJSAppError): Initialization Error - failed to load all services`;
     }
 
+    const { config } = systemObjects;
     if (typeof config.constructor === "function") {
-      const { config } = systemObjects;
       //give config constructor access to the systemObject so any loaded services can be accessed
-      config.module = new TasksJSModule(null, null, systemObjects);
+      config.module = TasksJSModule(null, null, systemObjects);
       //pass loadModules as a parameter of the config constructor function
       //so that its given control of the next step in the initialization lifecycle
       config.constructor.apply(config.module, [loadModules]);
@@ -53,29 +51,33 @@ module.exports = async function TasksJSApp() {
   const loadServices = services => {
     //Use map function to create an array of promises
     //that will handle  loading each service
-    const getServices = services.map(service =>
-      Promise(async function loadService(resolve, reject) {
-        try {
-          //pass the service's url to the Service class, that will handle loading
-          //the service's data and recreating its ServerModules on the client side
-          service.ServerModules[service.name] = await Service(service.url);
-          //use apply to ensure that the onLoad handler function
-          service.onLoad.apply(service.ServerModules, []);
-          //emit sevice_loaded event after loading each Service
-          app
-            .emit("service_loaded", service)
-            .emit(`service_loaded:${service.name}`, service);
-          resolve();
-        } catch (err) {
-          console.log(
-            `(TasksJSAppWarning)(${service.name} Service): Failed to connect to ${service.url} after ${err.connection_attemps} attempts.`
-          );
-          app.emit("failed_connection", err);
-          resolve();
-        }
-      })
+    return Promise.all(
+      services.map(
+        service =>
+          new Promise(async resolve => {
+            const { url, limit, wait, name, onLoad } = service;
+
+            try {
+              //pass the service's url to the Service class, that will handle loading
+              //the service's data and recreating its ServerModules on the client side
+              service.ServerModules = await Service(url, false, limit, wait);
+              //use apply to ensure that the onLoad handler function
+              if (typeof onLoad === "function") onLoad(service.ServerModules);
+              //emit sevice_loaded event after loading each Service
+              app
+                .emit("service_loaded", service.ServerModule)
+                .emit(`service_loaded:${name}`, service.ServerModule);
+              resolve();
+            } catch (err) {
+              console.warn(
+                `(TasksJSAppWarning)(${name} Service): Failed to connect to ${url} after ${err.connection_attempts} attempts.`
+              );
+              app.emit("failed_connection", err);
+              resolve();
+            }
+          })
+      )
     );
-    return Promise.all(getServices);
   };
 
   const loadModules = () => {
@@ -85,10 +87,9 @@ module.exports = async function TasksJSApp() {
         (mod.module = TasksJSModule(mod.name, mod.constructor, systemObjects))
     );
     //then load each ServerModule
-    serverModuleQueue.forEach(
+    serverModuleQueue.forEach(mod =>
       ServerModule(mod.name, mod.constructor, systemObjects)
     );
-
     app.emit("init_complete", systemObjects);
   };
 
@@ -106,14 +107,19 @@ module.exports = async function TasksJSApp() {
     return app;
   };
   //register a service to be loaded later
-  app.loadService = (name, { host = "localhost", port, route, url }) => {
-    url = url || `http://${host}:${port}${route}`;
+  app.loadService = (
+    name,
+    { host = "localhost", port, route, url, limit, wait }
+  ) => {
+    url = url || `http://${host}:${port}/${route}`;
     //add service to systemObjects
     systemObjects.Services[name] = {
       name,
       url,
       ServerModules: {},
-      onLoad: null
+      onLoad: null,
+      limit,
+      wait
     };
 
     //add the service to the serviceQueue to be loaded later
@@ -142,9 +148,10 @@ module.exports = async function TasksJSApp() {
     moduleQueue.push(systemObjects.Modules[name]);
     //set initalizer
     setInititializer();
+    return app;
   };
 
-  app.serverModule = (name, constructor) => {
+  app.ServerModule = (name, constructor) => {
     systemObjects.ServerModules[name] = {
       name,
       constructor
@@ -152,12 +159,19 @@ module.exports = async function TasksJSApp() {
     serverModuleQueue.push(systemObjects.ServerModules[name]);
     //set initializer
     setInititializer();
+    return app;
   };
 
   app.config = constructor => {
     if (typeof constructor === "function")
       systemObjects.config.constructor = constructor;
+
+    return app;
   };
 
+  //aliases
+  app.serverModule = app.ServerModule;
+  app.serverMod = app.ServerModule;
+  app.Module = app.module;
   return app;
 };

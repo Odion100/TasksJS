@@ -10,27 +10,32 @@ module.exports = function TasksJSService() {
     url,
     forceReload = false,
     limit = 10,
-    wait = 1500
+    wait = 150
   ) {
     //avoid loading connection data from Service already loaded
     if (loadedServices[url] && !forceReload) return loadedServices[url];
 
-    const loadConnectionData = async (limit, wait) => {
+    const loadConnectionData = (limit, wait) => {
       const connectionErrors = [];
 
-      try {
-        const connectionData = await Client.request({ method: "GET", url });
-        return connectionData;
-      } catch (err) {
-        connectionErrors.push(err);
-        //attempt to load the service recursively up to ten times
-        if (connectionErrors.length < limit)
-          setTimeout(() => loadConnectionData(), connection_attemps * wait);
-        else {
-          const connection_attemps = connectionErrors.length;
-          throw { connection_attemps, connectionErrors };
+      return new Promise(async function getData(resolve, reject) {
+        try {
+          const connectionData = await Client.request({ method: "GET", url });
+          resolve(connectionData);
+        } catch (err) {
+          connectionErrors.push(err);
+          //attempt to load the service recursively up to ten times
+          if (connectionErrors.length < limit)
+            setTimeout(
+              () => getData(resolve, reject),
+              connectionErrors.length * wait
+            );
+          else {
+            const connection_attempts = connectionErrors.length;
+            reject({ connection_attempts, connectionErrors });
+          }
         }
-      }
+      });
     };
 
     const createService = connData => {
@@ -164,8 +169,12 @@ module.exports = function TasksJSService() {
     };
 
     //use connectionData returned from the service to recreate the serverModule api
-    const connectionData = await loadConnectionData(limit, wait);
-    loadedServices[url] = createService(connectionData);
-    return loadedServices[url];
+    try {
+      const connectionData = await loadConnectionData(limit, wait);
+      loadedServices[url] = createService(connectionData);
+      return loadedServices[url];
+    } catch (err) {
+      throw err;
+    }
   };
 };

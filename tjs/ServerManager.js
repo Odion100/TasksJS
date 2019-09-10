@@ -20,9 +20,9 @@ module.exports = function TasksJSServerManager() {
   }) => {
     if (ServerManager.serviceUrl)
       throw Error(
-        `(TasksJSSeverManagerError): You must only call startServer({route, port, host}) once: ${serviceUrl}`
+        `(TasksJSSeverManagerError): You must only call startServer({route, port, host}) once: ${route}`
       );
-    const serviceUrl = `${host}:${port}${route}`;
+    const serviceUrl = `${host}:${port}/${route}`;
     ServerManager.host = host;
     ServerManager.route = route;
     ServerManager.serviceUrl = serviceUrl;
@@ -43,6 +43,8 @@ module.exports = function TasksJSServerManager() {
     server.listen(port, () =>
       console.log(`(TasksJSService): ${route} --> Listening on ${host}:${port}`)
     );
+
+    return { server, io };
   };
 
   ServerManager.addModule = ({

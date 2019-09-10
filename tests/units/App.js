@@ -1,68 +1,126 @@
+const chai = require("chai");
+const chaiAsPromise = require("chai-as-promised");
+chai.use(chaiAsPromise);
+const { expect } = chai;
+
 module.exports = (TasksJSApp, ServerModule, Service) => {
   return () => {
-    const app = TasksJSApp();
     //spin up a new ServerModule
     const smPort = 5643;
     const smRoute = "sm/route";
-    const testModule = function() {
+    ServerModule.startServer({ route: smRoute, port: smPort });
+    ServerModule("testServerModule", function() {
       const serverMod = this;
-      const { confTestPassed } = this.useConfig();
-      const { modTestPassed } = this.useModule("localMod");
-      const { testMethod } = this.useService("loadedService");
-      serverMod.testMethod = (data, cb) => {
-        //do some stuff
-        cb(null, { testPassed: true, modTestPassed, confTestPassed });
+      serverMod.smTestMethod = (data, cb) => {
+        data.testPassed = true;
+        cb(null, data);
       };
-    };
-    ServerModule.startServer({ route: smRoute, port: smPort }, testModule);
-    ServerModule("testServerModule", testModule);
+    });
 
     //initialize an app and load the ServerModule into the app
     const appPort = 5498;
     const appRoute = "app";
-    let init_complete = false;
-    let service_loaded = false;
-    let targeted_service_loaded = false;
-    let failed_connection = false;
-    app
-      .initService({ route: appRoute, port: appPort })
-      //load the service launched by the ServerModule
-      .loadService("loadedService", { route: smRoute, port: smPort })
-      .onLoad(function() {
-        //the this object should be the loaded service
-      })
-      .ServerModule("appMod", testModule)
-      .module("localMod", function() {
-        this.modTestPassed = true;
-      })
-      .config(function() {
-        this.confTestPassed = true;
-      })
-      .on("init_complete", systemObjects => {
-        //confirm that this was called
-        init_complete = true;
-      })
-      .on("service_loaded", service => {
-        service_loaded = true;
-      })
-      .on("service_loaded:loadedService", service => {
-        targeted_service_loaded = true;
-      })
-      .on("failed_connection", err => {
-        failed_connection = true;
-      });
+    const appInitializer = new Promise(resolve => {
+      let init_complete = false;
+      let service_loaded = false;
+      let targeted_service = false;
+      let failed_connection = false;
+      let onload_called = false;
+      let use_config = false;
+      let use_module = false;
+      let use_service = false;
+      const app = TasksJSApp();
 
-    //user Service to laod the app
+      const serverMod = async function() {
+        use_config = this.useConfig().testPassed;
+        use_module = this.useModule("localMod").testPassed;
+        const service = this.useService("myService");
+        const results = await service.testServerModule.smTestMethod({
+          service_method_called: true
+        });
+        use_service = results.testPassed;
 
-    it("should emit events lifecycle events during app initialization", () => {});
+        this.testMethod = (data, cb) => {
+          data.testPassed = true;
+          cb(null, data);
+        };
+      };
 
-    it("should start a server for retrieving connection data to the app", () => {});
-
-    it("should be able to load and use systemObjects within Modules and ServerModules", () => {});
-
-    it("should be loadable by a TasksJSService instance", async () => {
-      //load the service that was launched by the app
-      const service = await Service(`http://localhost:${appPort}/${appRoute}`);
+      app
+        .initService({ route: appRoute, port: appPort })
+        //load the service launched by the ServerModule
+        .loadService("fakeService", {
+          route: "fakeRoute",
+          port: smPort,
+          limit: 2,
+          wait: 0
+        })
+        .loadService("myService", { route: smRoute, port: smPort })
+        .onLoad(service => {
+          onload_called = true;
+          service.onload_called = true;
+        })
+        .ServerModule("appServerMod", serverMod)
+        .ServerModule("appModule2", serverMod)
+        .module("localMod", function() {
+          this.testPassed = true;
+        })
+        .config(function(loadModules) {
+          this.testPassed = true;
+          loadModules();
+        }) //confirm that this was called
+        .on("init_complete", systemObjects => {
+          init_complete = true;
+        })
+        .on("service_loaded", service => (service_loaded = true))
+        .on("service_loaded:myService", service => (targeted_service = true))
+        .on(
+          "service_loaded:myService",
+          service => (service.targeted_services = true)
+        )
+        .on(
+          "failed_connection",
+          err => (failed_connection = err.connection_attempts === 2)
+        )
+        .on("init_complete", () =>
+          resolve({
+            lifeCicleEventsTest: {
+              init_complete,
+              service_loaded,
+              targeted_service,
+              failed_connection,
+              onload_called
+            },
+            systemObjectsTest: {
+              use_config,
+              use_module,
+              use_service
+            }
+          })
+        );
     });
+
+    it("should emit lifecycle events during app initialization", () =>
+      expect(appInitializer)
+        .eventually.to.be.an("object")
+        .that.has.property("lifeCicleEventsTest")
+        .that.deep.equals({
+          init_complete: true,
+          service_loaded: true,
+          targeted_service: true,
+          failed_connection: true,
+          onload_called: true
+        }));
+
+    /* it("should correctly load other service systemObjects within Modules and ServerModules", () => {});
+
+    it("should be able loaded and recreated on the  client end by a TasksJSService instance", async () => {
+      const url = `http://localhost:${appPort}/${appRoute}`;
+      const service = await Service(url);
+      expect(service)
+        .to.be.an("object")
+        .that.has.property("appMod")
+        .that.respondTo("testMethod");
+    }); */
   };
 };
