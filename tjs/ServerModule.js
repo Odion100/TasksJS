@@ -6,6 +6,12 @@ module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
   function ServerModule(name, constructor, systemObjects) {
+    if (typeof constructor === "function") {
+      if (constructor.constructor.name === "AsyncFunction")
+        throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
+    } else
+      throw `(TasksJSServerModuleError): ServerModule Factory requires a constructor function as the second parameter`;
+
     //ServerModule is inheriting from TasksJSModule
     const ServerModule = TasksJSModule(name, null, systemObjects);
     const namespace = shortid();

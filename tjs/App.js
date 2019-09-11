@@ -5,7 +5,6 @@ const TasksJSServerModule = require("./ServerModule");
 
 module.exports = function TasksJSApp() {
   const app = TasksJSModule();
-  console.log(app, "d0d0d=s=s=s=s=s=s=s=s=s==s=s=");
   const ServerModule = TasksJSServerModule();
   const Service = TasksJSService();
   const systemObjects = {

@@ -3,11 +3,14 @@
 
 //What do they even call this pattern...?
 module.exports = function TasksJSModule(name, constructor, systemObjects) {
+  if (typeof constructor === "function")
+    if (constructor.constructor.name === "AsyncFunction")
+      throw `(TasksJSModuleError): Module Constructor Function Cannot be Async`;
   const tjsModule = {};
   const events = {};
 
-  //return other modules in the same App by name
   if (systemObjects) {
+    //return other modules in the same App by name
     tjsModule.useModule = modName =>
       (systemObjects.Modules[modName] || {}).module || {};
     //returns any service that has been loaded by name
