@@ -24,6 +24,7 @@ const ModuleTest = require("./units/Module");
 const ServerManagerTest = require("./units/ServerManager");
 const ServerModuleServiceTest = require("./units/ServerModuleService");
 const AppTest = require("./units/App");
+
 describe(
   "TasksJSClient && TasksJSServer Tests",
   ClientServerTest(TasksJSClient, TasksJSServer)
@@ -41,4 +42,4 @@ describe(
   ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client)
 );
 
-// describe("TasksJSApp", AppTest(TasksJSApp, ServerModule, Service));
+describe("TasksJSApp", AppTest(TasksJSApp, ServerModule, Service));

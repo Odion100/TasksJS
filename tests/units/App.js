@@ -33,22 +33,24 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       let test_complete = false;
       const app = TasksJSApp();
 
-      const serverMod = async function() {
+      const serverMod = function() {
         use_config = this.useConfig().testPassed;
         use_module = this.useModule("localMod").testPassed;
         const service = this.useService("myService");
-        const results = await service.testServerModule.smTestMethod({
-          service_method_called: true
-        });
-
-        use_service = results.testPassed;
+        service.testServerModule.smTestMethod(
+          {
+            service_method_called: true
+          },
+          (err, results) => {
+            use_service = results.testPassed;
+            if (!test_complete) app.emit("test_complete");
+          }
+        );
 
         this.testMethod = (data, cb) => {
           data.testPassed = true;
           cb(null, data);
         };
-
-        if (!test_complete) app.emit("test_complete");
       };
 
       app
@@ -127,7 +129,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           onload_called: true
         }));
 
-    it("should correctly load other service systemObjects within Modules and ServerModules", () =>
+    it("should be able to load other systemObjects within Modules and ServerModules", () =>
       expect(appInitializer)
         .eventually.to.be.an("object")
         .that.has.property("systemObjectsTest")
@@ -140,7 +142,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
     it("should be able loaded and recreated on the  client end by a TasksJSService instance", async () => {
       const url = `http://localhost:${appPort}/${appRoute}`;
       const service = await Service(url);
-      console.log("----------\n\n", service, "\n\n-----------------");
+
       expect(service)
         .to.be.an("object")
         .that.has.property("appServerMod")
