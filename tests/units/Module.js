@@ -7,40 +7,21 @@ module.exports = TasksJSModule => {
       it("Should return a TasksJSModule instance with all basic properties and methods", () => {
         expect(tjsMod)
           .to.be.an("Object")
-          .that.has.all.keys(
-            "on",
-            "emit",
-            "useModule",
-            "useService",
-            "useConfig"
-          )
+          .that.has.all.keys("on", "emit")
           .that.respondsTo("on")
-          .that.respondsTo("emit")
-          .that.respondsTo("useModule")
-          .that.respondsTo("useService")
-          .that.respondsTo("useConfig");
+          .that.respondsTo("emit");
       });
 
       it("Should be able to emit and handle events", () => {
         let eventWasHandled = false;
         let eventWasHandled2 = false;
         //ensuring the ability to set multiple event handlers
-        tjsMod.on("test", event => (eventWasHandled = event.data.test));
-        tjsMod.on("test", event => (eventWasHandled2 = event.data.test));
+        tjsMod.on("test", data => (eventWasHandled = data.test));
+        tjsMod.on("test", data => (eventWasHandled2 = data.test));
 
         tjsMod.emit("test", { test: true });
         expect(eventWasHandled).to.be.true;
         expect(eventWasHandled2).to.be.true;
-      });
-
-      it("should return an empty object when attempting to retrieve systemObjects", () => {
-        const mod = tjsMod.useModule();
-        const service = tjsMod.useService();
-        const config = tjsMod.useConfig();
-
-        expect(mod, "mod").an("object").that.is.empty;
-        expect(service, "service").an("object").that.is.empty;
-        expect(config, "config").an("object").that.is.empty;
       });
     });
 

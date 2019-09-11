@@ -4,7 +4,8 @@ const TasksJSModule = require("./Module");
 const TasksJSServerModule = require("./ServerModule");
 
 module.exports = function TasksJSApp() {
-  const app = new TasksJSModule();
+  const app = TasksJSModule();
+  console.log(app, "d0d0d=s=s=s=s=s=s=s=s=s==s=s=");
   const ServerModule = TasksJSServerModule();
   const Service = TasksJSService();
   const systemObjects = {
@@ -65,8 +66,8 @@ module.exports = function TasksJSApp() {
               if (typeof onLoad === "function") onLoad(service.ServerModules);
               //emit sevice_loaded event after loading each Service
               app
-                .emit("service_loaded", service.ServerModule)
-                .emit(`service_loaded:${name}`, service.ServerModule);
+                .emit("service_loaded", service.ServerModules)
+                .emit(`service_loaded:${name}`, service.ServerModules);
               resolve();
             } catch (err) {
               console.warn(

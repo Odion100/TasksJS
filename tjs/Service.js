@@ -69,7 +69,7 @@ module.exports = function TasksJSService() {
         //callback we dispatch the event to the handler of the particular event
         connectWebSocket(namespace, event => {
           if (eventHandlers[event.name])
-            eventHandlers[event.name].forEach(cb => cb(event));
+            eventHandlers[event.name].forEach(cb => cb(event.data, event));
         });
       };
       serverMod.__setConnection(host, port, route, namespace);

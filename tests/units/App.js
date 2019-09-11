@@ -24,11 +24,13 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       let init_complete = false;
       let service_loaded = false;
       let targeted_service = false;
+      let targeted_service_event = false;
       let failed_connection = false;
       let onload_called = false;
       let use_config = false;
       let use_module = false;
       let use_service = false;
+      let test_complete = false;
       const app = TasksJSApp();
 
       const serverMod = async function() {
@@ -38,12 +40,15 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
         const results = await service.testServerModule.smTestMethod({
           service_method_called: true
         });
+
         use_service = results.testPassed;
 
         this.testMethod = (data, cb) => {
           data.testPassed = true;
           cb(null, data);
         };
+
+        if (!test_complete) app.emit("test_complete");
       };
 
       app
@@ -61,7 +66,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           service.onload_called = true;
         })
         .ServerModule("appServerMod", serverMod)
-        .ServerModule("appModule2", serverMod)
+        .ServerModule("appServerMod2", serverMod)
         .module("localMod", function() {
           this.testPassed = true;
         })
@@ -73,21 +78,30 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           init_complete = true;
         })
         .on("service_loaded", service => (service_loaded = true))
-        .on("service_loaded:myService", service => (targeted_service = true))
         .on(
           "service_loaded:myService",
-          service => (service.targeted_services = true)
+          service => (targeted_service_event = true)
+        )
+        .on(
+          "service_loaded:myService",
+          service =>
+            (targeted_service = typeof service.testServerModule === "object")
         )
         .on(
           "failed_connection",
-          err => (failed_connection = err.connection_attempts === 2)
+          err =>
+            (failed_connection =
+              err.connection_attempts === 2 &&
+              err.connectionErrors.length === 2)
         )
-        .on("init_complete", () =>
+        .on("test_complete", () => {
+          test_complete = true;
           resolve({
             lifeCicleEventsTest: {
               init_complete,
               service_loaded,
               targeted_service,
+              targeted_service_event,
               failed_connection,
               onload_called
             },
@@ -96,8 +110,8 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
               use_module,
               use_service
             }
-          })
-        );
+          });
+        });
     });
 
     it("should emit lifecycle events during app initialization", () =>
@@ -108,19 +122,42 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           init_complete: true,
           service_loaded: true,
           targeted_service: true,
+          targeted_service_event: true,
           failed_connection: true,
           onload_called: true
         }));
 
-    /* it("should correctly load other service systemObjects within Modules and ServerModules", () => {});
+    it("should correctly load other service systemObjects within Modules and ServerModules", () =>
+      expect(appInitializer)
+        .eventually.to.be.an("object")
+        .that.has.property("systemObjectsTest")
+        .that.deep.equals({
+          use_config: true,
+          use_module: true,
+          use_service: true
+        }));
 
     it("should be able loaded and recreated on the  client end by a TasksJSService instance", async () => {
       const url = `http://localhost:${appPort}/${appRoute}`;
       const service = await Service(url);
+      console.log("----------\n\n", service, "\n\n-----------------");
       expect(service)
         .to.be.an("object")
-        .that.has.property("appMod")
+        .that.has.property("appServerMod")
         .that.respondTo("testMethod");
-    }); */
+      expect(service)
+        .to.be.an("object")
+        .that.has.property("appServerMod2")
+        .that.respondTo("testMethod");
+
+      const response = await service.appServerMod.testMethod({ id: "1234" });
+
+      expect(response)
+        .to.be.an("object")
+        .that.has.property("id", "1234");
+      expect(response)
+        .to.be.an("object")
+        .that.has.property("testPassed", true);
+    });
   };
 };

@@ -19,10 +19,7 @@ module.exports = function TasksJSModule(name, constructor, systemObjects) {
 
   //emit events to other modules
   tjsModule.emit = (eventName, data) => {
-    if (events[eventName])
-      events[eventName].forEach(handler =>
-        handler(data, { data, type: "local" })
-      );
+    if (events[eventName]) events[eventName].forEach(handler => handler(data));
     return tjsModule;
   };
   //register event handler by event name

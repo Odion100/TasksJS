@@ -72,17 +72,12 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
             "on",
             "emit",
             "config",
-            "useModule",
-            "useService",
-            "useConfig",
             "testMethod",
             "testMethod2"
           )
           .that.respondsTo("on")
           .that.respondsTo("emit")
-          .that.respondsTo("useModule")
-          .that.respondsTo("useService")
-          .that.respondsTo("useConfig")
+          .that.respondsTo("config")
           .that.respondsTo("testMethod")
           .that.respondsTo("testMethod");
       });
@@ -134,8 +129,8 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         let eventWasHandled = false;
         let eventWasHandled2 = false;
         //ensuring the ability to set multiple event handlers
-        testMod2.on("test", event => (eventWasHandled = event.data.test));
-        testMod2.on("test", event => (eventWasHandled2 = event.data.test));
+        testMod2.on("test", data => (eventWasHandled = data.test));
+        testMod2.on("test", data => (eventWasHandled2 = data.test));
 
         testMod2.emit("test", { test: true });
         expect(eventWasHandled).to.be.true;
@@ -219,14 +214,14 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
             let eventWasHandled2 = false;
 
             //listen for WebSocket events emitted from the ServerModule
-            service.testMod2.on("test", event => {
-              eventWasHandled = event.data.test;
+            service.testMod2.on("test", data => {
+              eventWasHandled = data.test;
               expect(eventWasHandled).to.be.true;
               if (eventWasHandled && eventWasHandled2) resolve();
             });
 
-            service.testMod2.on("test", event => {
-              eventWasHandled2 = event.data.test;
+            service.testMod2.on("test", data => {
+              eventWasHandled2 = data.test;
               expect(eventWasHandled2).to.be.true;
               if (eventWasHandled && eventWasHandled2) resolve();
             });
