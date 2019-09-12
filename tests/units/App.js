@@ -4,7 +4,7 @@ chai.use(chaiAsPromise);
 const { expect } = chai;
 
 module.exports = (TasksJSApp, ServerModule, Service) => {
-  return () => {
+  describe("TasksJSServerModule && TasksJSService Tests", () => {
     //spin up a new ServerModule
     const smPort = 5643;
     const smRoute = "sm/route";
@@ -161,5 +161,5 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
         .to.be.an("object")
         .that.has.property("testPassed", true);
     });
-  };
+  });
 };

@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 
 module.exports = TasksJSModule => {
-  return () => {
+  describe("TasksJSModule", () => {
     describe("...instance without parameters", () => {
       const tjsMod = TasksJSModule();
       it("Should return a TasksJSModule instance with all basic properties and methods", () => {
@@ -86,5 +86,5 @@ module.exports = TasksJSModule => {
         expect(undefinedService).an("object").that.is.empty;
       });
     });
-  };
+  });
 };

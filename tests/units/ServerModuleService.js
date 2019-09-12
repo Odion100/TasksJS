@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const fs = require("fs");
 module.exports = (TasksJSServerModule, TasksJSService, Client) => {
-  return () => {
+  describe("TasksJSServerModule && TasksJSService Tests", () => {
     const Service = TasksJSService();
     const ServerModule = TasksJSServerModule();
     const port = 6542;
@@ -231,5 +231,5 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           });
         }));
     });
-  };
+  });
 };

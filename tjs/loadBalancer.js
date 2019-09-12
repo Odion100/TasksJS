@@ -6,15 +6,22 @@
 //the same loadbalancer so they can be all be reached at the same host
 const TasksJSServerModule = require("./ServerModule");
 const TasksJSClient = require("./Client");
-module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
+module.exports = function TasksJSLoadBalancer(
+  port,
+  host = "localhost",
+  route = "loadbalancer"
+) {
   const ServerModule = TasksJSServerModule();
   const { server } = ServerModule.startServer({ port, host, route });
   const Client = TasksJSClient();
 
-  return ServerModule("clones", function() {
+  const clonesModule = ServerModule("clones", function() {
     const clones = this;
     const serviceQueue = [];
     const handledEvents = [];
+    //add these properties to the LoadBalancer for testing purposes
+    clones.serviceQueue = serviceQueue;
+    clones.handledEvents = [];
 
     clones.register = ({ port, host, route }, cb) => {
       const url = `http://${host}:${port}${route}`;
@@ -44,7 +51,7 @@ module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
     };
     //clones using this loadbalancer service can used this function
     //to ensure that only one instance of the service responds to shared events
-    clones.assignHandler = (event, cb) => {
+    clones.assignEvent = (event, cb) => {
       const e = handledEvents.find(e => (e.id = event.id));
       if (!e) {
         //record that the event was handled
@@ -58,52 +65,45 @@ module.exports = function LoadBalancer(port, host, route = "loadbalancer") {
         handledEvents.splice(20);
       }
     };
-
-    const addService = ({ route, locations }) => {
-      const method = "GET";
-      let location_index = 0;
-
-      //attempt to retrieve connectionData for the service from the registered clone locations
-      const getService = async cb => {
-        if (locations.length > 0) {
-          const location_index =
-            location_index < locations.length ? location_index : 0;
-          const url = locations[location_index];
-
-          Client.request({ method, url }, (err, results) => {
-            if (err) {
-              //if the request to the service failes, remove the url for the list
-              console.log(
-                `(LoadBalancer): Removing (${url}) URL from ${route} Service`
-              );
-              //remove the ref to the service that failed to load
-              locations.splice(location_index, 1);
-              //call getService recursively until all locations have been exhuasted
-              return getService(service);
-            } else {
-              cb(results);
-              location_index++;
-            }
-          });
-        } else {
-          cb({ message: `No services found on requested route: ${route}` });
-        }
-      };
-
-      server.get(route, (req, res) => {
-        const service = serviceQueue.find(service => service.route === route);
-
-        if (service) {
-          getService(service, (err, connectionData) => {
-            if (err) {
-            } else {
-              res.json(connectionData);
-            }
-          });
-        } else {
-          cb({ message: `Unable to find registered service: ${route}` });
-        }
-      });
-    };
   });
+
+  const addService = ({ route, locations }) => {
+    server.get(route, (req, res) => {
+      getService(service, (err, connectionData) => {
+        if (err) res.status(err.status).json(err);
+        else res.json(connectionData);
+      });
+    });
+
+    //attempt to retrieve connectionData for the service from the registered clone locations
+    const method = "GET";
+    let location_index = 0;
+
+    const getService = cb => {
+      if (locations.length > 0) {
+        location_index = location_index < locations.length ? location_index : 0;
+        const url = locations[location_index];
+
+        Client.request({ method, url }, (err, results) => {
+          if (err) {
+            //if the request to the service failes, remove the url for the list
+            console.warn(
+              `(TasksJSLoadBalancer): Removing (${url}) URL from ${route} Service`
+            );
+            //remove the ref to the service that failed to load
+            locations.splice(location_index, 1);
+            //call getService recursively until all locations have been exhuasted
+            return getService(service);
+          } else {
+            cb(results);
+            location_index++;
+          }
+        });
+      } else {
+        cb({ message: `No services found on requested route: ${route}` });
+      }
+    };
+  };
+
+  return clonesModule;
 };

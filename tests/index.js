@@ -25,21 +25,12 @@ const ServerManagerTest = require("./units/ServerManager");
 const ServerModuleServiceTest = require("./units/ServerModuleService");
 const AppTest = require("./units/App");
 
-describe(
-  "TasksJSClient && TasksJSServer Tests",
-  ClientServerTest(TasksJSClient, TasksJSServer)
-);
+ClientServerTest(TasksJSClient, TasksJSServer);
 
-describe("TasksJSModule", ModuleTest(TasksJSModule));
+ModuleTest(TasksJSModule);
 
-describe(
-  "TasksJSServerManager",
-  ServerManagerTest(TasksJSServerManager, Client)
-);
+ServerManagerTest(TasksJSServerManager, Client);
 
-describe(
-  "TasksJSServerModule && TasksJSService Tests",
-  ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client)
-);
+ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client);
 
-describe("TasksJSApp", AppTest(TasksJSApp, ServerModule, Service));
+AppTest(TasksJSApp, ServerModule, Service);

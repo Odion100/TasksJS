@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 
 module.exports = (TasksJSServerManager, Client) => {
-  return () => {
+  describe("TasksJSServerManager", () => {
     describe("ServerManager", () => {
       const ServerManager = TasksJSServerManager();
 
@@ -55,5 +55,5 @@ module.exports = (TasksJSServerManager, Client) => {
           .that.has.all.keys("name", "namespace", "methods", "route");
       });
     });
-  };
+  });
 };

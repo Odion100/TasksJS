@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const fs = require("fs");
 
 module.exports = (TasksJSClient, TasksJSServer) => {
-  return async () => {
+  describe("TasksJSClient && TasksJSServer Tests", async () => {
     const port = 4789;
     const url = `http://localhost:${port}/test`;
     const singleFileUrl = `http://localhost:${port}/sf/test`;
@@ -108,6 +108,6 @@ module.exports = (TasksJSClient, TasksJSServer) => {
         expect(multiUploadResponse).to.have.property("fileUploadTest", true);
       });
     });
-  };
+  });
   // it("should handle bad requests", () => {});
 };
