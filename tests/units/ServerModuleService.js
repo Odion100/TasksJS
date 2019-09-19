@@ -8,7 +8,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
     const route = "test/service";
     const method = "GET";
     const url = `http://localhost:${port}/${route}`;
-    const testModule = function() {
+    const constructorModule = function() {
       this.testMethod = (data, cb, req, res) => {
         data.testPassed = true;
         data.method = req.method;
@@ -22,36 +22,36 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         //respond with an error with the first parameter
         cb(data);
       };
+
+      this.config({
+        methods: { testMethod2: "post" },
+        inferRoute: true
+      });
     };
 
     const ServerModule2 = TasksJSServerModule();
     const port2 = 6565;
     const route2 = "test/service";
     const url2 = `http://localhost:${port2}/${route2}`;
-    const testModule2 = function() {
-      this.uploadTest = (data, cb, req, res) => {
+    const objectModule = {
+      uploadTest: (data, cb, req, res) => {
         const { file } = data;
         const json = JSON.parse(fs.readFileSync(file.path));
         //send a success response with the second parameter
         cb(null, { file, ...json });
-      };
-
-      this.multiUploadTest = (data, cb) => {
+      },
+      multiUploadTest: (data, cb) => {
         const { files } = data;
         const json = JSON.parse(fs.readFileSync(files[0].path));
 
         cb(null, { files, ...json });
-      };
-
-      this.config({
-        methods: { uploadTest: "post", multiUploadTest: "POST" },
-        inferRoute: true
-      });
+      }
     };
     ServerModule2.startService({ port: port2, route: route2 });
-    const testMod2 = ServerModule2("testMod2", testModule2);
+    const testMod2 = ServerModule2("testMod2", objectModule);
     //add another module
-    ServerModule2("testMod3", testModule);
+    ServerModule2("testMod3", constructorModule);
+
     describe("ServerModule", () => {
       it("should be able to start as TasksJSServer via TasksJSServerManager", async () => {
         ServerModule.startService({ port, route });
@@ -64,7 +64,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       });
 
       it("Should retrun a TasksJSServerModule instance with methods added in the constructor", () => {
-        const testMod = ServerModule("testMod", testModule);
+        const testMod = ServerModule("testMod", constructorModule);
 
         expect(testMod)
           .to.be.an("Object")
@@ -95,31 +95,31 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       it("should be able to configure methods during the construction phase", async () => {
         const connectionData = await Client.request({
           method,
-          url: url2
+          url
         });
 
         expect(connectionData)
           .to.be.an("object")
           .has.property("mods")
           .that.is.an("array")
-          .that.has.a.lengthOf(2);
+          .that.has.a.lengthOf(1);
         expect(connectionData.mods[0])
           .to.be.an("object")
           .that.has.all.keys("namespace", "route", "name", "methods")
-          .that.has.property("route", `${route2}/testMod2`);
+          .that.has.property("route", `${route2}/testMod`);
         expect(connectionData.mods[0])
           .to.have.property("methods")
           .that.is.an("array")
           .that.has.a.lengthOf(2);
         expect(connectionData.mods[0].methods[0])
           .to.be.an("object")
-          .that.has.property("name", "uploadTest");
+          .that.has.property("name", "testMethod");
         expect(connectionData.mods[0].methods[0])
           .to.be.an("object")
-          .that.has.property("method", "POST");
+          .that.has.property("method", "PUT");
         expect(connectionData.mods[0].methods[1])
           .to.be.an("object")
-          .that.has.property("name", "multiUploadTest");
+          .that.has.property("name", "testMethod2");
         expect(connectionData.mods[0].methods[1])
           .to.be.an("object")
           .that.has.property("method", "POST");
