@@ -96,10 +96,10 @@ module.exports = function TasksJSApp() {
   };
 
   //use ServerModule to initialize the express server that will handle routing
-  app.initService = ({ host, port, route, middlewear }) => {
+  app.startService = ({ host, port, route, middlewear }) => {
     //Start ServerManager via the ServerModule
     host = host || "localhost";
-    const { server } = ServerModule.startServer({
+    const { server } = ServerModule.startService({
       route,
       port,
       host,

@@ -12,7 +12,7 @@ module.exports = function TasksJSLoadBalancer(
   route = "loadbalancer"
 ) {
   const ServerModule = TasksJSServerModule();
-  const { server } = ServerModule.startServer({ port, host, route });
+  const { server } = ServerModule.startService({ port, host, route });
   const Client = TasksJSClient();
 
   const clonesModule = ServerModule("clones", function() {

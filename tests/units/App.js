@@ -8,7 +8,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
     //spin up a new ServerModule
     const smPort = 5643;
     const smRoute = "sm/route";
-    ServerModule.startServer({ route: smRoute, port: smPort });
+    ServerModule.startService({ route: smRoute, port: smPort });
     ServerModule("testServerModule", function() {
       const serverMod = this;
       serverMod.smTestMethod = (data, cb) => {
@@ -54,7 +54,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       };
 
       app
-        .initService({ route: appRoute, port: appPort })
+        .startService({ route: appRoute, port: appPort })
         //load the service launched by the ServerModule
         .loadService("fakeService", {
           route: "fakeRoute",

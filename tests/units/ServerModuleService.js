@@ -48,13 +48,13 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
         inferRoute: true
       });
     };
-    ServerModule2.startServer({ port: port2, route: route2 });
+    ServerModule2.startService({ port: port2, route: route2 });
     const testMod2 = ServerModule2("testMod2", testModule2);
     //add another module
     ServerModule2("testMod3", testModule);
     describe("ServerModule", () => {
       it("should be able to start as TasksJSServer via TasksJSServerManager", async () => {
-        ServerModule.startServer({ port, route });
+        ServerModule.startService({ port, route });
         const connectionData = await Client.request({ method, url });
 
         expect(connectionData)

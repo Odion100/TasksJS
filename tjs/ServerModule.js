@@ -74,6 +74,6 @@ module.exports = function TasksJSServerModule() {
     return ServerModule;
   }
 
-  ServerModule.startServer = ServerManager.startServer;
+  ServerModule.startService = ServerManager.startServer;
   return ServerModule;
 };
