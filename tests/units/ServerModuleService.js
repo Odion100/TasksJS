@@ -208,7 +208,8 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
       });
       it("should be able to recieve WebSocket Events emitted from the ServerModule", () =>
         new Promise(async resolve => {
-          const service = await Service(url2, true);
+          const forceReload = true;
+          const service = await Service(url2, { forceReload });
           service.testMod2.on("connect", () => {
             let eventWasHandled = false;
             let eventWasHandled2 = false;

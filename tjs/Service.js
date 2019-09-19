@@ -8,9 +8,7 @@ module.exports = function TasksJSService() {
   //which provides instruction on how to make request to each ServerModule in the service
   return async function Service(
     url,
-    forceReload = false,
-    limit = 10,
-    wait = 150
+    { forceReload = false, limit = 10, wait = 150 } = {}
   ) {
     //avoid loading connection data from Service already loaded
     if (loadedServices[url] && !forceReload) return loadedServices[url];
