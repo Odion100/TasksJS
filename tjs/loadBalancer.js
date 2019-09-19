@@ -1,9 +1,9 @@
-//this LoadBalancer.js file is used to facilitate loadbalancing as well as
+//this LoadBalancer file is used to facilitate loadbalancing as well as
 //service discovery. Serveral intances of the same service can register
 //as a clone of a service by sending it's connection data any service with
 //identical routes will be considered clones. Service discovery is accomplished
 //through this service by having serveral different services register with
-//the same loadbalancer so they can be all be reached at the same host
+//the same loadbalancer so they can be all be reached at the same host and port
 const TasksJSServerModule = require("./ServerModule");
 const TasksJSClient = require("./Client");
 module.exports = function TasksJSLoadBalancer(

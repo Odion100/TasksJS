@@ -7,10 +7,10 @@ module.exports = function TasksJSModule(
   constructor,
   { systemObjects } = {}
 ) {
-  if (typeof constructor === "function")
-    if (constructor.constructor.name === "AsyncFunction")
-      throw `(TasksJSModuleError): Module Constructor Function Cannot be Async`;
-  const tjsModule = {};
+  const tjsModule =
+    typeof constructor === "object" && constructor instanceof Object
+      ? constructor
+      : {};
   const events = {};
 
   if (systemObjects) {
@@ -40,6 +40,12 @@ module.exports = function TasksJSModule(
     return tjsModule;
   };
   //allow for creating a modules without constructors as a way of doing inheritance
-  if (typeof constructor === "function") constructor.apply(tjsModule, []);
+  if (typeof constructor === "function") {
+    if (constructor.constructor.name === "AsyncFunction")
+      throw `(TasksJSModuleError): Module Constructor Function Cannot be Async`;
+
+    constructor.apply(tjsModule, []);
+  }
+
   return tjsModule;
 };

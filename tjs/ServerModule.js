@@ -6,14 +6,11 @@ module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
   function ServerModule(name, constructor, { systemObjects } = {}) {
-    if (typeof constructor === "function") {
-      if (constructor.constructor.name === "AsyncFunction")
-        throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
-    } else
-      throw `(TasksJSServerModuleError): ServerModule Factory requires a constructor function as the second parameter`;
-
     //ServerModule is inheriting from TasksJSModule
-    const ServerModule = TasksJSModule(name, null, { systemObjects });
+    const ServerModule =
+      typeof constructor === "object"
+        ? TasksJSModule(name, constructor, { systemObjects })
+        : TasksJSModule(name, null, { systemObjects });
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
     let inferRoute = false;
@@ -32,13 +29,18 @@ module.exports = function TasksJSServerModule() {
       emit(name, data);
     };
 
-    ServerModule.config = conf => {
-      inferRoute = conf.inferRoute;
-      config = conf;
-    };
-
     //using constructor.apply let's us determine that the this object will be the ServerModule
-    constructor.apply(ServerModule, []);
+    if (typeof constructor === "function") {
+      if (constructor.constructor.name === "AsyncFunction")
+        throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
+
+      ServerModule.config = conf => {
+        inferRoute = conf.inferRoute;
+        config = conf;
+      };
+
+      constructor.apply(ServerModule, []);
+    }
 
     const methods = [];
     const props = Object.getOwnPropertyNames(ServerModule);
