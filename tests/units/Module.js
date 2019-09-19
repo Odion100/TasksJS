@@ -26,7 +26,8 @@ module.exports = TasksJSModule => {
     });
 
     describe("...instance with all parameters", () => {
-      const mockSystemObjects = {
+      //mock systemObjects
+      const systemObjects = {
         Services: { mockService: { ServerModules: { testPassed: true } } },
         Modules: { mockModule: { module: { testPassed: true } } },
         ServerModules: {},
@@ -41,7 +42,7 @@ module.exports = TasksJSModule => {
           testMod.test = () => {};
           testMod.test2 = () => {};
         },
-        mockSystemObjects
+        { systemObjects }
       );
 
       it("should have extra methods and properties added inside the constructor function", () => {

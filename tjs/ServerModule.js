@@ -5,7 +5,7 @@ const shortid = require("shortid");
 module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
-  function ServerModule(name, constructor, systemObjects) {
+  function ServerModule(name, constructor, { systemObjects } = {}) {
     if (typeof constructor === "function") {
       if (constructor.constructor.name === "AsyncFunction")
         throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
@@ -13,7 +13,7 @@ module.exports = function TasksJSServerModule() {
       throw `(TasksJSServerModuleError): ServerModule Factory requires a constructor function as the second parameter`;
 
     //ServerModule is inheriting from TasksJSModule
-    const ServerModule = TasksJSModule(name, null, systemObjects);
+    const ServerModule = TasksJSModule(name, null, { systemObjects });
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
     let inferRoute = false;
@@ -21,7 +21,7 @@ module.exports = function TasksJSServerModule() {
 
     //save TasksJSModule.emit function now as it's overwritten below
     const emit = ServerModule.emit;
-    //This creates a socket.io namespace for this ServerModulessss
+    //This creates a socket.io namespace for this ServerModule
     //here we're using the socket.io namespace to fire an event called dispatch
     ServerModule.emit = (name, data) => {
       const id = shortid();

@@ -2,7 +2,11 @@
 //controll the lifecycle of code initialization
 
 //What do they even call this pattern...?
-module.exports = function TasksJSModule(name, constructor, systemObjects) {
+module.exports = function TasksJSModule(
+  name,
+  constructor,
+  { systemObjects } = {}
+) {
   if (typeof constructor === "function")
     if (constructor.constructor.name === "AsyncFunction")
       throw `(TasksJSModuleError): Module Constructor Function Cannot be Async`;

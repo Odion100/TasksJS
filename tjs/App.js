@@ -20,8 +20,8 @@ module.exports = function TasksJSApp() {
   let isInitialized = false;
 
   //modules need to be initialized only after services have been loaded
-  //so we're collect modules, services, and config functions to be run in
-  //a paricular sequence. this is done in the initApp function
+  //so we collect modules, services, and config functions to be run in
+  //a paricular sequence at the end of the call stack. this is done in the initApp function
   const setInititializer = () => {
     //setTimeout will send the initApp function to the end of the call stack
     if (!isInitialized) {
@@ -41,7 +41,7 @@ module.exports = function TasksJSApp() {
     const { config } = systemObjects;
     if (typeof config.constructor === "function") {
       //give config constructor access to the systemObject so any loaded services can be accessed
-      config.module = TasksJSModule(null, null, systemObjects);
+      config.module = TasksJSModule(null, null, { systemObjects });
       //pass loadModules as a parameter of the config constructor function
       //so that its given control of the next step in the initialization lifecycle
       config.constructor.apply(config.module, [loadModules]);
@@ -84,11 +84,13 @@ module.exports = function TasksJSApp() {
     //first load modules
     moduleQueue.forEach(
       mod =>
-        (mod.module = TasksJSModule(mod.name, mod.constructor, systemObjects))
+        (mod.module = TasksJSModule(mod.name, mod.constructor, {
+          systemObjects
+        }))
     );
     //then load each ServerModule
     serverModuleQueue.forEach(mod =>
-      ServerModule(mod.name, mod.constructor, systemObjects)
+      ServerModule(mod.name, mod.constructor, { systemObjects })
     );
     app.emit("init_complete", systemObjects);
   };
