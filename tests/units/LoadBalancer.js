@@ -1,46 +1,68 @@
-module.exports = (TasksJSLoadBalancer, TasksJSApp, Service) => {
-  describe("TasksJSLoadBalancer && TasksJSService Reconnection Process Test", () => {
+module.exports = (LoadBalancer, App, Service) => {
+  describe("LoadBalancer && TasksJSService Reconnection Process Test", () => {
     //spin up a loadblancer
-    const lb_route = "loadbalancer";
     const lb_port = "5200";
-    const LaodBalancer = TasksJSLoadBalancer({
-      route: lb_route,
-      port: lb_port
-    });
-    //register some fack routes
-    LaodBalancer.register({ route: app_route, port: 9090 });
-    LaodBalancer.register({ route: app_route, port: 9001 });
-    LaodBalancer.register({ route: app_route, port: 9092 });
-    //spin up an app, connect and register the connection with loadbalancer service
+    const clones = LoadBalancer({ port: lb_port });
     const app_route = "my/app";
-    const app_port = "3234";
-    const serverMod = function() {
-      this.testMethod = (data, cb) => {
-        data.testPassed = true;
-        cb(null, data);
-      };
-    };
-    App.initService({ route: app_route, port: app_port })
-      .loadService({
-        route: lb_route,
-        port: lb_port
-      })
-      .onLoad(service => {
-        service.register({
-          route: app_route,
-          port: app_port
-        });
-      })
-      .ServerModule("testServerModule", serverMod);
+
+    clones.on("new_clone", data => console.log(data, `<<<------new_clone`));
+    clones.on("new_service", data => console.log(data, `<<<------new_service`));
+    clones.on("location_removed", data =>
+      console.log(data, `<<<------location_removed`)
+    );
+
+    //register some fack routes
+    clones.register(
+      { route: app_route, port: 9090, host: "localhost" },
+      (data, results) => console.log(data, results)
+    );
+    clones.register(
+      { route: app_route, port: 9001, host: "localhost" },
+      (data, results) => console.log(data, results)
+    );
+    clones.register(
+      { route: app_route, port: 9092, host: "localhost" },
+      (data, results) => console.log(data, results)
+    );
+
+    //spin up an app, connect and register the connection with loadbalancer service
+    const initApps = new Promise(resolve => {
+      //create three clones that register to the loadbalancer
+      let init_count = 0;
+      [4001, 4002, 4003].forEach(port =>
+        App()
+          .startService({ route: app_route, port })
+          .loadService("loadBalancer", {
+            route: "loadbalancer",
+            port: lb_port
+          })
+          .onLoad(loadBalancer => {
+            loadBalancer.clones.register({
+              route: app_route,
+              port,
+              host: "localhost"
+            });
+          })
+          .ServerModule("testModule", {
+            testMethod: (data, cb) => cb({ testPassed: true, ...data })
+          })
+          .on("init_complete", () => {
+            init_count++;
+            if (init_count >= 3) resolve();
+          })
+      );
+    });
 
     describe("LoadBalancer", () => {
       it("should accept request for connection data on routes of services that have registered thier connection data", () => {});
 
       it("should remove connection data of unreachable services from the queue", () => {});
 
-      it("should be able to use shareEvent method to share event with registered clones", () => {});
+      it("should be able to use shareEvent method to fire events from the LoadBalancer to registered clones", () => {});
 
       it("should be able to use assignEvent method to assign just one handler to an event", () => {});
+      it("should emit events:", () => {});
+      it("should handle multiple different routes (Service Discovery)", () => {});
     });
 
     describe("Service", () => {

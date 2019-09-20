@@ -6,31 +6,44 @@
 //the same loadbalancer so they can be all be reached at the same host and port
 const TasksJSServerModule = require("./ServerModule");
 const TasksJSClient = require("./Client");
-module.exports = function TasksJSLoadBalancer(
+module.exports = function TasksJSLoadBalancer({
   port,
   host = "localhost",
   route = "loadbalancer"
-) {
+}) {
   const ServerModule = TasksJSServerModule();
   const { server } = ServerModule.startService({ port, host, route });
   const Client = TasksJSClient();
 
-  const clonesModule = ServerModule("clones", function() {
+  const clones = ServerModule("clones", function() {
     const clones = this;
     const serviceQueue = [];
     const handledEvents = [];
     //add these properties to the LoadBalancer for testing purposes
     clones.serviceQueue = serviceQueue;
-    clones.handledEvents = [];
+    clones.handledEvents = handledEvents;
 
     clones.register = ({ port, host, route }, cb) => {
+      if (!(port && route && host))
+        return cb({
+          message:
+            "route port and host are required options of the clones.register(options) method",
+          status: 400
+        });
+      route = route.charAt(0) === "/" ? route : "/" + route;
       const url = `http://${host}:${port}${route}`;
       //check if a route for this service has already been registered
       let service = serviceQueue.find(service => service.route === route);
       if (service) {
         //if the route to the services was already registered just add the new location
-        if (service.locations.indexOf(url) === -1) service.locations.push(url);
+        if (service.locations.indexOf(url) === -1) {
+          service.locations.push(url);
+          //emit event for testing purposes
+          //clones.emit("new_clone", { url, service });
+          cb(null, { message: "New clone locations registered", service });
+        }
       } else {
+        service;
         service = {
           route,
           locations: [url]
@@ -39,8 +52,10 @@ module.exports = function TasksJSLoadBalancer(
         addService(service);
         //add service data to the queue
         serviceQueue.push(service);
+        //emit event for testing purposes
+        clones.emit("new_service", { url, service });
+        cb(null, { message: "New route registered", service });
       }
-      cb();
     };
     //cause and event to be fired from this clones module
     //this is used when you want to ensure that all instance of a
@@ -69,7 +84,7 @@ module.exports = function TasksJSLoadBalancer(
 
   const addService = ({ route, locations }) => {
     server.get(route, (req, res) => {
-      getService(service, (err, connectionData) => {
+      getService((err, connectionData) => {
         if (err) res.status(err.status).json(err);
         else res.json(connectionData);
       });
@@ -92,18 +107,23 @@ module.exports = function TasksJSLoadBalancer(
             );
             //remove the ref to the service that failed to load
             locations.splice(location_index, 1);
+            //emit event for testing purposes
+            clones.emit("location_removed", { url, route, locations });
             //call getService recursively until all locations have been exhuasted
             return getService(service);
           } else {
-            cb(results);
+            cb(null, results);
             location_index++;
           }
         });
       } else {
-        cb({ message: `No services found on requested route: ${route}` });
+        cb({
+          message: `No services found on requested route: ${route}`,
+          status: 404
+        });
       }
     };
   };
 
-  return clonesModule;
+  return clones;
 };
