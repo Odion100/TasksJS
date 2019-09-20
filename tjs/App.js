@@ -71,9 +71,8 @@ module.exports = function TasksJSApp() {
             } catch (err) {
               console.warn(
                 `(TasksJSAppWarning)(${name} Service): Failed to connect to ${url} after ${err.connection_attempts ||
-                  0} attempts:\n ERROR---------------->\n`,
-                err,
-                `\n<--------------------------`
+                  0} attempts`,
+                err.connection_attempts ? "" : err
               );
               app.emit("failed_connection", err);
               resolve();
