@@ -25,7 +25,6 @@ const ServerManagerTest = require("./units/ServerManager");
 const ServerModuleServiceTest = require("./units/ServerModuleService");
 const AppTest = require("./units/App");
 const LoadBalancerTest = require("./units/LoadBalancer");
-
 ClientServerTest(TasksJSClient, TasksJSServer);
 
 ModuleTest(TasksJSModule);

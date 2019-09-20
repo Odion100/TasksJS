@@ -39,12 +39,12 @@ module.exports = function TasksJSApp() {
     }
 
     const { config } = systemObjects;
-    if (typeof config.constructor === "function") {
+    if (typeof config.__constructor === "function") {
       //give config constructor access to the systemObject so any loaded services can be accessed
       config.module = TasksJSModule(null, null, { systemObjects });
       //pass loadModules as a parameter of the config constructor function
       //so that its given control of the next step in the initialization lifecycle
-      config.constructor.apply(config.module, [loadModules]);
+      config.__constructor.apply(config.module, [loadModules]);
     } else loadModules(); //load modules immediately
   };
 
@@ -95,7 +95,7 @@ module.exports = function TasksJSApp() {
     serverModuleQueue.forEach(mod =>
       ServerModule(mod.name, mod.constructor, { systemObjects })
     );
-    app.emit("init_complete", systemObjects);
+    app.emit("init_complete", { systemObjects });
   };
 
   //use ServerModule to initialize the express server that will handle routing
@@ -169,7 +169,7 @@ module.exports = function TasksJSApp() {
 
   app.config = constructor => {
     if (typeof constructor === "function")
-      systemObjects.config.constructor = constructor;
+      systemObjects.config.__constructor = constructor;
 
     return app;
   };

@@ -1,4 +1,14 @@
 module.exports = (LoadBalancer, App, Service) => {
+  App()
+    .startService({ route: "my/app", port: 4000 })
+
+    .ServerModule("testModule", {
+      testMethod: (data, cb) => cb({ testPassed: true, ...data })
+    })
+    .on("init_complete", data =>
+      console.log(data, "<---------------init_complete")
+    );
+  return;
   describe("LoadBalancer && TasksJSService Reconnection Process Test", () => {
     //spin up a loadblancer
     const lb_port = "5200";
@@ -11,7 +21,7 @@ module.exports = (LoadBalancer, App, Service) => {
       console.log(data, `<<<------location_removed`)
     );
 
-    //register some fack routes
+    //register some fake routes
     clones.register(
       { route: app_route, port: 9090, host: "localhost" },
       (data, results) => console.log(data, results)

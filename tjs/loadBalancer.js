@@ -110,7 +110,7 @@ module.exports = function TasksJSLoadBalancer({
             //emit event for testing purposes
             clones.emit("location_removed", { url, route, locations });
             //call getService recursively until all locations have been exhuasted
-            return getService(service);
+            return getService(cb);
           } else {
             cb(null, results);
             location_index++;
