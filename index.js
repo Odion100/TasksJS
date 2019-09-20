@@ -10,7 +10,8 @@ const TasksJSModule = require("./tjs/Module");
 
 //this index file exports a function to ensure non-singleton behavior
 module.exports = function TasksJS() {
-  const App = TasksJSApp();
+  const App = TasksJSApp;
+  const app = App();
   const Client = TasksJSClient();
   const ServerModule = TasksJSServerModule();
   //create separate names for these main utilites
@@ -25,6 +26,7 @@ module.exports = function TasksJS() {
     LoadBalancer,
     ServerModule,
     Service,
+    app,
     //export all modules themselves
     //all these modules export factory functions
     //to ensure non-singleton behavior
