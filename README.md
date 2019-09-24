@@ -16,8 +16,8 @@ const {
 ```
 Notice that ` require("TasksJS") ` exports a factory function. You then call that function to return a ***TasksJS*** instance which consists of several objects and functions. The main  abstractions used for client-server communication are the following:
 
-- ***ServerModule*** - used to create objects on the server that can be loaded and used on the client. 
-- ***Service*** - used on the client to load a *Service* object from the server consisting of one or more *ServerModule*.
+- ***ServerModule*** - Used to create objects on the server that can be loaded and used on the client. 
+- ***Service*** - Used on the client to load a *Service* object from the server consisting of one or more *ServerModule*.
 - ***App*** - Provides a modular interface and lifecycle for loading services, asynchronous configurations and module initialization. 
 
 ---
@@ -25,7 +25,7 @@ Notice that ` require("TasksJS") ` exports a factory function. You then call tha
 # Quick Start
 #### ServerModule(name, constructor, [options])
 
-With the TasksJS ***ServerModule(name, constructor, [options])*** function you can create objects on the server that can be loaded and used on the client. Here's an example of a ***ServerModule*** in action.
+With the TasksJS ***ServerModule(name, constructor, [options])*** function you can create objects on the server that can be loaded and used on the client. Here's an example of a *ServerModule* in action.
 
 ```
 const { ServerModule } =  require("TasksJS")();
@@ -34,7 +34,7 @@ ServerModule.startService({ route, port, host });
 
 ```
 
-First, we destructure the ***SeverModule*** function from the ***TasksJS*** instance. We then use the ***ServerModule.startService(options)*** function to initialize an Express and SocketIO server that will handle mapping HTTP request and WebSocket events to each ServerModule instance created. Keep in mind that the ***ServerModule.startService*** function  must be called before any modules are created.
+First, we destructure the ***SeverModule*** function from the ***TasksJS*** instance. We then use the ***ServerModule.startService(options)*** function to initialize an Express and SocketIO server that will handle routing and mapping HTTP request and WebSocket events to each ServerModule instance created. Keep in mind that the ***ServerModule.startService*** function  must be called before any modules are created.
 
 ```
 
