@@ -84,31 +84,31 @@ module.exports = (LoadBalancer, App, Service) => {
       //     )
       //   ).to.eventually.be.an("array"));
 
-      // Promise.all(
-      //   [1, 2, 3].map(
-      //     () =>
-      //       new Promise(async resolve => {
-      //         console.log(
-      //           clones.serviceQueue[0].locations,
-      //           "<<<---locations-------------"
-      //         );
-      //         const service = await Service(
-      //           `http://localhost:${lb_port}/${app_route}`,
-      //           {
-      //             forceReload: true,
-      //             wait: 0
-      //           }
-      //         );
-      //         resolve(service);
-      //       })
-      //   )
-      // ).then(results => {
-      //   console.log(results, "<<<<-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=");
-      //   console.log(
-      //     clones.serviceQueue[0].locations,
-      //     "<<<---locations-------------1"
-      //   );
-      // });
+      Promise.all(
+        [1, 2, 3].map(
+          () =>
+            new Promise(async resolve => {
+              console.log(
+                clones.serviceQueue[0].locations,
+                "<<<---locations-------------"
+              );
+              const service = await Service(
+                `http://localhost:${lb_port}/${app_route}`,
+                {
+                  forceReload: true,
+                  wait: 0
+                }
+              );
+              resolve(service);
+            })
+        )
+      ).then(results => {
+        console.log(results, "<<<<-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=");
+        console.log(
+          clones.serviceQueue[0].locations,
+          "<<<---locations-------------1"
+        );
+      });
 
       // it("should remove connection data of unreachable services from the queue", () => {});
 
