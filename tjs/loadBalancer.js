@@ -66,13 +66,13 @@ module.exports = function TasksJSLoadBalancer({
     };
     //clones using this loadbalancer service can used this function
     //to ensure that only one instance of the service responds to shared events
-    clones.assignEvent = (event, cb) => {
+    clones.assignHandler = (event, cb) => {
       const e = handledEvents.find(e => (e.id = event.id));
       if (!e) {
         //record that the event was handled
         handledEvents.push(event);
         //call the callback to let the service handle the event
-        cb();
+        cb(null, event);
       }
 
       if (handledEvents.length > 50) {
@@ -83,45 +83,66 @@ module.exports = function TasksJSLoadBalancer({
   });
 
   const addService = ({ route, locations }) => {
-    server.get(route, (req, res) => {
-      getService((err, connectionData) => {
-        if (err) res.status(err.status).json(err);
-        else res.json(connectionData);
-      });
-    });
-
-    //attempt to retrieve connectionData for the service from the registered clone locations
-    const method = "GET";
     let location_index = 0;
-
-    const getService = cb => {
-      if (locations.length > 0) {
+    server.get(route, (req, res) => {
+      //wrapped in a function so it can be called asynchronously
+      function recursiveGetService() {
+        //retrun status 404 if no clones are available
+        if (locations.length === 0)
+          res.status(404).json({
+            message: `No services found on requested route: ${route}`
+          });
+        //ensure the location_index is less than the lenght of the array
         location_index = location_index < locations.length ? location_index : 0;
         const url = locations[location_index];
-
-        Client.request({ method, url }, (err, results) => {
-          if (err) {
-            //if the request to the service failes, remove the url for the list
-            console.warn(
-              `(TasksJSLoadBalancer): Removing (${url}) URL from ${route} Service`
-            );
-            //remove the ref to the service that failed to load
-            locations.splice(location_index, 1);
-            //emit event for testing purposes
-            clones.emit("location_removed", { url, route, locations });
-            //call getService recursively until all locations have been exhuasted
-            return getService(cb);
-          } else {
-            cb(null, results);
-            location_index++;
-          }
-        });
-      } else {
-        cb({
-          message: `No services found on requested route: ${route}`,
-          status: 404
+        //call recursiveGetService recursively until all locations have been exhuasted
+        console.log(
+          "trying this-----------------------------ooo00o000oo00o>>>>",
+          url,
+          locations,
+          location_index
+        );
+        getService(url, (err, connData) => {
+          console.log(
+            err,
+            "<---------o     hello world       o--------->",
+            connData
+          );
+          if (err)
+            if (locations.length > 0) recursiveGetService();
+            else res.status(err.status || 500).json(err);
+          else res.json(connData);
         });
       }
+      recursiveGetService();
+    });
+
+    //attempt to retrieve connection data for the service from the registered clone locations
+    const method = "GET";
+    const getService = (url, cb) => {
+      Client.request({ method, url }, (err, results) => {
+        if (err) {
+          //if the request to the service failes, remove the url for the list
+          console.warn(
+            `(TasksJSLoadBalancer): Removing (${url}) URL from ${route} Service`
+          );
+          //remove the ref to the service that failed to load
+          //because the locations array can be transformed during
+          //the async request, this is the best way to remove the location
+          for (i = 0; i < locations.length; i++) {
+            if (locations[i] === url) {
+              locations.splice(i, 1);
+              //emit event for testing purposes
+              clones.emit("location_removed", { url, route, locations });
+            }
+          }
+
+          cb(err);
+        } else {
+          location_index++;
+          cb(null, results);
+        }
+      }).catch(err => console.log(err, "here<--------------------------"));
     };
   };
 

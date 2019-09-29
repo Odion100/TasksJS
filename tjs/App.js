@@ -62,7 +62,10 @@ module.exports = function TasksJSApp() {
               //the service's data and recreating its ServerModules on the client side
               service.ServerModules = await Service(url, { limit, wait });
               //use apply to ensure that the onLoad handler function
-              if (typeof onLoad === "function") onLoad(service.ServerModules);
+              if (typeof onLoad === "function") {
+                onLoad(service.ServerModules);
+                service.ServerModules.on("reconnect", onLoad);
+              }
               //emit sevice_loaded event after loading each Service
               app
                 .emit("service_loaded", service.ServerModules)

@@ -38,6 +38,7 @@ module.exports = function TasksJSService() {
 
     const createService = connData => {
       const service = new TasksJSModule();
+      service.TasksJSService = connData.TasksJSService;
       //each mod describes a backend ServerModule
       connData.mods.forEach(mod => {
         service[mod.name] = serverModuleRequestHandler(mod, connData, service);
@@ -93,7 +94,9 @@ module.exports = function TasksJSService() {
                 //throw an error if a request fails three times in a row
                 if (errCount >= 3)
                   throw Error(
-                    "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
+                    `(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts->
+                    url: ${url}
+                  `
                   );
                 //reset the connection then try to make the same request again
                 errCount++;
@@ -135,7 +138,9 @@ module.exports = function TasksJSService() {
               //throw an error if a request fails three times in a row
               if (errCount >= 3)
                 throw Error(
-                  "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
+                  `(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts->
+                    url: ${url}
+                  `
                 );
               //reset the connection then try to make the same request again
               errCount++;
@@ -154,7 +159,12 @@ module.exports = function TasksJSService() {
       //instead of re-instantiating the backend ServerModules we use the ___setConnection
       //method to update the serverModules' connection data
       mods.forEach(mod =>
-        service[mod.name].__setConnection(host, port, mod.route, mod.namespace)
+        loadedServices[url][mod.name].__setConnection(
+          host,
+          port,
+          mod.route,
+          mod.namespace
+        )
       );
       cb();
     };
