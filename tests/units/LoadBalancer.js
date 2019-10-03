@@ -11,17 +11,31 @@ module.exports = (LoadBalancer, App, Service) => {
     const app_route = "my/app";
     const ports = [4001, 4002, 4003];
     //test values
+
     let sharedEventCount = 0;
-    let fakeClonesRemoved = true;
-    // clones.on("new_clone", data => console.log(data, `<<<------new_clone`));
-    // clones.on("new_service", data => console.log(data, `<<<------new_service`));
-    // clones.on("location_removed", ({ url, locations }) =>
-    //   console.log(locations, "<<<---------------------removed--->", url)
-    // );
-    // //register some fake routes
-    // clones.register({ route: app_route, port: 1111, host: "localhost" }, err =>
-    //   console.log(err)
-    // );
+    const lifecycleEvents = {
+      clone_removed_count: 0,
+      new_clone_count: 0,
+      new_service_count: 0
+    };
+    //should call new_clone event
+    clones.on("new_clone", data => {
+      lifecycleEvents.new_clone_count++;
+    });
+    clones.on("new_service", data => {
+      lifecycleEvents.new_service_count++;
+    });
+    clones.on("location_removed", data => {
+      lifecycleEvents.clone_removed_count++;
+    });
+
+    //register some fake routes
+    clones.register(
+      { route: app_route, port: 1111, host: "localhost" },
+      err => {
+        if (err) console.log(err);
+      }
+    );
     //spin up an app, connect and register the connection with loadbalancer service
     before(done => {
       //create three clones that register to the loadbalancer
@@ -106,7 +120,12 @@ module.exports = (LoadBalancer, App, Service) => {
       it("should accept request for connection data on routes of registered services", () =>
         expect(Service(`http://localhost:${lb_port}/${app_route}`))
           .to.eventually.be.an("object")
-          .that.has.all.keys("on", "emit", "testModule", "TasksJSService"));
+          .that.has.all.keys(
+            "on",
+            "emit",
+            "testModule",
+            "TasksJSService"
+          )).timeout(3000);
       //make a request for the same service three times throug the loadbalancer with forceReload option
       //expect each clone to originate from a different location
       it("should roundrobin each clone location when recieve a request for connection data", () =>
@@ -143,12 +162,20 @@ module.exports = (LoadBalancer, App, Service) => {
           );
       });
 
-      it("should handle multiple different routes (Service Discovery)", () =>
+      it("should handle multiple different routes (Service Discovery Test)", () =>
         expect(Service(`http://localhost:${lb_port}/test/app/2`))
           .to.eventually.be.an("object")
-          .that.has.all.keys("on", "emit", "Mod2", "TasksJSService"));
+          .that.has.all.keys("on", "emit", "Mod2", "TasksJSService")).timeout(
+        3000
+      );
 
-      //it("should emit expected lifecycle events", () => {});
+      it("should emit expected lifecycle events", () => {
+        expect(lifecycleEvents).to.deep.equal({
+          clone_removed_count: 1,
+          new_clone_count: 5,
+          new_service_count: 2
+        });
+      });
       // it("should be able to use shareEvent method to fire events from the LoadBalancer to registered clones", () => {});
     });
 

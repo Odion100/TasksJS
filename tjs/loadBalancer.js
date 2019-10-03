@@ -39,7 +39,7 @@ module.exports = function TasksJSLoadBalancer({
         if (service.locations.indexOf(url) === -1) {
           service.locations.push(url);
           //emit event for testing purposes
-          //clones.emit("new_clone", { url, service });
+          clones.emit("new_clone", { url, service });
           cb(null, { message: "New clone locations registered", service });
         }
       } else {
@@ -54,7 +54,8 @@ module.exports = function TasksJSLoadBalancer({
         serviceQueue.push(service);
         //emit event for testing purposes
         clones.emit("new_service", { url, service });
-        cb(null, { message: "New route registered", service });
+        clones.emit("new_clone", { url, service });
+        cb(null, { url, service });
       }
     };
     //cause and event to be fired from this clones module
