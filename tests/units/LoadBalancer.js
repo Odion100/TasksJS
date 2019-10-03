@@ -100,11 +100,22 @@ module.exports = (LoadBalancer, App, Service) => {
           .that.has.a.lengthOf(3)
           .that.has.members(ports.map(port => `localhost:${port}/my/app`)));
 
-      // it("should remove connection data of unreachable services from the queue", () => {});
+      it("should remove connection data of unreachable services from the queue", () => {
+        const { locations } = clones.serviceQueue.find(
+          service => (service.route = "/my/app")
+        );
+        expect(locations)
+          .to.be.an("array")
+          .that.has.a.lengthOf(3)
+          .that.has.members(
+            ports.map(port => `http://localhost:${port}/my/app`)
+          );
+      });
 
+      it("should handle multiple different routes (Service Discovery)", () => {});
+
+      it("should emit expected lifecycle events", () => {});
       // it("should be able to use shareEvent method to fire events from the LoadBalancer to registered clones", () => {});
-
-      // it("should handle multiple different routes (Service Discovery)", () => {});
     });
 
     // describe("Service", () => {

@@ -97,10 +97,17 @@ module.exports = function TasksJSLoadBalancer({
           const url = locations[location_index];
           //call recursiveGetService recursively until all locations have been exhuasted
           getService(url, (err, connData) => {
-            if (err)
-              if (locations.length > 0) recursiveGetService();
-              else res.status(err.status || 500).json(err);
-            else res.json(connData);
+            if (err) {
+              //remove the ref to the service that failed to load
+              for (i = 0; i < locations.length; i++) {
+                if (locations[i] === url) {
+                  locations.splice(i, 1);
+                  //emit event for testing purposes
+                  clones.emit("location_removed", { url, route, locations });
+                }
+              }
+              recursiveGetService();
+            } else res.json(connData);
           });
         }
         recursiveGetService();
@@ -115,17 +122,6 @@ module.exports = function TasksJSLoadBalancer({
             console.warn(
               `(TasksJSLoadBalancer): Removing (${url}) URL from ${route} Service`
             );
-            //remove the ref to the service that failed to load
-            //because the locations array can be transformed during
-            //the async request, this is the best way to remove the location
-            for (i = 0; i < locations.length; i++) {
-              if (locations[i] === url) {
-                locations.splice(i, 1);
-                //emit event for testing purposes
-                clones.emit("location_removed", { url, route, locations });
-              }
-            }
-
             cb(err);
           } else {
             cb(null, results);
