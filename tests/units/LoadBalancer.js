@@ -2,29 +2,31 @@ const chai = require("chai");
 const chaiAsPromise = require("chai-as-promised");
 chai.use(chaiAsPromise);
 const { expect } = chai;
-
+const obj = require("obj-handler");
 module.exports = (LoadBalancer, App, Service) => {
   describe("LoadBalancer && TasksJSService Reconnection Process Test", () => {
     //spin up a loadblancer
     const lb_port = "5200";
     const clones = LoadBalancer({ port: lb_port });
     const app_route = "my/app";
+    const ports = [4001, 4002, 4003];
     //test values
     let sharedEventCount = 0;
     let fakeClonesRemoved = true;
-    clones.on("new_clone", data => console.log(data, `<<<------new_clone`));
-    clones.on("new_service", data => console.log(data, `<<<------new_service`));
-    clones.on("location_removed", ({ url, locations }) =>
-      console.log(locations, "<<<---------------------removed--->", url)
-    );
-    //register some fake routes
-    clones.register({ route: app_route, port: 1111, host: "localhost" }, err =>
-      console.log(err)
-    );
+    // clones.on("new_clone", data => console.log(data, `<<<------new_clone`));
+    // clones.on("new_service", data => console.log(data, `<<<------new_service`));
+    // clones.on("location_removed", ({ url, locations }) =>
+    //   console.log(locations, "<<<---------------------removed--->", url)
+    // );
+    // //register some fake routes
+    // clones.register({ route: app_route, port: 1111, host: "localhost" }, err =>
+    //   console.log(err)
+    // );
     //spin up an app, connect and register the connection with loadbalancer service
-    const LoadBalancerClonesTest = new Promise(resolve => {
+    before(done => {
       //create three clones that register to the loadbalancer
-      [4001, 4002, 4003].forEach(port =>
+      let init_count = 0;
+      ports.forEach(port =>
         App()
           .startService({ route: app_route, port })
           .loadService("loadBalancer", {
@@ -54,9 +56,17 @@ module.exports = (LoadBalancer, App, Service) => {
             this.testMethod = (data, cb) => cb({ testPassed: true, ...data });
 
             //use clones.assignHandler to ensure only one
-            loadBalancer.clones.assignHandler({ id: 1234 }, () =>
-              loadBalancer.clones.shareEvent("test", { testPassed: true })
-            );
+            // loadBalancer.clones.assignHandler({ id: 1234 }, () => {
+            //   console.log(
+            //     "assignHandler callback-------------    -o-o-    ---->",
+            //     port
+            //   );
+            //   loadBalancer.clones.shareEvent("test", { testPassed: true });
+            // });
+          })
+          .on("init_complete", () => {
+            init_count++;
+            if (init_count >= 3) done();
           })
       );
     });
@@ -65,50 +75,30 @@ module.exports = (LoadBalancer, App, Service) => {
       it("should accept request for connection data on routes of registered services", () =>
         expect(Service(`http://localhost:${lb_port}/${app_route}`))
           .to.eventually.be.an("object")
-          .that.has.all.keys(
-            "on",
-            "emit",
-            "testModule",
-            "TasksJSService"
-          )).timeout(3000);
+          .that.has.all.keys("on", "emit", "testModule", "TasksJSService"));
       //make a request for the same service three times throug the loadbalancer with forceReload option
       //expect each clone to originate from a different location
-      // it("should roundrobin each clone location when recieve a request for connection data", () =>
-      //   expect(
-      //     Promise.all(
-      //       [1, 2, 3].map(() =>
-      //         Service(`http://localhost:${lb_port}/${app_route}`, {
-      //           forceReload: true
-      //         })
-      //       )
-      //     )
-      //   ).to.eventually.be.an("array"));
-
-      Promise.all(
-        [1, 2, 3].map(
-          () =>
-            new Promise(async resolve => {
-              console.log(
-                clones.serviceQueue[0].locations,
-                "<<<---locations-------------"
-              );
+      it("should roundrobin each clone location when recieve a request for connection data", () =>
+        expect(
+          new Promise(resolve => {
+            const results = [];
+            obj(ports).forEachSync(async (port, index, next, last) => {
               const service = await Service(
                 `http://localhost:${lb_port}/${app_route}`,
                 {
-                  forceReload: true,
-                  wait: 0
+                  forceReload: true
                 }
               );
-              resolve(service);
-            })
+
+              results.push(service.TasksJSService.serviceUrl);
+              if (last) resolve(results);
+              else next();
+            });
+          })
         )
-      ).then(results => {
-        console.log(results, "<<<<-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=");
-        console.log(
-          clones.serviceQueue[0].locations,
-          "<<<---locations-------------1"
-        );
-      });
+          .to.eventually.be.an("array")
+          .that.has.a.lengthOf(3)
+          .that.has.members(ports.map(port => `localhost:${port}/my/app`)));
 
       // it("should remove connection data of unreachable services from the queue", () => {});
 
@@ -124,3 +114,16 @@ module.exports = (LoadBalancer, App, Service) => {
     // });
   });
 };
+// ()=> {
+//   const service = await Service(
+//     `http://localhost:${lb_port}/${app_route}`,
+//     {
+//       forceReload: true
+//     }
+//   );
+//   console.log(
+//     service.TasksJSService.serviceUrl,
+//     "uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu"
+//   );
+//   resolve(service.TasksJSService.serviceUrl);
+// }

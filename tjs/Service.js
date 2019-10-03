@@ -94,8 +94,10 @@ module.exports = function TasksJSService() {
                 //throw an error if a request fails three times in a row
                 if (errCount >= 3)
                   throw Error(
-                    `(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts->
+                    `(TasksJSServiceError): Invalid route. Failed to reconnect after 3 attempts->
                     url: ${url}
+                    method:${name}
+                    service:${service.TasksJSService.serviceUrl}
                   `
                   );
                 //reset the connection then try to make the same request again
@@ -138,8 +140,10 @@ module.exports = function TasksJSService() {
               //throw an error if a request fails three times in a row
               if (errCount >= 3)
                 throw Error(
-                  `(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts->
+                  `(TasksJSServiceError): Invalid route. Failed to reconnect after 3 attempts->
                     url: ${url}
+                    method:${name}
+                    service:${service.TasksJSService.serviceUrl}
                   `
                 );
               //reset the connection then try to make the same request again

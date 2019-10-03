@@ -35,4 +35,4 @@ ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client);
 
 AppTest(TasksJSApp, ServerModule, Service);
 
-// LoadBalancerTest(LoadBalancer, App, Service);
+LoadBalancerTest(LoadBalancer, App, Service);
