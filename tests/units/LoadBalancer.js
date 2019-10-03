@@ -69,6 +69,37 @@ module.exports = (LoadBalancer, App, Service) => {
             if (init_count >= 3) done();
           })
       );
+
+      //add another app and route
+      App()
+        .startService({ route: "test/app/2", port: 4322 })
+        .loadService("loadBalancer", {
+          route: "loadbalancer",
+          port: lb_port
+        })
+        .onLoad(loadBalancer => {
+          loadBalancer.clones.register(
+            {
+              route: "test/app/2",
+              port: 4322,
+              host: "localhost"
+            },
+            err => {
+              if (err) throw err;
+            }
+          );
+
+          loadBalancer.clones.on("test", () => {
+            sharedEventCount++;
+
+            if (sharedEventCount >= 3) resolve({ sharedEventCount });
+          });
+        })
+        .ServerModule("Mod2", {
+          testFn: (data, cb) => {
+            cb({ ...data, testPassed: true });
+          }
+        });
     });
 
     describe("LoadBalancer", () => {
@@ -112,9 +143,12 @@ module.exports = (LoadBalancer, App, Service) => {
           );
       });
 
-      it("should handle multiple different routes (Service Discovery)", () => {});
+      it("should handle multiple different routes (Service Discovery)", () =>
+        expect(Service(`http://localhost:${lb_port}/test/app/2`))
+          .to.eventually.be.an("object")
+          .that.has.all.keys("on", "emit", "Mod2", "TasksJSService"));
 
-      it("should emit expected lifecycle events", () => {});
+      //it("should emit expected lifecycle events", () => {});
       // it("should be able to use shareEvent method to fire events from the LoadBalancer to registered clones", () => {});
     });
 
