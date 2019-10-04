@@ -84,10 +84,9 @@ module.exports = function TasksJSService() {
       methods.forEach(fn => (serverMod[fn.name] = requestHandler(fn)));
 
       function requestHandler({ method, name }) {
-        return function sendData(data, cb, errCount = 0) {
-          //handles callback after each request
-          const callBack = (err, results) => {
-            if (err) {
+        return function sendData(data, cb) {
+          const executeRequest = (cb, errCount = 0) => {
+            const ErrorHandler = err => {
               //if the err object doesn't have TasksJSServerError value as true
               //we know the request never reached the server
               if (!err.TasksJSServerError) {
@@ -95,62 +94,58 @@ module.exports = function TasksJSService() {
                 if (errCount >= 3)
                   throw Error(
                     `(TasksJSServiceError): Invalid route. Failed to reconnect after 3 attempts->
-                    url: ${url}
-                    method:${name}
-                    service:${service.TasksJSService.serviceUrl}
-                  `
+                url: ${url}
+                method:${name}
+                service:${service.TasksJSService.serviceUrl}
+              `
                   );
                 //reset the connection then try to make the same request again
                 errCount++;
-                resetConnection(() => sendData(data, cb, errCount));
+                resetConnection(() => executeRequest(cb, errCount));
               } else {
                 service.emit("failed_request", {
                   err,
                   serverMod,
                   fn_name: name
                 });
-                if (typeof cb === "function") cb(err);
+                cb(err);
               }
-            } else {
-              if (typeof cb === "function") cb(null, results);
+            };
+
+            if (data.file)
+              Client.upload({
+                url: `${singleFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else if (data.files)
+              Client.upload({
+                url: `${multiFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else {
+              Client.request({ url: `${url}/${name}`, method, body: { data } })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
             }
           };
 
-          //if there is a file or files property on the data object make the
-          //request to the appropriate file upload route
-          try {
-            if (data.file)
-              return Client.upload(
-                { url: `${singleFileURL}/${name}`, method, formData: data },
-                callBack
-              );
-            else if (data.files)
-              return Client.upload(
-                { url: `${multiFileURL}/${name}`, method, formData: data },
-                callBack
-              );
-            else {
-              return Client.request(
-                { url: `${url}/${name}`, method, body: { data } },
-                callBack
-              );
-            }
-          } catch (err) {
-            if (!err.TasksJSServerError) {
-              //throw an error if a request fails three times in a row
-              if (errCount >= 3)
-                throw Error(
-                  `(TasksJSServiceError): Invalid route. Failed to reconnect after 3 attempts->
-                    url: ${url}
-                    method:${name}
-                    service:${service.TasksJSService.serviceUrl}
-                  `
-                );
-              //reset the connection then try to make the same request again
-              errCount++;
-              resetConnection(() => sendData(data, cb, errCount));
-            } else throw err;
-          }
+          //there is an option to use either the callback or the promise
+          //if cb is a function then call executeRequest with cb as the callback
+          // else return a promise that calls executRequest
+          if (typeof cb === "function") executeRequest(cb);
+          else
+            return new Promise((resolve, reject) =>
+              executeRequest((err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+              })
+            );
         };
       }
 

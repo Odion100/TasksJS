@@ -70,13 +70,9 @@ module.exports = (LoadBalancer, App, Service) => {
             this.testMethod = (data, cb) => cb({ testPassed: true, ...data });
 
             //use clones.assignHandler to ensure only one
-            // loadBalancer.clones.assignHandler({ id: 1234 }, () => {
-            //   console.log(
-            //     "assignHandler callback-------------    -o-o-    ---->",
-            //     port
-            //   );
-            //   loadBalancer.clones.shareEvent("test", { testPassed: true });
-            // });
+            loadBalancer.clones.assignHandler({ id: 1234 }, err => {
+              //loadBalancer.clones.shareEvent("test", { testPassed: true });
+            });
           })
           .on("init_complete", () => {
             init_count++;

@@ -74,7 +74,7 @@ module.exports = function TasksJSLoadBalancer({
         handledEvents.push(event);
         //call the callback to let the service handle the event
         cb(null, event);
-      }
+      } else cb({ message: "Event already handle", status: 403 });
 
       if (handledEvents.length > 50) {
         //remove last 20 elements to keep list short
