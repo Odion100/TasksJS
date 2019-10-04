@@ -127,7 +127,7 @@ module.exports = function TasksJSLoadBalancer({
           } else {
             cb(null, results);
           }
-        }).catch(err => clones.errLog.push(err));
+        });
     };
   });
 

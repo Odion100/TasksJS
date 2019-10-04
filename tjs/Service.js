@@ -86,6 +86,27 @@ module.exports = function TasksJSService() {
       function requestHandler({ method, name }) {
         return function sendData(data, cb) {
           const executeRequest = (cb, errCount = 0) => {
+            if (data.file)
+              Client.upload({
+                url: `${singleFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else if (data.files)
+              Client.upload({
+                url: `${multiFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else {
+              Client.request({ url: `${url}/${name}`, method, body: { data } })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            }
             const ErrorHandler = err => {
               //if the err object doesn't have TasksJSServerError value as true
               //we know the request never reached the server
@@ -111,28 +132,6 @@ module.exports = function TasksJSService() {
                 cb(err);
               }
             };
-
-            if (data.file)
-              Client.upload({
-                url: `${singleFileURL}/${name}`,
-                method,
-                formData: data
-              })
-                .then(results => cb(null, results))
-                .catch(err => ErrorHandler(err));
-            else if (data.files)
-              Client.upload({
-                url: `${multiFileURL}/${name}`,
-                method,
-                formData: data
-              })
-                .then(results => cb(null, results))
-                .catch(err => ErrorHandler(err));
-            else {
-              Client.request({ url: `${url}/${name}`, method, body: { data } })
-                .then(results => cb(null, results))
-                .catch(err => ErrorHandler(err));
-            }
           };
 
           //there is an option to use either the callback or the promise
