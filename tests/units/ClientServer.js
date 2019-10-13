@@ -76,7 +76,7 @@ module.exports = (TasksJSClient, TasksJSServer) => {
       });
 
       it("should be able to upload a files", async () => {
-        const file = fs.createReadStream(__dirname + "\\testFile.json");
+        const file = fs.createReadStream(__dirname + "/testFile.json");
         const uploadResponse = await Client.upload({
           url: singleFileUrl,
           formData: { file }
@@ -92,8 +92,8 @@ module.exports = (TasksJSClient, TasksJSServer) => {
       });
       it("should be able to upload multiple files", async () => {
         const files = [
-          fs.createReadStream(__dirname + "\\testFile.json"),
-          fs.createReadStream(__dirname + "\\testFile.json")
+          fs.createReadStream(__dirname + "/testFile.json"),
+          fs.createReadStream(__dirname + "/testFile.json")
         ];
         const multiUploadResponse = await Client.upload({
           url: multiFileUrl,

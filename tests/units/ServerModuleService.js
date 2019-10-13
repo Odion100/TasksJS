@@ -180,7 +180,7 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
 
       it("should be able to upload one are more files to the ServerModule", async () => {
         const service = await Service(url2);
-        const file = fs.createReadStream(__dirname + "\\testFile.json");
+        const file = fs.createReadStream(__dirname + "/testFile.json");
 
         const results = await service.testMod2.uploadTest({ file });
 
@@ -193,8 +193,8 @@ module.exports = (TasksJSServerModule, TasksJSService, Client) => {
           .that.has.property("originalname", "testFile.json");
 
         const files = [
-          fs.createReadStream(__dirname + "\\testFile.json"),
-          fs.createReadStream(__dirname + "\\testFile.json")
+          fs.createReadStream(__dirname + "/testFile.json"),
+          fs.createReadStream(__dirname + "/testFile.json")
         ];
         const results2 = await service.testMod2.multiUploadTest({ files });
 
