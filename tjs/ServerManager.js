@@ -22,12 +22,13 @@ module.exports = function TasksJSServerManager() {
       throw Error(
         `(TasksJSSeverManagerError): You must only call startServer({route, port, host}) once: ${route}`
       );
-    const serviceUrl = `${host}:${port}/${route}`;
+
+    //ensure route begins with a slash
+    route = route.charAt(0) === "/" ? route : "/" + route;
+    const serviceUrl = `${host}:${port}${route}`;
     ServerManager.host = host;
     ServerManager.route = route;
     ServerManager.serviceUrl = serviceUrl;
-    //ensure route begins with a slash
-    route = route.charAt(0) === "/" ? route : "/" + route;
     //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of

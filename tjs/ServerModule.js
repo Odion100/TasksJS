@@ -62,7 +62,10 @@ module.exports = function TasksJSServerModule() {
         methods.push({ method, name });
       }
     });
-
+    console.log(
+      methods,
+      "<---sm-methods-------yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy--"
+    );
     ServerManager.addModule({
       name,
       ServerModule,

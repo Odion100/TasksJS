@@ -24,8 +24,9 @@ const ModuleTest = require("./units/Module");
 const ServerManagerTest = require("./units/ServerManager");
 const ServerModuleServiceTest = require("./units/ServerModuleService");
 const AppTest = require("./units/App");
+const LoadBalancerTest = require("./units/LoadBalancer");
 
-ClientServerTest(TasksJSClient, TasksJSServer);
+/* ClientServerTest(TasksJSClient, TasksJSServer);
 
 ModuleTest(TasksJSModule);
 
@@ -33,4 +34,6 @@ ServerManagerTest(TasksJSServerManager, Client);
 
 ServerModuleServiceTest(TasksJSServerModule, TasksJSService, Client);
 
-AppTest(TasksJSApp, ServerModule, Service);
+AppTest(TasksJSApp, ServerModule, Service); */
+
+LoadBalancerTest(TasksJSLoadBalancer, TasksJSApp, Service, Client);

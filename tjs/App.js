@@ -87,6 +87,10 @@ module.exports = function TasksJSApp() {
         (mod.module = TasksJSModule(mod.name, mod.constructor, systemObjects))
     );
     //then load each ServerModule
+    console.log(
+      "serverModuleQueue---------------w--w-w-w-w-w-w-w-w-w--w-w-w-w->",
+      serverModuleQueue
+    );
     serverModuleQueue.forEach(mod =>
       ServerModule(mod.name, mod.constructor, systemObjects)
     );

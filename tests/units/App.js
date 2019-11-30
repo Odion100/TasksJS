@@ -30,10 +30,10 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
       let use_config = false;
       let use_module = false;
       let use_service = false;
-      let test_complete = false;
+      let setup_complete = false;
       const app = TasksJSApp();
 
-      const serverMod = function() {
+      const serverModConstructor = function() {
         use_config = this.useConfig().testPassed;
         use_module = this.useModule("localMod").testPassed;
         const service = this.useService("myService");
@@ -43,7 +43,7 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           },
           (err, results) => {
             use_service = results.testPassed;
-            if (!test_complete) app.emit("test_complete");
+            if (!setup_complete) app.emit("setup_complete");
           }
         );
 
@@ -67,8 +67,8 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
           onload_called = true;
           service.onload_called = true;
         })
-        .ServerModule("appServerMod", serverMod)
-        .ServerModule("appServerMod2", serverMod)
+        .ServerModule("appServerMod", serverModConstructor)
+        .ServerModule("appServerMod2", serverModConstructor)
         .module("localMod", function() {
           this.testPassed = true;
         })
@@ -96,8 +96,8 @@ module.exports = (TasksJSApp, ServerModule, Service) => {
               err.connection_attempts === 2 &&
               err.connectionErrors.length === 2)
         )
-        .on("test_complete", () => {
-          test_complete = true;
+        .on("setup_complete", () => {
+          setup_complete = true;
           resolve({
             lifeCicleEventsTest: {
               init_complete,

@@ -6,11 +6,11 @@
 //the same loadbalancer so they can be all be reached at the same host
 const TasksJSServerModule = require("./ServerModule");
 const TasksJSClient = require("./Client");
-module.exports = function TasksJSLoadBalancer(
+module.exports = function TasksJSLoadBalancer({
   port,
   host = "localhost",
   route = "loadbalancer"
-) {
+}) {
   const ServerModule = TasksJSServerModule();
   const { server } = ServerModule.startServer({ port, host, route });
   const Client = TasksJSClient();
@@ -23,8 +23,10 @@ module.exports = function TasksJSLoadBalancer(
     clones.serviceQueue = serviceQueue;
     clones.handledEvents = [];
 
-    clones.register = ({ port, host, route }, cb) => {
+    clones.register = ({ port, route }, cb) => {
+      route = route.charAt(0) === "/" ? route : "/" + route;
       const url = `http://${host}:${port}${route}`;
+      console.log(url);
       //check if a route for this service has already been registered
       let service = serviceQueue.find(service => service.route === route);
       if (service) {
@@ -40,7 +42,9 @@ module.exports = function TasksJSLoadBalancer(
         //add service data to the queue
         serviceQueue.push(service);
       }
-      cb();
+      console.log(service, "]<<<-----------------------", route);
+
+      if (typeof cb === "function") cb();
     };
     //cause and event to be fired from this clones module
     //this is used when you want to ensure that all instance of a
@@ -68,9 +72,22 @@ module.exports = function TasksJSLoadBalancer(
   });
 
   const addService = ({ route, locations }) => {
+    console.log(route, "adding route <<<<<+++++++++++++++++++++============");
     server.get(route, (req, res) => {
-      getService(service, (err, connectionData) => {
-        if (err) res.status(err.status).json(err);
+      console.log(`receiving request for ${route}`);
+      console.log("locations 1------------>", locations);
+      getService((err, connectionData) => {
+        console.log(
+          "err:",
+          err,
+          "connectionData:",
+          connectionData,
+          "<----------oo-o--o-o-o-o--o-o-o-",
+          "locations:",
+          locations
+        );
+
+        if (err) res.status(404).json(err);
         else res.json(connectionData);
       });
     });
@@ -93,9 +110,9 @@ module.exports = function TasksJSLoadBalancer(
             //remove the ref to the service that failed to load
             locations.splice(location_index, 1);
             //call getService recursively until all locations have been exhuasted
-            return getService(service);
+            return getService(cb);
           } else {
-            cb(results);
+            cb(null, results);
             location_index++;
           }
         });
