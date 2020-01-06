@@ -8,9 +8,7 @@ module.exports = function TasksJSService() {
   //which provides instruction on how to make request to each ServerModule in the service
   return async function Service(
     url,
-    forceReload = false,
-    limit = 10,
-    wait = 150
+    { forceReload = false, limit = 10, wait = 150 } = {}
   ) {
     //avoid loading connection data from Service already loaded
     if (loadedServices[url] && !forceReload) return loadedServices[url];
@@ -40,6 +38,7 @@ module.exports = function TasksJSService() {
 
     const createService = connData => {
       const service = new TasksJSModule();
+      service.TasksJSService = connData.TasksJSService;
       //each mod describes a backend ServerModule
       connData.mods.forEach(mod => {
         service[mod.name] = serverModuleRequestHandler(mod, connData, service);
@@ -85,65 +84,67 @@ module.exports = function TasksJSService() {
       methods.forEach(fn => (serverMod[fn.name] = requestHandler(fn)));
 
       function requestHandler({ method, name }) {
-        return function sendData(data, cb, errCount = 0) {
-          //handles callback after each request
-          const callBack = (err, results) => {
-            if (err) {
+        return function sendData(data, cb) {
+          const executeRequest = (cb, errCount = 0) => {
+            if (data.file)
+              Client.upload({
+                url: `${singleFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else if (data.files)
+              Client.upload({
+                url: `${multiFileURL}/${name}`,
+                method,
+                formData: data
+              })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            else {
+              Client.request({ url: `${url}/${name}`, method, body: { data } })
+                .then(results => cb(null, results))
+                .catch(err => ErrorHandler(err));
+            }
+            const ErrorHandler = err => {
               //if the err object doesn't have TasksJSServerError value as true
               //we know the request never reached the server
               if (!err.TasksJSServerError) {
                 //throw an error if a request fails three times in a row
                 if (errCount >= 3)
                   throw Error(
-                    "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
+                    `(TasksJSServiceError): Invalid route. Failed to reconnect after 3 attempts->
+                url: ${url}
+                method:${name}
+                service:${service.TasksJSService.serviceUrl}
+              `
                   );
                 //reset the connection then try to make the same request again
                 errCount++;
-                resetConnection(() => sendData(data, cb, errCount));
+                resetConnection(() => executeRequest(cb, errCount));
               } else {
                 service.emit("failed_request", {
                   err,
                   serverMod,
                   fn_name: name
                 });
-                if (typeof cb === "function") cb(err);
+                cb(err);
               }
-            } else {
-              if (typeof cb === "function") cb(null, results);
-            }
+            };
           };
 
-          //if there is a file or files property on the data object make the
-          //request to the appropriate file upload route
-          try {
-            if (data.file)
-              return Client.upload(
-                { url: `${singleFileURL}/${name}`, method, formData: data },
-                callBack
-              );
-            else if (data.files)
-              return Client.upload(
-                { url: `${multiFileURL}/${name}`, method, formData: data },
-                callBack
-              );
-            else {
-              return Client.request(
-                { url: `${url}/${name}`, method, body: { data } },
-                callBack
-              );
-            }
-          } catch (err) {
-            if (!err.TasksJSServerError) {
-              //throw an error if a request fails three times in a row
-              if (errCount >= 3)
-                throw Error(
-                  "(TasksJSServerError): Invalid route. Failed to reconnect after 3 attempts."
-                );
-              //reset the connection then try to make the same request again
-              errCount++;
-              resetConnection(() => sendData(data, cb, errCount));
-            } else throw err;
-          }
+          //there is an option to use either the callback or the promise
+          //if cb is a function then call executeRequest with cb as the callback
+          // else return a promise that calls executRequest
+          if (typeof cb === "function") executeRequest(cb);
+          else
+            return new Promise((resolve, reject) =>
+              executeRequest((err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+              })
+            );
         };
       }
 
@@ -156,7 +157,12 @@ module.exports = function TasksJSService() {
       //instead of re-instantiating the backend ServerModules we use the ___setConnection
       //method to update the serverModules' connection data
       mods.forEach(mod =>
-        service[mod.name].__setConnection(host, port, mod.route, mod.namespace)
+        loadedServices[url][mod.name].__setConnection(
+          host,
+          port,
+          mod.route,
+          mod.namespace
+        )
       );
       cb();
     };

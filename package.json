@@ -52,7 +52,7 @@
     "express": "^4.16.4",
     "mime": "^2.4.0",
     "multer": "^1.4.2",
-    "multitaskhandler": "^1.0.0",
+    "multitaskhandler": "^1.4.1",
     "obj-handler": "^1.2.1",
     "request": "^2.88.0",
     "shortid": "^2.2.14",

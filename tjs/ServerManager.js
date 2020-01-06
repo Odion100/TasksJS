@@ -1,4 +1,4 @@
-//ServerManager handles routing and moding request to ServerModuless
+//ServerManager handles routing and mapping request to ServerModules
 const TasksJSServer = require("./Server");
 const shortId = require("shortid");
 
