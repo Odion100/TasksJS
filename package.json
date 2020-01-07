@@ -85,7 +85,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha tests/test.js"
+    "test": "mocha tests/index.js"
   },
   "version": "1.28.11",
   "devDependencies": {
