@@ -1,5 +1,5 @@
-const Client = require("./Client.js")();
-const TasksJSModule = require("./Module");
+const Client = require("../Client/Client")();
+const TasksJSModule = require("../Module/Module");
 const io = require("socket.io-client");
 
 module.exports = function TasksJSService() {

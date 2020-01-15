@@ -1,5 +1,5 @@
-const TasksJSModule = require("./Module");
-const TasksJSServerManager = require("./ServerManager");
+const TasksJSModule = require("../Module/Module");
+const TasksJSServerManager = require("../ServerManager/ServerManager");
 const shortid = require("shortid");
 
 module.exports = function TasksJSServerModule() {

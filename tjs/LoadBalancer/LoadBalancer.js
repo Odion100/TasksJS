@@ -4,8 +4,8 @@
 //identical routes will be considered clones. Service discovery is accomplished
 //through this service by having serveral different services register with
 //the same loadbalancer so they can be all be reached at the same host and port
-const TasksJSServerModule = require("./ServerModule");
-const TasksJSClient = require("./Client");
+const TasksJSServerModule = require("../ServerModule/ServerModule");
+const TasksJSClient = require("../Client/Client");
 module.exports = function TasksJSLoadBalancer({
   port,
   host = "localhost",

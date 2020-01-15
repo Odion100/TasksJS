@@ -1,12 +1,12 @@
 //These are all the abstractions that make up TasksJS
-const TasksJSApp = require("./tjs/App");
-const TasksJSLoadBalancer = require("./tjs/LoadBalancer");
-const TasksJSServerModule = require("./tjs/ServerModule");
-const TasksJSServer = require("./tjs/Server");
-const TasksJSServerManager = require("./tjs/ServerManager");
-const TasksJSService = require("./tjs/Service");
-const TasksJSClient = require("./tjs/Client");
-const TasksJSModule = require("./tjs/Module");
+const TasksJSApp = require("./tjs/App/App");
+const TasksJSLoadBalancer = require("./tjs/LoadBalancer/LoadBalancer");
+const TasksJSServerModule = require("./tjs/ServerModule/ServerModule");
+const TasksJSServer = require("./tjs/Server/Server");
+const TasksJSServerManager = require("./tjs/ServerManager/ServerManager");
+const TasksJSService = require("./tjs/Service/Service");
+const TasksJSClient = require("./tjs/Client/Client");
+const TasksJSModule = require("./tjs/Module/Module");
 
 //this index file exports a function to ensure non-singleton behavior
 module.exports = function TasksJS() {

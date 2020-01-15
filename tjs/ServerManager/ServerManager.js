@@ -1,16 +1,13 @@
 //ServerManager handles routing and mapping request to ServerModules
-const TasksJSServer = require("./Server");
+const TasksJSServer = require("../Server/Server");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
-  const ServerManager = {};
-  const mods = [];
-
   //start the Express and WebSocket Servers
   const { server, io, socketPort, errorResponseBuilder } = TasksJSServer();
   //add properties to ServerManager object
-  ServerManager.io = io;
-  ServerManager.server = server;
+  const ServerManager = { server, io };
+  const mods = [];
 
   ServerManager.startServer = ({
     route,

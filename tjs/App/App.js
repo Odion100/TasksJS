@@ -1,7 +1,7 @@
 //App.js provides an interface and lifecycle for loading and creating modules
-const TasksJSService = require("./Service");
-const TasksJSModule = require("./Module");
-const TasksJSServerModule = require("./ServerModule");
+const TasksJSService = require("../Service/Service");
+const TasksJSModule = require("../Module/Module");
+const TasksJSServerModule = require("../ServerModule/ServerModule");
 
 module.exports = function TasksJSApp() {
   const app = TasksJSModule();

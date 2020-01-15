@@ -19,12 +19,12 @@ const {
 
 //import tests all wrapped in functions that take test data as
 //parameters and return the tests as an executable function
-const ClientServerTest = require("./units/ClientServer");
-const ModuleTest = require("./units/Module");
-const ServerManagerTest = require("./units/ServerManager");
-const ServerModuleServiceTest = require("./units/ServerModuleService");
-const AppTest = require("./units/App");
-const LoadBalancerTest = require("./units/LoadBalancer");
+const ClientServerTest = require("./units/ClientAndServer.test");
+const ModuleTest = require("./units/Module.test");
+const ServerManagerTest = require("./units/ServerManager.test");
+const ServerModuleServiceTest = require("./units/ServerModuleService.test");
+const AppTest = require("./units/App.test");
+const LoadBalancerTest = require("./units/LoadBalancer.test");
 ClientServerTest(TasksJSClient, TasksJSServer);
 
 ModuleTest(TasksJSModule);
