@@ -1,4 +1,4 @@
-module.exports = TestServerSetup = port => {
+module.exports = TestServerSetup = (port, done) => {
   //express server
   const express = require("express");
   const server = express();
@@ -62,7 +62,11 @@ module.exports = TestServerSetup = port => {
   server.delete("/test", response);
   server.post("/sf/test", uploadResponse);
   server.post("/mf/test", multiUploadResponse);
-  server.listen(port, console.log(`(TestServer) listening on port:${port}`));
+  server.listen(
+    port,
+    console.log(`(TestServer) listening on port:${port}`),
+    done
+  );
 
   return server;
 };
