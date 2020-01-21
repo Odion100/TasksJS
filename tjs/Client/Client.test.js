@@ -125,4 +125,22 @@ describe("TasksJSClient Test", () => {
       .that.is.an("Object")
       .that.has.property("originalname", "test.file.json");
   });
+
+  it("should be able to upload multiple files", async () => {
+    const files = [
+      fs.createReadStream(__dirname + "/test.file.json"),
+      fs.createReadStream(__dirname + "/test.file.json")
+    ];
+    const multiUploadResponse = await Client.upload({
+      url: multiFileUrl,
+      formData: { files }
+    });
+    expect(multiUploadResponse)
+      .to.be.an("Object")
+      .that.has.property("testPassed", true);
+    expect(multiUploadResponse)
+      .to.have.property("files")
+      .that.is.an("Array");
+    expect(multiUploadResponse).to.have.property("fileUploadTest", true);
+  });
 });
