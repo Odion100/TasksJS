@@ -8,7 +8,7 @@ const port = 4789;
 const testServerSetup = require("./test.server");
 //test server setup
 
-before(done => testServerSetup(port, done));
+beforeAll(() => new Promise(resolve => testServerSetup(port, resolve)));
 describe("TasksJSClient Test", () => {
   const Client = TasksJSClient();
   const url = `http://localhost:${port}/test`;

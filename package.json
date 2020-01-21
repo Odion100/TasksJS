@@ -50,6 +50,7 @@
     "body-parser": "^1.18.3",
     "chai-as-promised": "^7.1.1",
     "express": "^4.16.4",
+    "jest": "^24.9.0",
     "mime": "^2.4.0",
     "multer": "^1.4.2",
     "multitaskhandler": "^1.4.1",
@@ -85,7 +86,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha tjs/Client/Client.test.js"
+    "test": "jest tjs/"
   },
   "version": "1.28.11",
   "devDependencies": {
