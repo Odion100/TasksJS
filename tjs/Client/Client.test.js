@@ -1,9 +1,6 @@
-const chai = require("chai");
-const chaiAsPromise = require("chai-as-promised");
-chai.use(chaiAsPromise);
-const { expect } = chai;
+const { expect } = require("chai");
 const fs = require("fs");
-const { TasksJSClient } = require("../../index")();
+const TasksJSClient = require("./Client");
 const port = 4789;
 const testServerSetup = require("./test.server");
 //test server setup
@@ -15,7 +12,7 @@ describe("TasksJSClient Test", () => {
   const singleFileUrl = `http://localhost:${port}/sf/test`;
   const multiFileUrl = `http://localhost:${port}/mf/test`;
 
-  it("should return TasksJSClient instance", () => {
+  it("should return a TasksJSClient instance", () => {
     expect(Client)
       .to.be.an("Object")
       .that.has.all.keys("request", "upload")
