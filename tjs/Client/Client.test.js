@@ -111,18 +111,18 @@ describe("TasksJSClient Test", () => {
   });
 
   it("should be able to upload a file", async () => {
-    console.log(__dirname + "\\testFile.json");
-    const file = fs.createReadStream(__dirname + "\\testFile.json");
-    /*   const results = await Client.upload({
+    const file = fs.createReadStream(__dirname + "/test.file.json");
+    const results = await Client.upload({
       url: singleFileUrl,
       formData: { file }
     });
 
     expect(results)
       .to.be.an("Object")
-      .that.deep.equal({
-        testPassed: true,
-        file: { originalname: "testFile.json" }
-      }); */
+      .that.has.property("testPassed", true);
+    expect(results)
+      .to.have.property("file")
+      .that.is.an("Object")
+      .that.has.property("originalname", "test.file.json");
   });
 });

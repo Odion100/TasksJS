@@ -1,4 +1,5 @@
 module.exports = TestServerSetup = (port, done) => {
+  const fs = require("fs");
   //express server
   const express = require("express");
   const server = express();
@@ -22,13 +23,13 @@ module.exports = TestServerSetup = (port, done) => {
   //a property named file and files will be added to the req object respectively
   const singleFileUpload = (req, res, next) =>
     sf(req, res, err => {
-      if (err) res.json(errorResponseBuilder(err));
+      if (err) res.json(err);
       else next();
     });
 
   const multiFileUpload = (req, res, next) =>
     mf(req, res, err => {
-      if (err) res.json(errorResponseBuilder(err));
+      if (err) res.json(err);
       else next();
     });
 
