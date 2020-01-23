@@ -2,14 +2,14 @@ const { expect } = require("chai");
 const request = require("request");
 const TasksJSServerModule = require("./ServerModule");
 
-describe("ServerModule", () => {
+describe("TasksJSServerModule", () => {
   it("should return a new instance of a ServerModule (fn)", () => {
     const ServerModule = TasksJSServerModule();
     expect(typeof ServerModule).to.equal("function");
     expect(typeof ServerModule.startService).to.equal("function");
   });
 
-  it("should use ServerModule.startServer to initiate a ServerManager instance to host the ServerModule Connection", async () => {
+  it("should be able to use ServerModule.startServer to initiate a ServerManager instance that hosts the ServerModule Connection Data", async () => {
     const ServerModule = TasksJSServerModule();
     const route = "/testService";
     const port = 5500;
@@ -28,7 +28,13 @@ describe("ServerModule", () => {
       .that.has.property("mods")
       .that.is.an("array").that.is.empty;
   });
-  it("should be able to construct and return a ServerModule object using a constructor function", () => {});
+});
+describe("ServerModule(constructor)", () => {
+  it("should be able to return a ServerModule instance constructed using the 'this' value in the constructor function", () => {});
+  it("should 'Serve' ServerModule connection data created using the 'this' value of the constructor function", () => {});
+});
 
-  it("should added each new instance of a ServerModule to a ServerManager instnace", () => {});
+describe("ServerModule(object)", () => {
+  it("should be able to return a ServerModule instance created using an object as the constructor", () => {});
+  it("should 'Serve' ServerModule connection data created using an object as the constructor", () => {});
 });
