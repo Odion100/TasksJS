@@ -4,7 +4,6 @@ const request = require("request");
 const ServerManager = TasksJSServerManager();
 const route = "/testService";
 const port = 4400;
-const method = "GET";
 const url = `http://localhost:${port}${route}`;
 
 beforeAll(

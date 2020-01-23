@@ -7,6 +7,7 @@ module.exports = function TasksJSServerManager() {
   const { server, io, socketPort, errorResponseBuilder } = TasksJSServer();
   //add properties to ServerManager object
   const ServerManager = { server, io };
+  const addModuleQueue = [];
   const mods = [];
 
   ServerManager.startServer = (
@@ -40,24 +41,18 @@ module.exports = function TasksJSServerManager() {
       console.log(
         `(TasksJSService): ${route} --> Listening on ${host}:${port}`
       );
+      addModuleQueue.forEach(options => addModule(options));
       if (typeof done === "function") done();
     });
 
     return { server, io };
   };
 
-  ServerManager.addModule = ({
-    name,
-    namespace,
-    methods,
-    inferRoute,
-    ServerModule
-  }) => {
+  ServerManager.addModule = options => {
+    const { name, namespace, methods, inferRoute, ServerModule } = options;
     const { host, route, serviceUrl } = ServerManager;
-    if (!serviceUrl)
-      throw Error(
-        `(TasksJSSeverManagerError): You must first call startServer({route, port, host}) before adding new modules`
-      );
+    if (!serviceUrl) return addModuleQueue.push(options);
+
     //create random route to ServerModule unless inferRoute is true
     const path = inferRoute ? `${route}/${name}` : `${shortId()}/${shortId()}`;
     /// store connection data to the ServerModule in the mods array
