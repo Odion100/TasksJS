@@ -82,20 +82,20 @@ describe("ServerModule(constructor)", () => {
     expect(results.mods[0].name, "mod");
     expect(results.mods[0].route).to.be.a("String");
     expect(results.mods[0].namespace).to.match(
-      new RegExp("https?://[a-z]+.+?/.+")
+      new RegExp("https?://localhost:\\d+/.+")
     );
     expect(results.TasksJSServerService, {
       serviceUrl: "localhost:6542/test/service"
     });
     expect(results.host, "localhost");
-    expect(results.port, 6542);
+    expect(results.port, port);
   });
 });
 
 describe("ServerModule(object)", () => {
   const ServerModule = TasksJSServerModule();
   const port = 6543;
-  const route = "test/service";
+  const route = "test/service2";
   const url = `http://localhost:${port}/${route}`;
   it("should be able to return a ServerModule instance created using an object as the constructor", () => {
     const mod = ServerModule("mod", {
@@ -111,7 +111,40 @@ describe("ServerModule(object)", () => {
       .that.respondsTo("action1")
       .that.respondsTo("action2");
   });
-  it("should 'Serve' ServerModule connection data created using an object as the constructor", () => {});
+  it("should 'Serve' ServerModule connection data created using an object as the constructor", async () => {
+    await new Promise(resolve =>
+      ServerModule.startService({ route, port }, resolve)
+    );
+
+    const results = await new Promise(resolve =>
+      request({ url, json: true }, (err, res, body) => resolve(body))
+    );
+
+    expect(results)
+      .to.be.an("Object")
+      .that.has.all.keys("TasksJSService", "host", "port", "mods")
+      .that.has.property("mods")
+      .that.is.an("array");
+    expect(results.mods[0])
+      .to.be.an("Object")
+      .that.has.all.keys("namespace", "route", "name", "methods")
+      .that.has.property("methods")
+      .that.is.an("Array");
+    expect(results.mods[0].methods, [
+      { method: "PUT", name: "test" },
+      { method: "PUT", name: "test2" }
+    ]);
+    expect(results.mods[0].name, "mod");
+    expect(results.mods[0].route).to.be.a("String");
+    expect(results.mods[0].namespace).to.match(
+      new RegExp("https?://localhost:\\d+/.+")
+    );
+    expect(results.TasksJSServerService, {
+      serviceUrl: "localhost:6542/test/service"
+    });
+    expect(results.host, "localhost");
+    expect(results.port, port);
+  });
 });
 
 describe("ServerModule Configurations", () => {});
