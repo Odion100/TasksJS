@@ -12,7 +12,7 @@ describe("ServerModule", () => {
   it("should use ServerModule.startServer to initiate a ServerManager instance to host the ServerModule Connection", async () => {
     const ServerModule = TasksJSServerModule();
     const route = "/testService";
-    const port = 4400;
+    const port = 5500;
     const url = `http://localhost:${port}${route}`;
     const results = await new Promise(resolve => {
       ServerModule.startService({ route, port }, () =>

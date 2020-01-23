@@ -16,7 +16,7 @@ module.exports = function TasksJSServerManager() {
   ) => {
     if (ServerManager.serviceUrl)
       throw Error(
-        `(TasksJSSeverManagerError): You must only call startServer({route, port, host}) once: ${route}`
+        `(TasksJSSeverManagerError): ServerManager.startServer called twice: ${route}`
       );
 
     //ensure route begins with a slash
@@ -41,7 +41,7 @@ module.exports = function TasksJSServerManager() {
       console.log(
         `(TasksJSService): ${route} --> Listening on ${host}:${port}`
       );
-      addModuleQueue.forEach(options => addModule(options));
+      addModuleQueue.forEach(options => ServerManager.addModule(options));
       if (typeof done === "function") done();
     });
 
