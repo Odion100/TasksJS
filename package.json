@@ -86,7 +86,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "jest tjs/"
+    "test": "jest --verbose tjs/"
   },
   "version": "1.28.11",
   "devDependencies": {
