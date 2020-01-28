@@ -6,12 +6,10 @@ module.exports = function TasksJSRouter(server) {
         req.fn = fn;
         next();
       } else
-        res
-          .status(404)
-          .json({
-            message: "TasksJSServiceError: Object resource not found",
-            status: 404
-          });
+        res.status(404).json({
+          message: "TasksJSServiceError: Object resource not found",
+          status: 404
+        });
     });
 
     server.all(
@@ -27,11 +25,11 @@ module.exports = function TasksJSRouter(server) {
   };
 
   const routeHandler = (req, res, ServerModule) => {
-    const { params, queryParams, file, files, body, fn } = req;
+    const { params, query, file, files, body, fn } = req;
     //in the case where there was a file upload the file/files should be passed with the data
     const data = {
       ...(body.data || {}),
-      ...queryParams,
+      ...query,
       ...params,
       file,
       files
