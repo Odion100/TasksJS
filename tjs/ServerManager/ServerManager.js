@@ -20,7 +20,7 @@ module.exports = function TasksJSServerManager() {
   const router = TasksJSRouter(server);
   const ServerManager = { server, io };
   const moduleQueue = [];
-  const mods = [];
+  const modules = [];
 
   ServerManager.startServer = options => {
     if (serverConfigurations.serviceUrl)
@@ -35,9 +35,9 @@ module.exports = function TasksJSServerManager() {
     //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
-      //mods (objects) which contain instructions on how to make request to each ServerModule
+      //modules (objects) which contain instructions on how to make request to each ServerModule
       res.json({
-        mods,
+        modules,
         port,
         host,
         TasksJSService: { serviceUrl }
@@ -71,8 +71,8 @@ module.exports = function TasksJSServerManager() {
     const path = staticRouting
       ? `${route}/${name}`
       : `${shortId()}/${shortId()}`;
-    /// store connection data to the ServerModule in the mods array
-    mods.push({
+    /// store connection data to the ServerModule in the modules array
+    modules.push({
       namespace: `http://${host}:${socketPort}/${namespace}`,
       route: path,
       name,

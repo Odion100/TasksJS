@@ -26,8 +26,8 @@ describe("ServerModule function", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array").that.is.empty;
   });
 
@@ -65,21 +65,21 @@ describe("ServerModule(constructor)", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array");
-    expect(results.mods[0])
+    expect(results.modules[0])
       .to.be.an("Object")
       .that.has.all.keys("namespace", "route", "name", "methods")
       .that.has.property("methods")
       .that.is.an("Array");
-    expect(results.mods[0].methods, [
+    expect(results.modules[0].methods, [
       { method: "PUT", name: "test" },
       { method: "PUT", name: "test2" }
     ]);
-    expect(results.mods[0].name, "mod");
-    expect(results.mods[0].route).to.be.a("String");
-    expect(results.mods[0].namespace).to.match(
+    expect(results.modules[0].name, "mod");
+    expect(results.modules[0].route).to.be.a("String");
+    expect(results.modules[0].namespace).to.match(
       new RegExp("https?://localhost:\\d+/.+")
     );
     expect(results.TasksJSServerService, {
@@ -118,21 +118,21 @@ describe("ServerModule(object)", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array");
-    expect(results.mods[0])
+    expect(results.modules[0])
       .to.be.an("Object")
       .that.has.all.keys("namespace", "route", "name", "methods")
       .that.has.property("methods")
       .that.is.an("Array");
-    expect(results.mods[0].methods, [
+    expect(results.modules[0].methods, [
       { method: "PUT", name: "test" },
       { method: "PUT", name: "test2" }
     ]);
-    expect(results.mods[0].name, "mod");
-    expect(results.mods[0].route).to.be.a("String");
-    expect(results.mods[0].namespace).to.match(
+    expect(results.modules[0].name, "mod");
+    expect(results.modules[0].route).to.be.a("String");
+    expect(results.modules[0].namespace).to.match(
       new RegExp("https?://localhost:\\d+/.+")
     );
     expect(results.TasksJSServerService, {

@@ -24,8 +24,8 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array").that.is.empty;
   });
 
@@ -48,11 +48,11 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);
-    expect(results.mods[0])
+    expect(results.modules[0])
       .to.be.an("object")
       .that.has.all.keys("name", "namespace", "methods", "route");
   });
@@ -83,11 +83,11 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "host", "port", "mods")
-      .that.has.property("mods")
+      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);
-    expect(results.mods[0])
+    expect(results.modules[0])
       .to.be.an("object")
       .that.has.all.keys("name", "namespace", "methods", "route");
   });

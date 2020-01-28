@@ -16,23 +16,22 @@ module.exports = function TasksJSService() {
     const loadConnectionData = (limit, wait) => {
       const connectionErrors = [];
 
-      return new Promise(async function getData(resolve, reject) {
-        try {
-          const connectionData = await Client.request({ method: "GET", url });
-          resolve(connectionData);
-        } catch (err) {
-          connectionErrors.push(err);
-          //attempt to load the service recursively up to ten times
-          if (connectionErrors.length < limit)
-            setTimeout(
-              () => getData(resolve, reject),
-              connectionErrors.length * wait
-            );
-          else {
-            const connection_attempts = connectionErrors.length;
-            reject({ connection_attempts, connectionErrors });
-          }
-        }
+      return new Promise(function getData(resolve, reject) {
+        Client.request({ method: "GET", url })
+          .then(connectionData => resolve(connectionData))
+          .catch(err => {
+            connectionErrors.push(err);
+            //attempt to load the service recursively up to ten times
+            if (connectionErrors.length < limit)
+              setTimeout(
+                () => getData(resolve, reject),
+                connectionErrors.length * wait
+              );
+            else {
+              const connection_attempts = connectionErrors.length;
+              reject({ connection_attempts, connectionErrors });
+            }
+          });
       });
     };
 
@@ -40,7 +39,7 @@ module.exports = function TasksJSService() {
       const service = new TasksJSModule();
       service.TasksJSService = connData.TasksJSService;
       //each mod describes a backend ServerModule
-      connData.mods.forEach(mod => {
+      connData.modules.forEach(mod => {
         service[mod.name] = serverModuleRequestHandler(mod, connData, service);
       });
 
@@ -151,12 +150,12 @@ module.exports = function TasksJSService() {
       return serverMod;
     };
 
-    //Use mods to update the endpoits to each ServerModule in the service
+    //Use modules to update the endpoits to each ServerModule in the service
     const resetConnection = async cb => {
-      const { mods, host, port } = await loadConnectionData(1, 0);
+      const { modules, host, port } = await loadConnectionData(1, 0);
       //instead of re-instantiating the backend ServerModules we use the ___setConnection
       //method to update the serverModules' connection data
-      mods.forEach(mod =>
+      modules.forEach(mod =>
         loadedServices[url][mod.name].__setConnection(
           host,
           port,
