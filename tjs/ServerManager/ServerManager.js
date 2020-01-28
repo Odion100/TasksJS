@@ -1,30 +1,37 @@
 //ServerManager handles routing and mapping request to ServerModules
 const TasksJSServer = require("../Server/Server");
+const TasksJSRouter = require("./Router");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
   //start the Express and WebSocket Servers
-  const { server, io, socketPort, errorResponseBuilder } = TasksJSServer();
-  //add properties to ServerManager object
+  const { server, io, socketPort } = TasksJSServer();
+  let serverConfigurations = {
+    route: null,
+    port: null,
+    host: "localhost",
+    useREST: true,
+    useService: true,
+    staticRouting: false,
+    middleware: [],
+    server,
+    io
+  };
+  const router = TasksJSRouter(server);
   const ServerManager = { server, io };
-  const addModuleQueue = [];
+  const moduleQueue = [];
   const mods = [];
 
-  ServerManager.startServer = (
-    { route, port, host = "localhost", middleware },
-    done
-  ) => {
-    if (ServerManager.serviceUrl)
+  ServerManager.startServer = options => {
+    if (serverConfigurations.serviceUrl)
       throw Error(
         `(TasksJSSeverManagerError): ServerManager.startServer called twice: ${route}`
       );
-
     //ensure route begins with a slash
+    let { route, host = "localhost", port } = options;
     route = route.charAt(0) === "/" ? route : "/" + route;
     const serviceUrl = `${host}:${port}${route}`;
-    ServerManager.host = host;
-    ServerManager.route = route;
-    ServerManager.serviceUrl = serviceUrl;
+    serverConfigurations = { ...serverConfigurations, ...options, serviceUrl };
     //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
@@ -37,24 +44,33 @@ module.exports = function TasksJSServerManager() {
       });
     });
     //Listen for request on the given port
-    server.listen(port, () => {
-      console.log(
-        `(TasksJSService): ${route} --> Listening on ${host}:${port}`
-      );
-      addModuleQueue.forEach(options => ServerManager.addModule(options));
-      if (typeof done === "function") done();
-    });
-
-    return { server, io };
+    return new Promise(resolve =>
+      server.listen(port, () => {
+        console.log(
+          `(TasksJSService): ${route} --> Listening on ${host}:${port}`
+        );
+        moduleQueue.forEach(options => ServerManager.addModule(options));
+        resolve(ServerManager);
+      })
+    );
   };
 
   ServerManager.addModule = options => {
-    const { name, namespace, methods, inferRoute, ServerModule } = options;
-    const { host, route, serviceUrl } = ServerManager;
-    if (!serviceUrl) return addModuleQueue.push(options);
+    const { name, namespace, methods, ServerModule } = options;
+    const {
+      host,
+      route,
+      serviceUrl,
+      staticRouting,
+      useService,
+      useREST
+    } = serverConfigurations;
+    if (!serviceUrl) return moduleQueue.push(options);
 
-    //create random route to ServerModule unless inferRoute is true
-    const path = inferRoute ? `${route}/${name}` : `${shortId()}/${shortId()}`;
+    //create random route to ServerModule unless staticRouting is true
+    const path = staticRouting
+      ? `${route}/${name}`
+      : `${shortId()}/${shortId()}`;
     /// store connection data to the ServerModule in the mods array
     mods.push({
       namespace: `http://${host}:${socketPort}/${namespace}`,
@@ -62,35 +78,22 @@ module.exports = function TasksJSServerManager() {
       name,
       methods
     });
-    //add route to the modules
-    addRoute(ServerModule, path);
+
+    switch (true) {
+      case useService:
+        router.addService(ServerModule, path);
+      case useREST:
+        methods.forEach(method => {
+          switch (method.name) {
+            case "get":
+            case "put":
+            case "post":
+            case "delete":
+              router.addREST(ServerModule, `${route}/${name}`, method.name);
+          }
+        });
+    }
   };
 
-  //user (express) server.all to handle all request to a given ServerModule
-  const addRoute = (ServerModule, route) => {
-    server.all(
-      [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
-      (req, res) => {
-        const { fn } = req.params;
-        const data = req.body.data || {};
-        //in the case where there was a file upload the file/files should be passed with the data
-        data.file = req.file;
-        data.files = req.files;
-        //call the method on the ServerModule
-        ServerModule[fn](
-          data,
-          (err, results) => {
-            if (err)
-              res
-                .status(err.status || 500)
-                .json(errorResponseBuilder(err, ServerManager.serviceUrl));
-            else res.json(results);
-          },
-          req,
-          res
-        );
-      }
-    );
-  };
   return ServerManager;
 };

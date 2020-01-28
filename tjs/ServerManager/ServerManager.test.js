@@ -5,11 +5,7 @@ const ServerManager = TasksJSServerManager();
 const route = "/testService";
 const port = 4400;
 const url = `http://localhost:${port}${route}`;
-
-beforeAll(
-  () =>
-    new Promise(resolve => ServerManager.startServer({ route, port }, resolve))
-);
+beforeAll(() => ServerManager.startServer({ route, port }));
 describe("ServerManager", () => {
   it("should return an TasksJSServerManager instance", () => {
     expect(ServerManager)
@@ -65,6 +61,7 @@ describe("ServerManager", () => {
     const ServerManager = TasksJSServerManager();
     const route = "/testService";
     const port = 4500;
+    const url = `http://localhost:${port}${route}`;
     const options = {
       name: "TestModule",
       namespace: "TestNamespace",
@@ -75,9 +72,9 @@ describe("ServerManager", () => {
 
     ServerManager.addModule(options);
     ServerManager.addModule(options);
-    await new Promise(resolve =>
-      ServerManager.startServer({ route, port }, resolve)
-    );
+
+    await ServerManager.startServer({ route, port });
+
     const results = await new Promise(resolve => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
