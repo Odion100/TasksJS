@@ -16,12 +16,12 @@ describe("ServerModule function", () => {
     const route = "/testService";
     const port = 5500;
     const url = `http://localhost:${port}${route}`;
+
+    await ServerModule.startService({ route, port });
     const results = await new Promise(resolve => {
-      ServerModule.startService({ route, port }, () =>
-        request({ url, json: true }, (err, res, body) => {
-          resolve(body);
-        })
-      );
+      request({ url, json: true }, (err, res, body) => {
+        resolve(body);
+      });
     });
 
     expect(results)
@@ -57,9 +57,7 @@ describe("ServerModule(constructor)", () => {
       .that.respondsTo("test2");
   });
   it("should 'Serve' ServerModule connection data created using the 'this' value of the constructor function", async () => {
-    await new Promise(resolve =>
-      ServerModule.startService({ route, port }, resolve)
-    );
+    await ServerModule.startService({ route, port });
 
     const results = await new Promise(resolve =>
       request({ url, json: true }, (err, res, body) => resolve(body))
@@ -112,9 +110,7 @@ describe("ServerModule(object)", () => {
       .that.respondsTo("action2");
   });
   it("should 'Serve' ServerModule connection data created using an object as the constructor", async () => {
-    await new Promise(resolve =>
-      ServerModule.startService({ route, port }, resolve)
-    );
+    await ServerModule.startService({ route, port });
 
     const results = await new Promise(resolve =>
       request({ url, json: true }, (err, res, body) => resolve(body))
