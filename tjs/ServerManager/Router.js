@@ -4,6 +4,7 @@ module.exports = function TasksJSRouter(server) {
     server.param("fn", (req, res, next, fn) => {
       if (ServerModule[fn] === "function") {
         req.fn = fn;
+        req.ServerModule = ServerModule;
         next();
       } else
         res.status(404).json({
@@ -14,18 +15,24 @@ module.exports = function TasksJSRouter(server) {
 
     server.all(
       [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
-      (req, res) => routeHandler(req, res, ServerModule)
+      routeHandler
     );
   };
 
   const addREST = (ServerModule, route, method) => {
-    server[method]([`${route}/:id`, `${route}/:id/:resource`], (req, res) =>
-      routeHandler(req, res, ServerModule)
+    server[method](
+      [`${route}/:id`, `${route}/:id/:resource`],
+      req => {
+        req.fn = method;
+        req.ServerModule = ServerModule;
+        next();
+      },
+      routeHandler
     );
   };
 
-  const routeHandler = (req, res, ServerModule) => {
-    const { params, query, file, files, body, fn } = req;
+  const routeHandler = (req, res) => {
+    const { params, query, file, files, body, fn, ServerModule } = req;
     //in the case where there was a file upload the file/files should be passed with the data
     const data = {
       ...(body.data || {}),
