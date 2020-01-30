@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const request = require("request");
 const TasksJSServerModule = require("./ServerModule");
-
+console.log(TasksJSServerModule());
 describe("TasksJSServerModule", () => {
   it("should return a new instance of a ServerModule (fn)", () => {
     const ServerModule = TasksJSServerModule();
@@ -49,7 +49,7 @@ describe("ServerModule(constructor)", () => {
 
     expect(mod)
       .to.be.an("Object")
-      .that.has.all.keys("on", "emit", "test", "test2")
+      .that.has.all.keys("on", "emit", "namespace", "nsp", "test", "test2")
       .that.respondsTo("on")
       .that.respondsTo("emit")
       .that.respondsTo("test")
@@ -78,9 +78,7 @@ describe("ServerModule(constructor)", () => {
     ]);
     expect(results.modules[0].name, "mod");
     expect(results.modules[0].route).to.be.a("String");
-    expect(results.modules[0].namespace).to.match(
-      new RegExp("https?://localhost:\\d+/.+")
-    );
+    expect(results.modules[0].namespace).to.match(new RegExp("https?://localhost:\\d+/.+"));
     expect(results.TasksJSServerService, {
       serviceUrl: "localhost:6542/test/service"
     });
@@ -102,7 +100,7 @@ describe("ServerModule(object)", () => {
 
     expect(mod)
       .to.be.an("Object")
-      .that.has.all.keys("on", "emit", "action1", "action2")
+      .that.has.all.keys("on", "emit", "namespace", "nsp", "action1", "action2")
       .that.respondsTo("on")
       .that.respondsTo("emit")
       .that.respondsTo("action1")
@@ -131,9 +129,7 @@ describe("ServerModule(object)", () => {
     ]);
     expect(results.modules[0].name, "mod");
     expect(results.modules[0].route).to.be.a("String");
-    expect(results.modules[0].namespace).to.match(
-      new RegExp("https?://localhost:\\d+/.+")
-    );
+    expect(results.modules[0].namespace).to.match(new RegExp("https?://localhost:\\d+/.+"));
     expect(results.TasksJSServerService, {
       serviceUrl: "localhost:6542/test/service"
     });

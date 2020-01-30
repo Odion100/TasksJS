@@ -62,14 +62,14 @@ module.exports = function TasksJSServerManager() {
     switch (true) {
       case useService:
         const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
-        console.log(object);
+
         modules.push({
           namespace: object.namespace,
           route: path,
           name,
           methods
         });
-        console.log(modules);
+
         router.addService(object, path);
       case useREST:
         methods.forEach(method => {
