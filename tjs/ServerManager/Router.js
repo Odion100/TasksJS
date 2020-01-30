@@ -1,20 +1,13 @@
 module.exports = function TasksJSRouter(server) {
   //user (express) server.all to handle all request to a given ServerModule
   const addService = (ServerModule, route) => {
-    server.param("fn", (req, res, next, fn) => {
-      if (ServerModule[fn] === "function") {
+    server.all(
+      [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
+      (req, res, next, fn) => {
         req.fn = fn;
         req.ServerModule = ServerModule;
         next();
-      } else
-        res.status(404).json({
-          message: "TasksJSServiceError: Object resource not found",
-          status: 404
-        });
-    });
-
-    server.all(
-      [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
+      },
       routeHandler
     );
   };
@@ -22,7 +15,7 @@ module.exports = function TasksJSRouter(server) {
   const addREST = (ServerModule, route, method) => {
     server[method](
       [`${route}/:id`, `${route}/:id/:resource`],
-      req => {
+      (req, res, next) => {
         req.fn = method;
         req.ServerModule = ServerModule;
         next();
@@ -33,7 +26,17 @@ module.exports = function TasksJSRouter(server) {
 
   const routeHandler = (req, res) => {
     const { params, query, file, files, body, fn, ServerModule } = req;
-    //in the case where there was a file upload the file/files should be passed with the data
+
+    if (typeof ServerModule[fn] !== "function")
+      return res.status(404).json({
+        message: "TasksJSServiceError: Object resource not found",
+        status: 404,
+        ServerModule,
+        fn,
+        query,
+        params
+      });
+
     const data = {
       ...(body.data || {}),
       ...query,
@@ -41,6 +44,7 @@ module.exports = function TasksJSRouter(server) {
       file,
       files
     };
+
     const callback = (err, results) => {
       if (err) res.status(err.status || 500).json({ err });
       else res.json(results);

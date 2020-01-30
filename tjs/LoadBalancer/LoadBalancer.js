@@ -23,11 +23,11 @@ module.exports = function TasksJSLoadBalancer({
     clones.serviceQueue = serviceQueue;
     clones.handledEvents = handledEvents;
     clones.errLog = [];
+
     clones.register = ({ port, host, route }, cb) => {
       if (!(port && route && host))
         return cb({
-          message:
-            "route port and host are required options of the clones.register(options) method",
+          message: "route port and host are required options",
           status: 400
         });
       route = route.charAt(0) === "/" ? route : "/" + route;

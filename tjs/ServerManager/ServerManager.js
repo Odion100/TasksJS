@@ -10,7 +10,7 @@ module.exports = function TasksJSServerManager() {
     route: null,
     port: null,
     host: "localhost",
-    useREST: true,
+    useREST: false,
     useService: true,
     staticRouting: false,
     middleware: [],
@@ -23,12 +23,13 @@ module.exports = function TasksJSServerManager() {
   const modules = [];
 
   ServerManager.startServer = options => {
+    let { route, host = "localhost", port } = options;
     if (serverConfigurations.serviceUrl)
       throw Error(
         `(TasksJSSeverManagerError): ServerManager.startServer called twice: ${route}`
       );
+
     //ensure route begins with a slash
-    let { route, host = "localhost", port } = options;
     route = route.charAt(0) === "/" ? route : "/" + route;
     const serviceUrl = `${host}:${port}${route}`;
     serverConfigurations = { ...serverConfigurations, ...options, serviceUrl };
