@@ -24,10 +24,6 @@ module.exports = function TasksJSServerManager() {
 
   ServerManager.startServer = options => {
     let { route, host = "localhost", port } = options;
-    if (serverConfigurations.serviceUrl)
-      throw Error(
-        `(TasksJSSeverManagerError): ServerManager.startServer called twice: ${route}`
-      );
 
     //ensure route begins with a slash
     route = route.charAt(0) === "/" ? route : "/" + route;
@@ -51,6 +47,7 @@ module.exports = function TasksJSServerManager() {
           `(TasksJSService): ${route} --> Listening on ${host}:${port}`
         );
         moduleQueue.forEach(options => ServerManager.addModule(options));
+        moduleQueue.length = 0;
         resolve(ServerManager);
       })
     );
@@ -68,20 +65,19 @@ module.exports = function TasksJSServerManager() {
     } = serverConfigurations;
     if (!serviceUrl) return moduleQueue.push(options);
 
-    //create random route to ServerModule unless staticRouting is true
-    const path = staticRouting
-      ? `${route}/${name}`
-      : `${shortId()}/${shortId()}`;
-    /// store connection data to the ServerModule in the modules array
-    modules.push({
-      namespace: `http://${host}:${socketPort}/${namespace}`,
-      route: path,
-      name,
-      methods
-    });
-
     switch (true) {
       case useService:
+        const path = staticRouting
+          ? `${route}/${name}`
+          : `${shortId()}/${shortId()}`;
+
+        modules.push({
+          namespace: `http://${host}:${socketPort}/${namespace}`,
+          route: path,
+          name,
+          methods
+        });
+
         router.addService(ServerModule, path);
       case useREST:
         methods.forEach(method => {
