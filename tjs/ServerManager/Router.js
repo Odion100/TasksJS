@@ -30,11 +30,7 @@ module.exports = function TasksJSRouter(server) {
     if (typeof ServerModule[fn] !== "function")
       return res.status(404).json({
         message: "TasksJSServiceError: Object resource not found",
-        status: 404,
-        ServerModule,
-        fn,
-        query,
-        params
+        status: 404
       });
 
     const data = {
