@@ -1,6 +1,7 @@
-//ServerManager handles routing and mapping request to ServerModules
+//ServerManager handles routing and mapping request to objects
 const TasksJSServer = require("../Server/Server");
 const TasksJSRouter = require("./Router");
+const { abstractMethods } = require("./helper");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
@@ -32,7 +33,7 @@ module.exports = function TasksJSServerManager() {
     //add route to server that will be used to handle request to "connect" to the Service
     server.get(route, (req, res) => {
       //The route will return connection data for the service including an array of
-      //modules (objects) which contain instructions on how to make request to each ServerModule
+      //modules (objects) which contain instructions on how to make request to each object
       res.json({
         modules,
         port,
@@ -40,45 +41,36 @@ module.exports = function TasksJSServerManager() {
         TasksJSService: { serviceUrl }
       });
     });
-    //Listen for request on the given port
+
     return new Promise(resolve =>
       server.listen(port, () => {
-        console.log(
-          `(TasksJSService): ${route} --> Listening on ${host}:${port}`
+        console.log(`(TasksJSService): ${route} --> Listening on ${host}:${port}`);
+        moduleQueue.forEach(({ name, object, reserved_methods }) =>
+          ServerManager.addModule(name, object, reserved_methods)
         );
-        moduleQueue.forEach(options => ServerManager.addModule(options));
         moduleQueue.length = 0;
         resolve(ServerManager);
       })
     );
   };
 
-  ServerManager.addModule = options => {
-    const { name, namespace, methods, ServerModule } = options;
-    const {
-      host,
-      route,
-      serviceUrl,
-      staticRouting,
-      useService,
-      useREST
-    } = serverConfigurations;
-    if (!serviceUrl) return moduleQueue.push(options);
+  ServerManager.addModule = (name, object, reserved_methods) => {
+    const { route, serviceUrl, staticRouting, useService, useREST } = serverConfigurations;
+    if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
+    const methods = abstractMethods(object, reserved_methods, useREST);
 
     switch (true) {
       case useService:
-        const path = staticRouting
-          ? `${route}/${name}`
-          : `${shortId()}/${shortId()}`;
-
+        const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
+        console.log(object);
         modules.push({
-          namespace: `http://${host}:${socketPort}/${namespace}`,
+          namespace: object.namespace,
           route: path,
           name,
           methods
         });
-
-        router.addService(ServerModule, path);
+        console.log(modules);
+        router.addService(object, path);
       case useREST:
         methods.forEach(method => {
           switch (method.name) {
@@ -86,11 +78,29 @@ module.exports = function TasksJSServerManager() {
             case "put":
             case "post":
             case "delete":
-              router.addREST(ServerModule, `${route}/${name}`, method.name);
+              router.addREST(object, `${route}/${name}`, method.name);
           }
         });
     }
   };
 
+  ServerManager.attachNamespace = (object, namespace) => {
+    const { host, staticRouting } = serverConfigurations;
+    namespace = !namespace ? shortId() : staticRouting ? namespace : shortId();
+    object.namespace = `http://${host}:${socketPort}/${namespace}`;
+    object.nsp = ServerManager.io.of(`/${namespace}`);
+
+    const emit = object.emit;
+
+    object.emit = (name, data) => {
+      const id = shortid();
+      const type = "WebSocket";
+      //emit WebSocket Event
+      object.nsp.emit("dispatch", { id, name, data, type });
+      //emit the same event locally
+      if (typeof emit === "function") emit(name, data);
+    };
+    return object;
+  };
   return ServerManager;
 };

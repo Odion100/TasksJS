@@ -7,9 +7,10 @@ describe("TasksJSServerManager function", () => {
     const ServerManager = TasksJSServerManager();
     expect(ServerManager)
       .to.be.an("Object")
+      .that.has.all.keys(["server", "io", "startServer", "addModule", "attachNamespace"])
       .that.respondsTo("startServer")
       .that.respondsTo("addModule")
-      .that.has.property("io");
+      .that.respondsTo("attachNamespace");
   });
 });
 describe("ServerManager", () => {
@@ -38,19 +39,11 @@ describe("ServerManager", () => {
     const route = "/testService";
     const port = 4634;
     const url = `http://localhost:${port}${route}`;
-
+    const name = "TestModule";
     await ServerManager.startServer({ route, port });
 
-    const options = {
-      name: "TestModule",
-      namespace: "TestNamespace",
-      methods: [],
-      inferRoutes: false,
-      ServerModule: {}
-    };
-
-    ServerManager.addModule(options);
-    ServerManager.addModule(options);
+    ServerManager.addModule(name, {});
+    ServerManager.addModule(name + 1, {});
     const results = await new Promise(resolve => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
@@ -65,7 +58,7 @@ describe("ServerManager", () => {
       .that.has.a.lengthOf(2);
     expect(results.modules[0])
       .to.be.an("object")
-      .that.has.all.keys("name", "namespace", "methods", "route");
+      .that.has.all.keys("name", "methods", "route");
   });
 
   it("should be able call ServerManager.addModule method before or after calling ServerManager.startServer", async () => {
@@ -73,16 +66,10 @@ describe("ServerManager", () => {
     const route = "/testService";
     const port = 4500;
     const url = `http://localhost:${port}${route}`;
-    const options = {
-      name: "TestModule",
-      namespace: "TestNamespace",
-      methods: [],
-      inferRoutes: false,
-      ServerModule: {}
-    };
+    const name = "TestModule";
 
-    ServerManager.addModule(options);
-    ServerManager.addModule(options);
+    ServerManager.addModule(name, {});
+    ServerManager.addModule(name + 1, {});
 
     await ServerManager.startServer({ route, port });
 
@@ -100,49 +87,68 @@ describe("ServerManager", () => {
       .that.has.a.lengthOf(2);
     expect(results.modules[0])
       .to.be.an("object")
-      .that.has.all.keys("name", "namespace", "methods", "route");
+      .that.has.all.keys("name", "methods", "route");
   });
 });
 
 describe("ServerManager.startServer(ServerConfiguration)", () => {
-  it("should be able to use the useREST property to create a REST API route for any method with the name 'get', 'put', 'post' or 'delete'", async () => {
+  it("should be able to use the useREST=true property to create a REST API route for any method with the name 'get', 'put', 'post' or 'delete'", async () => {
     const ServerManager = TasksJSServerManager();
-    const route = "/testService";
+    const route = "/testAPI";
     const port = 8372;
     const url = `http://localhost:${port}${route}`;
-    const options = {
-      name: "TestModule",
-      namespace: "TestNamespace",
-      methods: [
-        { name: "get", method: "put" },
-        { name: "put", method: "put" },
-        { name: "post", method: "put" },
-        { name: "delete", method: "put" }
-      ],
-      inferRoutes: false,
-      ServerModule: {}
+    const name = "testObject";
+    const object = {
+      get: (data, cb) => cb(null, { REST_TEST_PASSED: true }),
+      put: () => {},
+      post: () => {},
+      delete: () => {}
     };
 
-    ServerManager.startServer({
+    ServerManager.addModule(name, object);
+
+    await ServerManager.startServer({
       route,
       port,
       useREST: true
     });
 
-    ServerManager.addModule(options);
+    const results = await new Promise(resolve => {
+      request({ url: `${url}/${name}/id/resource`, json: true }, (err, res, body) => {
+        resolve(body);
+      });
+    });
+
+    expect(results).to.deep.equal({ REST_TEST_PASSED: true });
+  });
+
+  it("should be able to use the StaticRouting=true property to prevent TasksJSService API route from being created", async () => {
+    const ServerManager = TasksJSServerManager();
+    const route = "/testAPI";
+    const port = 8373;
+    const url = `http://localhost:${port}${route}`;
+    const name = "testObject";
+    const object = {
+      get: (data, cb) => cb(null, { REST_TEST_PASSED: true }),
+      put: () => {},
+      post: () => {},
+      delete: () => {}
+    };
+
+    ServerManager.addModule(name, object);
+
+    await ServerManager.startServer({
+      route,
+      port,
+      useREST: true
+    });
 
     const results = await new Promise(resolve => {
-      request(
-        { url: `${url}/TestModule/id/resource`, json: true },
-        (err, res, body) => {
-          resolve(body);
-        }
-      );
+      request({ url: `${url}/${name}/id/resource`, json: true }, (err, res, body) => {
+        resolve(body);
+      });
     });
 
-    expect(results).to.deep.equal({
-      message: "TasksJSServiceError: Object resource not found",
-      status: 404
-    });
+    expect(results).to.deep.equal({ REST_TEST_PASSED: true });
   });
 });
