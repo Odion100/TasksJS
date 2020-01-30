@@ -49,10 +49,9 @@ describe("ServerModule(constructor)", () => {
 
     expect(mod)
       .to.be.an("Object")
-      .that.has.all.keys("on", "emit", "config", "test", "test2")
+      .that.has.all.keys("on", "emit", "test", "test2")
       .that.respondsTo("on")
       .that.respondsTo("emit")
-      .that.respondsTo("config")
       .that.respondsTo("test")
       .that.respondsTo("test2");
   });

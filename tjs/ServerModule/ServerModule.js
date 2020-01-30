@@ -12,15 +12,11 @@ module.exports = function TasksJSServerModule(options) {
       typeof constructor === "object"
         ? TasksJSModule(name, constructor, { systemObjects })
         : TasksJSModule(name, null, { systemObjects });
+
     const namespace = shortid();
     const nsp = ServerManager.io.of(`/${namespace}`);
-    let inferRoute = false;
-    let config = { methods: {} };
-
-    //save TasksJSModule.emit function now as it's overwritten below
     const emit = ServerModule.emit;
-    //This creates a socket.io namespace for this ServerModule
-    //here we're using the socket.io namespace to fire an event called dispatch
+
     ServerModule.emit = (name, data) => {
       const id = shortid();
       const type = "WebSocket";
@@ -34,43 +30,20 @@ module.exports = function TasksJSServerModule(options) {
     if (typeof constructor === "function") {
       if (constructor.constructor.name === "AsyncFunction")
         throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
-
-      ServerModule.config = conf => {
-        inferRoute = conf.inferRoute;
-        config = conf;
-      };
-
-      constructor.apply(ServerModule, []);
+      else constructor.apply(ServerModule, []);
     }
-
-    const methods = [];
-    const props = Object.getOwnPropertyNames(ServerModule);
-    const reservedMethods = [
+    const methods = abstractMethods(ServerModule, [
       "on",
       "emit",
       "config",
       "useModule",
       "useService",
       "useConfig"
-    ];
-    //loop through each property on the ServerModule that is a function
-    //in order to create a config object for each method on the ServerModule
-    props.forEach(name => {
-      if (
-        //exclude ServerModule reserved methods
-        reservedMethods.indexOf(name) === -1 &&
-        typeof ServerModule[name] === "function"
-      ) {
-        let method = (config.methods[name] || "PUT").toUpperCase();
-        methods.push({ method, name });
-      }
-    });
-
+    ]);
     ServerManager.addModule({
       name,
       ServerModule,
       namespace,
-      inferRoute,
       methods
     });
 
@@ -79,4 +52,19 @@ module.exports = function TasksJSServerModule(options) {
 
   ServerModule.startService = ServerManager.startServer;
   return ServerModule;
+};
+
+const abstractMethods = (ServerModule, reserved_methods = []) => {
+  const methods = [];
+  const props = Object.getOwnPropertyNames(ServerModule);
+
+  props.forEach(name => {
+    if (
+      typeof ServerModule[name] === "function" &&
+      reserved_methods.indexOf(name) === -1
+    )
+      methods.push({ method: "PUT", name });
+  });
+
+  return methods;
 };
