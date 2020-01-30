@@ -132,9 +132,17 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
     ServerManager.addModule(options);
 
     const results = await new Promise(resolve => {
-      request({ url, json: true }, (err, res, body) => {
-        resolve(body);
-      });
+      request(
+        { url: `${url}/TestModule/id/resource`, json: true },
+        (err, res, body) => {
+          resolve(body);
+        }
+      );
+    });
+
+    expect(results).to.deep.equal({
+      message: "TasksJSServiceError: Object resource not found",
+      status: 404
     });
   });
 });
