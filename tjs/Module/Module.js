@@ -2,21 +2,14 @@
 //controll the lifecycle of code initialization
 
 //What do they even call this pattern...?
-module.exports = function TasksJSModule(
-  name,
-  constructor,
-  { systemObjects } = {}
-) {
+module.exports = function TasksJSModule(name, constructor, { systemObjects } = {}) {
   const tjsModule =
-    typeof constructor === "object" && constructor instanceof Object
-      ? constructor
-      : {};
+    typeof constructor === "object" && constructor instanceof Object ? constructor : {};
   const events = {};
 
   if (systemObjects) {
     //return other modules in the same App by name
-    tjsModule.useModule = modName =>
-      (systemObjects.Modules[modName] || {}).module || {};
+    tjsModule.useModule = modName => (systemObjects.Modules[modName] || {}).module || {};
     //returns any service that has been loaded by name
     tjsModule.useService = serviceName =>
       (systemObjects.Services[serviceName] || {}).ServerModules || {};

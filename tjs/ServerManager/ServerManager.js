@@ -14,9 +14,7 @@ module.exports = function TasksJSServerManager() {
     useREST: false,
     useService: true,
     staticRouting: false,
-    middleware: [],
-    server,
-    io
+    middleware: []
   };
   const router = TasksJSRouter(server);
   const ServerManager = { server, io };
@@ -26,12 +24,15 @@ module.exports = function TasksJSServerManager() {
   ServerManager.startServer = options => {
     let { route, host = "localhost", port } = options;
 
-    //ensure route begins with a slash
-    route = route.charAt(0) === "/" ? route : "/" + route;
-    const serviceUrl = `${host}:${port}${route}`;
-    serverConfigurations = { ...serverConfigurations, ...options, serviceUrl };
+    //ensure route begins and ends without a slash
+    route = route.charAt(0) === "/" ? route.substr(1) : route;
+    route = route.charAt(route.length - 1) === "/" ? route.substr(route.length - 1) : route;
+    const serviceUrl = `${host}:${port}/${route}`;
+
+    serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route };
+
     //add route to server that will be used to handle request to "connect" to the Service
-    server.get(route, (req, res) => {
+    server.get(`/${route}`, (req, res) => {
       //The route will return connection data for the service including an array of
       //modules (objects) which contain instructions on how to make request to each object
       res.json({
@@ -59,29 +60,27 @@ module.exports = function TasksJSServerManager() {
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = abstractMethods(object, reserved_methods, useREST);
 
-    switch (true) {
-      case useService:
-        const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
+    if (useService) {
+      const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
-        modules.push({
-          namespace: object.namespace,
-          route: path,
-          name,
-          methods
-        });
-
-        router.addService(object, path);
-      case useREST:
-        methods.forEach(method => {
-          switch (method.name) {
-            case "get":
-            case "put":
-            case "post":
-            case "delete":
-              router.addREST(object, `${route}/${name}`, method.name);
-          }
-        });
+      modules.push({
+        namespace: object.namespace,
+        route: `/${path}`,
+        name,
+        methods
+      });
+      router.addService(object, path);
     }
+    if (useREST)
+      methods.forEach(method => {
+        switch (method.name) {
+          case "get":
+          case "put":
+          case "post":
+          case "delete":
+            router.addREST(object, `${route}/${name}`, method.name);
+        }
+      });
   };
 
   ServerManager.attachNamespace = (object, namespace) => {

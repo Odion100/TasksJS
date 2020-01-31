@@ -3,8 +3,8 @@ module.exports = function TasksJSRouter(server) {
   const addService = (ServerModule, route) => {
     server.all(
       [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
-      (req, res, next, fn) => {
-        req.fn = fn;
+      (req, res, next) => {
+        req.fn = req.params.fn;
         req.ServerModule = ServerModule;
         next();
       },
@@ -14,7 +14,7 @@ module.exports = function TasksJSRouter(server) {
 
   const addREST = (ServerModule, route, method) => {
     server[method](
-      [`${route}/:id`, `${route}/:id/:resource`],
+      [`/${route}/:id`, `/${route}/:id/:resource`],
       (req, res, next) => {
         req.fn = method;
         req.ServerModule = ServerModule;
@@ -25,7 +25,7 @@ module.exports = function TasksJSRouter(server) {
   };
 
   const routeHandler = (req, res) => {
-    const { params, query, file, files, body, fn, ServerModule } = req;
+    const { params, query, file, files, body, fn, ServerModule = {} } = req;
 
     if (typeof ServerModule[fn] !== "function")
       return res.status(404).json({

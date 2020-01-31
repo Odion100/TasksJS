@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const request = require("request");
 const TasksJSServerModule = require("./ServerModule");
-console.log(TasksJSServerModule());
+
 describe("TasksJSServerModule", () => {
   it("should return a new instance of a ServerModule (fn)", () => {
     const ServerModule = TasksJSServerModule();
