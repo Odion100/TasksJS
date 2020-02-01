@@ -129,8 +129,8 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
     const url = `http://localhost:${port}${route}`;
     const name = "testObject";
     const object = {
-      get: (data, cb) => cb(null, { REST_TEST_PASSED: true }),
-      put: () => {},
+      get: (data, cb) => cb(null, { SERVICE_TEST_PASSED: true }),
+      put: (data, cb) => cb(null, { SERVICE_TEST_PASSED: true }),
       post: () => {},
       delete: () => {}
     };
@@ -140,7 +140,8 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
     await ServerManager.startServer({
       route,
       port,
-      staticRouting: true
+      staticRouting: true,
+      useREST: true
     });
 
     const results = await new Promise(resolve => {
@@ -149,6 +150,6 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
       });
     });
 
-    expect(results).to.deep.equal({ REST_TEST_PASSED: true });
+    expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true });
   });
 });

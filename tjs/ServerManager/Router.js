@@ -1,23 +1,26 @@
 module.exports = function TasksJSRouter(server) {
   //user (express) server.all to handle all request to a given ServerModule
-  const addService = (ServerModule, route) => {
-    server.all(
-      [`/${route}/:fn`, `/sf/${route}/:fn`, `/mf/${route}/:fn`],
+
+  const addService = (ServerModule, route, { name, method }) => {
+    server[method](
+      [`/${route}/${name}`, `/sf/${route}/${name}`, `/mf/${route}/${name}`],
       (req, res, next) => {
-        req.fn = req.params.fn;
+        req.fn = name;
         req.ServerModule = ServerModule;
+        console.log("useService", name, method, route);
         next();
       },
       routeHandler
     );
   };
 
-  const addREST = (ServerModule, route, method) => {
+  const addREST = (ServerModule, route, { method }) => {
     server[method](
       [`/${route}/:id`, `/${route}/:id/:resource`],
       (req, res, next) => {
         req.fn = method;
         req.ServerModule = ServerModule;
+        console.log("rest", method, route);
         next();
       },
       routeHandler

@@ -7,8 +7,8 @@ const abstractMethods = (obj, reserved_methods = [], useREST) => {
     if (typeof obj[name] === "function" && reserved_methods.indexOf(name) === -1) {
       const method =
         useREST && REST_methods.indexOf(name.toLocaleLowerCase()) === -1
-          ? "PUT"
-          : name.toUpperCase();
+          ? "put"
+          : name.toLocaleLowerCase();
       methods.push({ method, name });
     }
   });

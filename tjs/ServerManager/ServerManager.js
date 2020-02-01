@@ -59,7 +59,7 @@ module.exports = function TasksJSServerManager() {
     const { route, serviceUrl, staticRouting, useService, useREST } = serverConfigurations;
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = abstractMethods(object, reserved_methods, useREST);
-
+    console.log(methods);
     if (useService) {
       const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
@@ -69,7 +69,7 @@ module.exports = function TasksJSServerManager() {
         name,
         methods
       });
-      router.addService(object, path);
+      methods.forEach(method => router.addService(object, path, method));
     }
     if (useREST)
       methods.forEach(method => {
@@ -78,7 +78,7 @@ module.exports = function TasksJSServerManager() {
           case "put":
           case "post":
           case "delete":
-            router.addREST(object, `${route}/${name}`, method.name);
+            router.addREST(object, `${route}/${name}`, method);
         }
       });
   };
