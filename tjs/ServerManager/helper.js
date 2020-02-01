@@ -6,9 +6,9 @@ const abstractMethods = (obj, reserved_methods = [], useREST) => {
   props.forEach(name => {
     if (typeof obj[name] === "function" && reserved_methods.indexOf(name) === -1) {
       const method =
-        useREST && REST_methods.indexOf(name.toLocaleLowerCase()) === -1
-          ? "put"
-          : name.toLocaleLowerCase();
+        useREST && REST_methods.indexOf(name.toLocaleLowerCase()) > -1
+          ? name.toLocaleLowerCase()
+          : "put";
       methods.push({ method, name });
     }
   });
