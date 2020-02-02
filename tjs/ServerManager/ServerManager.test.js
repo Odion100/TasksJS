@@ -29,7 +29,7 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
       .that.has.property("modules")
       .that.is.an("array").that.is.empty;
   });
@@ -52,7 +52,7 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
       .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);
@@ -81,7 +81,7 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
       .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);

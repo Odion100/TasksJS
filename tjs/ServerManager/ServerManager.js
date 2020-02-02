@@ -27,7 +27,7 @@ module.exports = function TasksJSServerManager() {
     //ensure route begins and ends without a slash
     route = route.charAt(0) === "/" ? route.substr(1) : route;
     route = route.charAt(route.length - 1) === "/" ? route.substr(route.length - 1) : route;
-    const serviceUrl = `${host}:${port}/${route}`;
+    const serviceUrl = `http://${host}:${port}/${route}`;
 
     serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route };
 
@@ -39,7 +39,9 @@ module.exports = function TasksJSServerManager() {
         modules,
         port,
         host,
-        TasksJSService: { serviceUrl }
+        route: `/${route}`,
+        serviceUrl,
+        TasksJSService: true
       });
     });
 
