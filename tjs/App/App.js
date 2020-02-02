@@ -98,9 +98,7 @@ module.exports = function TasksJSApp() {
       "serverModuleQueue---------------w--w-w-w-w-w-w-w-w-w--w-w-w-w->",
       serverModuleQueue
     );
-    serverModuleQueue.forEach(mod =>
-      ServerModule(mod.name, mod.constructor, { systemObjects })
-    );
+    serverModuleQueue.forEach(mod => ServerModule(mod.name, mod.constructor, { systemObjects }));
     app.emit("init_complete", { systemObjects });
   };
 
@@ -118,10 +116,7 @@ module.exports = function TasksJSApp() {
     return app;
   };
   //register a service to be loaded later
-  app.loadService = (
-    name,
-    { host = "localhost", port, route, url, limit, wait }
-  ) => {
+  app.loadService = (name, { host = "localhost", port, route, url, limit, wait }) => {
     url = url || `http://${host}:${port}/${route}`;
     //add service to systemObjects
     systemObjects.Services[name] = {
@@ -174,8 +169,7 @@ module.exports = function TasksJSApp() {
   };
 
   app.config = constructor => {
-    if (typeof constructor === "function")
-      systemObjects.config.__constructor = constructor;
+    if (typeof constructor === "function") systemObjects.config.__constructor = constructor;
 
     return app;
   };

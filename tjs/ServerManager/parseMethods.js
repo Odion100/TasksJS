@@ -1,4 +1,4 @@
-const abstractMethods = (obj, reserved_methods = [], useREST) => {
+const parseMethods = (obj, reserved_methods = [], useREST) => {
   const methods = [];
   const REST_methods = ["get", "put", "post", "delete"];
   const props = Object.getOwnPropertyNames(obj);
@@ -16,4 +16,4 @@ const abstractMethods = (obj, reserved_methods = [], useREST) => {
   return methods;
 };
 
-module.exports = { abstractMethods };
+module.exports = parseMethods;

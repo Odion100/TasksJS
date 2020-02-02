@@ -1,22 +1,18 @@
-const TasksJSModule = require("../Module/Module");
 const TasksJSServerManager = require("../ServerManager/ServerManager");
-const shortid = require("shortid");
-
+const TasksJSEvents = require("../Events/Events");
 module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
-  function ServerModuleFactory(name, constructor, { systemObjects } = {}) {
-    //ServerModule is inheriting from TasksJSModule
+  function ServerModuleFactory(name, constructor) {
     const ServerModule =
-      typeof constructor === "object"
-        ? TasksJSModule(name, constructor, { systemObjects })
-        : TasksJSModule(name, null, { systemObjects });
+      typeof constructor === "object" && constructor instanceof Object ? constructor : {};
 
+    TasksJSEvents.apply(ServerModule);
     const reserved_methods = Object.getOwnPropertyNames(ServerModule);
 
     if (typeof constructor === "function") {
       if (constructor.constructor.name === "AsyncFunction")
-        throw `(TasksJSServerModuleError): ServerModule construction function cannot be Async`;
+        throw `(ServerModule Error): ServerModule(name, constructor) function requires a non-async function as the constructor`;
       else constructor.apply(ServerModule, []);
     }
 

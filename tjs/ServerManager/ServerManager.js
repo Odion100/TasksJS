@@ -1,7 +1,7 @@
 //ServerManager handles routing and mapping request to objects
 const TasksJSServer = require("../Server/Server");
 const TasksJSRouter = require("./Router");
-const { abstractMethods } = require("./helper");
+const parseMethods = require("./parseMethods");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
@@ -58,7 +58,7 @@ module.exports = function TasksJSServerManager() {
   ServerManager.addModule = (name, object, reserved_methods) => {
     const { route, serviceUrl, staticRouting, useService, useREST } = serverConfigurations;
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
-    const methods = abstractMethods(object, reserved_methods, useREST);
+    const methods = parseMethods(object, reserved_methods, useREST);
 
     if (useService) {
       const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;

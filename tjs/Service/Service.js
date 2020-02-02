@@ -6,10 +6,7 @@ module.exports = function TasksJSService() {
   const loadedServices = {};
   //this function makes a request to a service to recieve connectionData
   //which provides instruction on how to make request to each ServerModule in the service
-  return async function Service(
-    url,
-    { forceReload = false, limit = 10, wait = 150 } = {}
-  ) {
+  return async function Service(url, { forceReload = false, limit = 10, wait = 150 } = {}) {
     //avoid loading connection data from Service already loaded
     if (loadedServices[url] && !forceReload) return loadedServices[url];
 
@@ -23,10 +20,7 @@ module.exports = function TasksJSService() {
             connectionErrors.push(err);
             //attempt to load the service recursively up to ten times
             if (connectionErrors.length < limit)
-              setTimeout(
-                () => getData(resolve, reject),
-                connectionErrors.length * wait
-              );
+              setTimeout(() => getData(resolve, reject), connectionErrors.length * wait);
             else {
               const connection_attempts = connectionErrors.length;
               reject({ connection_attempts, connectionErrors });
@@ -46,11 +40,7 @@ module.exports = function TasksJSService() {
       return service;
     };
 
-    const serverModuleRequestHandler = (
-      { methods, namespace, route },
-      { port, host },
-      service
-    ) => {
+    const serverModuleRequestHandler = ({ methods, namespace, route }, { port, host }, service) => {
       const serverMod = {};
       const eventHandlers = {};
       let singleFileURL = "";
@@ -156,12 +146,7 @@ module.exports = function TasksJSService() {
       //instead of re-instantiating the backend ServerModules we use the ___setConnection
       //method to update the serverModules' connection data
       modules.forEach(mod =>
-        loadedServices[url][mod.name].__setConnection(
-          host,
-          port,
-          mod.route,
-          mod.namespace
-        )
+        loadedServices[url][mod.name].__setConnection(host, port, mod.route, mod.namespace)
       );
       cb();
     };
