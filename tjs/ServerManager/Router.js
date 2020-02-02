@@ -7,7 +7,6 @@ module.exports = function TasksJSRouter(server) {
       (req, res, next) => {
         req.fn = name;
         req.ServerModule = ServerModule;
-        console.log("useService", name, method, route);
         next();
       },
       routeHandler
@@ -20,7 +19,6 @@ module.exports = function TasksJSRouter(server) {
       (req, res, next) => {
         req.fn = method;
         req.ServerModule = ServerModule;
-        console.log("rest", method, route);
         next();
       },
       routeHandler

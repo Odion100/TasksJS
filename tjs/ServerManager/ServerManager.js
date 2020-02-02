@@ -59,7 +59,7 @@ module.exports = function TasksJSServerManager() {
     const { route, serviceUrl, staticRouting, useService, useREST } = serverConfigurations;
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = abstractMethods(object, reserved_methods, useREST);
-    console.log(methods);
+
     if (useService) {
       const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
