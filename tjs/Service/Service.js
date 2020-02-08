@@ -1,5 +1,5 @@
 const Client = require("../Client/Client")();
-const TasksJSModule = require("../Module/Module");
+const TasksJSEvents = require("../Events/Events");
 const io = require("socket.io-client");
 
 module.exports = function TasksJSService() {
@@ -30,7 +30,7 @@ module.exports = function TasksJSService() {
     };
 
     const createService = connData => {
-      const service = new TasksJSModule();
+      const service = TasksJSEvents.apply({});
       service.TasksJSService = connData.TasksJSService;
       //each mod describes a backend ServerModule
       connData.modules.forEach(mod => {

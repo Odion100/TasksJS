@@ -1,11 +1,11 @@
 module.exports = function TasksJSRouter(server) {
   //user (express) server.all to handle all request to a given ServerModule
 
-  const addService = (ServerModule, route, { name, method }) => {
+  const addService = (ServerModule, route, { fn, method }) => {
     server[method](
-      [`/${route}/${name}`, `/sf/${route}/${name}`, `/mf/${route}/${name}`],
+      [`/${route}/${fn}`, `/sf/${route}/${fn}`, `/mf/${route}/${fn}`],
       (req, res, next) => {
-        req.fn = name;
+        req.fn = fn;
         req.ServerModule = ServerModule;
         next();
       },
@@ -43,7 +43,7 @@ module.exports = function TasksJSRouter(server) {
     };
 
     const callback = (err, results) => {
-      if (err) res.status(err.status || 500).json({ err });
+      if (err) res.status(err.status || 500).json({ err, TasksJSService: true });
       else res.json(results);
     };
 

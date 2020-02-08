@@ -1,5 +1,6 @@
 const TasksJSServerManager = require("../ServerManager/ServerManager");
-const TasksJSEvents = require("../Events/Events");
+const TasksJSDispatcher = require("../Dispatcher/Dispatcher");
+
 module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
@@ -7,7 +8,7 @@ module.exports = function TasksJSServerModule() {
     const ServerModule =
       typeof constructor === "object" && constructor instanceof Object ? constructor : {};
 
-    TasksJSEvents.apply(ServerModule);
+    TasksJSDispatcher.apply(ServerModule);
     const reserved_methods = Object.getOwnPropertyNames(ServerModule);
 
     if (typeof constructor === "function") {

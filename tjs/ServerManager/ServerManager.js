@@ -1,7 +1,7 @@
 //ServerManager handles routing and mapping request to objects
 const TasksJSServer = require("../Server/Server");
-const TasksJSRouter = require("./Router");
-const parseMethods = require("./parseMethods");
+const TasksJSRouter = require("./components/Router");
+const parseMethods = require("./components/parseMethods");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
@@ -75,7 +75,7 @@ module.exports = function TasksJSServerManager() {
     }
     if (useREST)
       methods.forEach(method => {
-        switch (method.name) {
+        switch (method.fn) {
           case "get":
           case "put":
           case "post":
@@ -89,7 +89,7 @@ module.exports = function TasksJSServerManager() {
     const { host, staticRouting } = serverConfigurations;
     namespace = !namespace ? shortId() : staticRouting ? namespace : shortId();
     object.namespace = `http://${host}:${socketPort}/${namespace}`;
-    object.nsp = ServerManager.io.of(`/${namespace}`);
+    object.nsp = io.of(`/${namespace}`);
 
     const emit = object.emit;
 
