@@ -3,7 +3,7 @@ module.exports = function requestHandler(method, fn) {
 
   return function sendRequest(data, callback) {
     const RequestHandler = (cb, errCount = 0) => {
-      const { route, port, host } = ServiceModule.connectionData();
+      const { route, port, host } = ServiceModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf/${route}/${fn}`;
       const multiFileURL = `http://${host}:${port}/mf/${route}/${fn}`;
       const defaultURL = `http://${host}:${port}/${route}/${fn}`;

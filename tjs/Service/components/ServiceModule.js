@@ -7,13 +7,7 @@ module.exports = function TasksJSServiceModule({ methods, namespace, route }, { 
   const ServiceModule = TasksJSDispatcher.apply(this, [events]);
 
   ServiceModule.__setConnection = (host, port, route, namespace) => {
-    ServiceModule.connectionData = {
-      singleFileURL: `http://${host}:${port}/sf/${route}`,
-      multiFileURL: `http://${host}:${port}/mf/${route}`,
-      URL: `http://${host}:${port}/${route}`,
-      namespace
-    };
-
+    ServiceModule.__connectionData = () => ({ route, host, port });
     SocketDispatcher.apply(ServiceModule, [namespace, events]);
   };
   ServiceModule.__setConnection(host, port, route, namespace);
