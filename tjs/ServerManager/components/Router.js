@@ -31,7 +31,8 @@ module.exports = function TasksJSRouter(server) {
     if (typeof ServerModule[fn] !== "function")
       return res.status(404).json({
         message: "TasksJSServiceError: Object resource not found",
-        status: 404
+        status: 404,
+        TasksJSServiceError: true
       });
 
     const data = {
@@ -43,7 +44,7 @@ module.exports = function TasksJSRouter(server) {
     };
 
     const callback = (err, results) => {
-      if (err) res.status(err.status || 500).json({ err, TasksJSService: true });
+      if (err) res.status(err.status || 500).json({ ...err, TasksJSServiceError: true });
       else res.json(results);
     };
 

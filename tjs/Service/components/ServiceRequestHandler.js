@@ -2,44 +2,35 @@ module.exports = function requestHandler(method, fn) {
   const ServiceModule = this;
 
   return function sendRequest(data, callback) {
-    const RequestHandler = (errCount = 0) => {
-      const { singleFileURL, multiFileURL, URL } = ServiceModule.connectionData;
-      switch (true) {
-        case data.file:
-          return Client.upload({
-            url: `${singleFileURL}/${fn}`,
-            method,
-            formData: data
-          })
-            .then(results => callback(null, results))
-            .catch(err => ErrorHandler(err, errCount, callback));
-        case data.files:
-          return Client.upload({
-            url: `${multiFileURL}/${fn}`,
-            method,
-            formData: data
-          })
-            .then(results => callback(null, results))
-            .catch(err => ErrorHandler(err, errCount, callback));
-        default:
-          Client.request({ url: `${URL}/${fn}`, method, body: { data } })
-            .then(results => callback(null, results))
-            .catch(err => ErrorHandler(err, errCount, callback));
-      }
+    const RequestHandler = (cb, errCount = 0) => {
+      const { route, port, host } = ServiceModule.connectionData();
+      const singleFileURL = `http://${host}:${port}/sf/${route}/${fn}`;
+      const multiFileURL = `http://${host}:${port}/mf/${route}/${fn}`;
+      const defaultURL = `http://${host}:${port}/${route}/${fn}`;
+
+      const url = data.file ? singleFileURL : data.files ? multiFileURL : defaultURL;
+
+      if (url === defaultURL)
+        Client.request({ url, method, body: { data } })
+          .then(results => cb(null, results))
+          .catch(err => ErrorHandler(err, errCount, cb));
+      else
+        Client.upload({
+          url,
+          method,
+          formData: data
+        })
+          .then(results => cb(null, results))
+          .catch(err => ErrorHandler(err, errCount, cb));
     };
 
-    const ErrorHandler = (err, errCount) => {
-      //if the err object doesn't have TasksJSServerError value as true
-      //we know the request never reached the server
-      if (!err.TasksJSService) {
-        //throw an error if a request fails three times in a row
-        if (errCount >= 3) throw Error(`(TasksJSServiceError): Invalid route`);
-        //reset the connection then try to make the same request again
-        errCount++;
-        ServiceModule.resetConnection(() => RequestHandler(errCount));
-      } else {
-        ServiceModule.emit("failed_request", { err, errCount, ServiceModule, fn });
+    const ErrorHandler = (err, errCount, cb) => {
+      if (err.TasksJSServiceError) {
         cb(err);
+      } else {
+        if (errCount >= 3) throw Error(`(TasksJSServiceError): Invalid route`);
+        errCount++;
+        ServiceModule.resetConnection(() => RequestHandler(cb, errCount));
       }
     };
     //there is an option to use either the callback or the promise
