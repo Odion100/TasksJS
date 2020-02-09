@@ -23,22 +23,19 @@ module.exports = function TasksJSServerManager() {
   const moduleQueue = [];
   const modules = [];
   const { SocketServer, WebSocket } = require("./components/WebSocketServer");
-  const startWebSocket = (port, namespace) => {
-    SocketServer.listen(port);
-    SocketEmitter.apply(ServerManager, [namespace, WebSocket]);
-  };
   const ServerManager = { server, WebSocket };
 
-  ServerManager.startServer = options => {
+  ServerManager.startService = options => {
     let { route, host = "localhost", port, socketPort } = options;
     socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
+    const namespace = `http://${host}:${socketPort}/${staticRouting ? route : shortId()}`;
+    SocketServer.listen(port);
+    SocketEmitter.apply(ServerManager, [namespace, WebSocket]);
+
     route = route.charAt(0) === "/" ? route.substr(1) : route;
     route = route.charAt(route.length - 1) === "/" ? route.substr(route.length - 1) : route;
     const serviceUrl = `http://${host}:${port}/${route}`;
-    const namespace = staticRouting ? route : shortId();
     serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route, socketPort };
-
-    startWebSocket(port, namespace);
     server.get(`/${route}`, (req, res) => {
       //The route will return connection data for the service including an array of
       //modules (objects) which contain instructions on how to make request to each object
@@ -48,6 +45,7 @@ module.exports = function TasksJSServerManager() {
         host,
         route: `/${route}`,
         serviceUrl,
+        namespace,
         TasksJSService: true
       });
     });
