@@ -17,7 +17,6 @@ module.exports = function TasksJSServerModule() {
       else constructor.apply(ServerModule, []);
     }
 
-    ServerManager.attachNamespace(ServerModule, name);
     ServerManager.addModule(name, ServerModule, reserved_methods);
 
     return ServerModule;

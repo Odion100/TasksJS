@@ -1,37 +1,44 @@
 //ServerManager handles routing and mapping request to objects
-const TasksJSServer = require("../Server/Server");
+const TasksJSServer = require("./components/Server");
 const TasksJSRouter = require("./components/Router");
+const SocketEmitter = require("./components/SocketEmitter");
 const parseMethods = require("./components/parseMethods");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
   //start the Express and WebSocket Servers
-  const { server, io, socketPort } = TasksJSServer();
   let serverConfigurations = {
     route: null,
     port: null,
     host: "localhost",
+    socketPort: null,
     useREST: false,
     useService: true,
     staticRouting: false,
     middleware: []
   };
+  const server = TasksJSServer();
   const router = TasksJSRouter(server);
-  const ServerManager = { server, io };
+
   const moduleQueue = [];
   const modules = [];
+  const { SocketServer, WebSocket } = require("./components/WebSocketServer");
+  const startWebSocket = (port, namespace) => {
+    SocketServer.listen(port);
+    SocketEmitter.apply(ServerManager, [namespace, WebSocket]);
+  };
+  const ServerManager = { server, WebSocket };
 
   ServerManager.startServer = options => {
-    let { route, host = "localhost", port } = options;
-
-    //ensure route begins and ends without a slash
+    let { route, host = "localhost", port, socketPort } = options;
+    socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
     route = route.charAt(0) === "/" ? route.substr(1) : route;
     route = route.charAt(route.length - 1) === "/" ? route.substr(route.length - 1) : route;
     const serviceUrl = `http://${host}:${port}/${route}`;
+    const namespace = staticRouting ? route : shortId();
+    serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route, socketPort };
 
-    serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route };
-
-    //add route to server that will be used to handle request to "connect" to the Service
+    startWebSocket(port, namespace);
     server.get(`/${route}`, (req, res) => {
       //The route will return connection data for the service including an array of
       //modules (objects) which contain instructions on how to make request to each object
@@ -58,15 +65,26 @@ module.exports = function TasksJSServerManager() {
   };
 
   ServerManager.addModule = (name, object, reserved_methods) => {
-    const { route, serviceUrl, staticRouting, useService, useREST } = serverConfigurations;
+    const {
+      host,
+      route,
+      serviceUrl,
+      staticRouting,
+      useService,
+      useREST,
+      socketPort
+    } = serverConfigurations;
+
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = parseMethods(object, reserved_methods, useREST);
+    const namespace = `http://${host}:${socketPort}/${staticRouting ? name : shortId()}`;
+    SocketEmitter.apply(object, [namespace, WebSocket]);
 
     if (useService) {
       const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
       modules.push({
-        namespace: object.namespace,
+        namespace,
         route: `/${path}`,
         name,
         methods
@@ -85,23 +103,5 @@ module.exports = function TasksJSServerManager() {
       });
   };
 
-  ServerManager.attachNamespace = (object, namespace) => {
-    const { host, staticRouting } = serverConfigurations;
-    namespace = !namespace ? shortId() : staticRouting ? namespace : shortId();
-    object.namespace = `http://${host}:${socketPort}/${namespace}`;
-    object.nsp = io.of(`/${namespace}`);
-
-    const emit = object.emit;
-
-    object.emit = (name, data) => {
-      const id = shortid();
-      const type = "WebSocket";
-      //emit WebSocket Event
-      object.nsp.emit("dispatch", { id, name, data, type });
-      //emit the same event locally
-      if (typeof emit === "function") emit(name, data);
-    };
-    return object;
-  };
   return ServerManager;
 };
