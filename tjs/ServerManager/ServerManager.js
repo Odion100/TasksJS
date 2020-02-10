@@ -27,6 +27,7 @@ module.exports = function TasksJSServerManager() {
 
   ServerManager.startService = options => {
     let { route, host = "localhost", port, socketPort } = options;
+
     socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
     const namespace = `http://${host}:${socketPort}/${staticRouting ? route : shortId()}`;
     SocketServer.listen(port);
@@ -36,6 +37,7 @@ module.exports = function TasksJSServerManager() {
     route = route.charAt(route.length - 1) === "/" ? route.substr(route.length - 1) : route;
     const serviceUrl = `http://${host}:${port}/${route}`;
     serverConfigurations = { ...serverConfigurations, ...options, serviceUrl, route, socketPort };
+
     server.get(`/${route}`, (req, res) => {
       //The route will return connection data for the service including an array of
       //modules (objects) which contain instructions on how to make request to each object
