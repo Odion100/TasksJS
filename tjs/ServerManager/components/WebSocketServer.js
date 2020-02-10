@@ -1,7 +1,7 @@
 module.exports = function TasksJSWebWebSocket() {
   const express = require("express");
   const SocketServer = require("http").Server(express());
-  const Socket = require("socket.io")(SocketServer);
+  const WebSocket = require("socket.io")(SocketServer);
 
-  return { Socket, SocketServer };
+  return { WebSocket, SocketServer };
 };

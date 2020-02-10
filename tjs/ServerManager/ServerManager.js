@@ -2,6 +2,7 @@
 const TasksJSServer = require("./components/Server");
 const TasksJSRouter = require("./components/Router");
 const SocketEmitter = require("./components/SocketEmitter");
+const TasksJSWebSocket = require("./components/WebSocketServer");
 const abstractMethods = require("./components/abstractMethods");
 const shortId = require("shortid");
 
@@ -22,15 +23,15 @@ module.exports = function TasksJSServerManager() {
 
   const moduleQueue = [];
   const modules = [];
-  const { SocketServer, WebSocket } = require("./components/WebSocketServer");
-  const ServerManager = { server, WebSocket };
+  const { SocketServer, WebSocket } = TasksJSWebSocket();
+  const ServerManager = {};
 
   ServerManager.startService = options => {
-    let { route, host = "localhost", port, socketPort } = options;
+    let { route, host = "localhost", port, socketPort, staticRouting } = options;
 
     socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
     const namespace = `http://${host}:${socketPort}/${staticRouting ? route : shortId()}`;
-    SocketServer.listen(port);
+    SocketServer.listen(socketPort);
     SocketEmitter.apply(ServerManager, [namespace, WebSocket]);
 
     route = route.charAt(0) === "/" ? route.substr(1) : route;

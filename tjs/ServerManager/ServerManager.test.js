@@ -7,20 +7,19 @@ describe("TasksJSServerManager function", () => {
     const ServerManager = TasksJSServerManager();
     expect(ServerManager)
       .to.be.an("Object")
-      .that.has.all.keys(["server", "io", "startServer", "addModule", "attachNamespace"])
-      .that.respondsTo("startServer")
-      .that.respondsTo("addModule")
-      .that.respondsTo("attachNamespace");
+      .that.has.all.keys(["startService", "addModule"])
+      .that.respondsTo("startService")
+      .that.respondsTo("addModule");
   });
 });
 describe("ServerManager", () => {
-  it("should be able use ServerManager.startServer to start a server that will accept requests for ServerModule Connection Data on the given route", async () => {
+  it("should be able use ServerManager.startService to start a server that will accept requests for ServerModule Connection Data on the given route", async () => {
     const ServerManager = TasksJSServerManager();
     const route = "/testService";
     const port = 4400;
     const url = `http://localhost:${port}${route}`;
 
-    await ServerManager.startServer({ route, port });
+    await ServerManager.startService({ route, port });
     const results = await new Promise(resolve => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
@@ -29,7 +28,15 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "serviceUrl",
+        "route",
+        "host",
+        "port",
+        "modules",
+        "namespace"
+      )
       .that.has.property("modules")
       .that.is.an("array").that.is.empty;
   });
@@ -40,7 +47,7 @@ describe("ServerManager", () => {
     const port = 4634;
     const url = `http://localhost:${port}${route}`;
     const name = "TestModule";
-    await ServerManager.startServer({ route, port });
+    await ServerManager.startService({ route, port });
 
     ServerManager.addModule(name, {});
     ServerManager.addModule(name + 1, {});
@@ -52,16 +59,24 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "serviceUrl",
+        "route",
+        "host",
+        "port",
+        "modules",
+        "namespace"
+      )
       .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);
     expect(results.modules[0])
       .to.be.an("object")
-      .that.has.all.keys("name", "methods", "route");
+      .that.has.all.keys("name", "methods", "route", "namespace");
   });
 
-  it("should be able call ServerManager.addModule method before or after calling ServerManager.startServer", async () => {
+  it("should be able call ServerManager.addModule method before or after calling ServerManager.startService", async () => {
     const ServerManager = TasksJSServerManager();
     const route = "/testService";
     const port = 4500;
@@ -71,7 +86,7 @@ describe("ServerManager", () => {
     ServerManager.addModule(name, {});
     ServerManager.addModule(name + 1, {});
 
-    await ServerManager.startServer({ route, port });
+    await ServerManager.startService({ route, port });
 
     const results = await new Promise(resolve => {
       request({ url, json: true }, (err, res, body) => {
@@ -81,17 +96,25 @@ describe("ServerManager", () => {
 
     expect(results)
       .to.be.an("object")
-      .that.has.all.keys("TasksJSService", "serviceUrl", "route", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "serviceUrl",
+        "route",
+        "host",
+        "port",
+        "modules",
+        "namespace"
+      )
       .that.has.property("modules")
       .that.is.an("array")
       .that.has.a.lengthOf(2);
     expect(results.modules[0])
       .to.be.an("object")
-      .that.has.all.keys("name", "methods", "route");
+      .that.has.all.keys("name", "methods", "route", "namespace");
   });
 });
 
-describe("ServerManager.startServer(ServerConfiguration)", () => {
+describe("ServerManager.startService(ServerConfiguration)", () => {
   it("should be able to use the useREST=true property to create a REST API route for any method with the name 'get', 'put', 'post' or 'delete'", async () => {
     const ServerManager = TasksJSServerManager();
     const route = "/testAPI";
@@ -107,7 +130,7 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
 
     ServerManager.addModule(name, object);
 
-    await ServerManager.startServer({
+    await ServerManager.startService({
       route,
       port,
       useREST: true
@@ -137,7 +160,7 @@ describe("ServerManager.startServer(ServerConfiguration)", () => {
 
     ServerManager.addModule(name, object);
 
-    await ServerManager.startServer({
+    await ServerManager.startService({
       route,
       port,
       staticRouting: true,

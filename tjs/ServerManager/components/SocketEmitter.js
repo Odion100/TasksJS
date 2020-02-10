@@ -1,3 +1,4 @@
+const TasksJSDispatcher = require("../../Dispatcher/Dispatcher");
 module.exports = function SocketEmitter(namespace, WebSocket) {
   const Emitter = this.on && this.emit ? this : TasksJSDispatcher.apply(this);
 
