@@ -1,3 +1,4 @@
+"use strict";
 const TasksJSDispatcher = require("../../Dispatcher/Dispatcher");
 const ServiceRequestHandler = require("./ServiceRequestHandler");
 const SocketDispatcher = require("./SocketDispatcher");
@@ -7,8 +8,7 @@ module.exports = function TasksJSServiceModule(
   resetConnection
 ) {
   const events = {};
-
-  const ServiceModule = TasksJSDispatcher.apply(this, [events]);
+  const ServiceModule = TasksJSDispatcher.apply(this || {}, [events]);
   ServiceModule.resetConnection = resetConnection;
 
   ServiceModule.__setConnection = (host, port, route, namespace) => {

@@ -1,4 +1,6 @@
 const SocketDispatcher = require("./SocketDispatcher");
+const ServiceModule = require("./ServiceModule");
+
 const createService = (connData, resetConnection) => {
   const Service = SocketDispatcher.apply({}, [connData.namespace]);
 
@@ -9,4 +11,5 @@ const createService = (connData, resetConnection) => {
   Service.on("disconnect", resetConnection);
   return Service;
 };
+
 module.exports = createService;

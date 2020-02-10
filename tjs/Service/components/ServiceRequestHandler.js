@@ -1,3 +1,4 @@
+"use strict";
 const HttpClient = require("../../HttpClient/HttpClient");
 module.exports = function ServiceRequestHandler(method, fn) {
   const ServiceModule = this;

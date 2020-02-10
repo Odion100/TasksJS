@@ -1,3 +1,4 @@
+"use strict";
 const io = require("socket.io-client");
 const TasksJSDispatcher = require("../../Dispatcher/Dispatcher");
 

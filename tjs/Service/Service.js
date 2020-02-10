@@ -7,7 +7,7 @@ module.exports = function TasksJSService() {
     if (loadedServices[url] && !options.forceReload) return loadedServices[url];
 
     const connData = await loadConnectionData(url, options);
-
+    console.log("connData", connData);
     const resetConnection = async cb => {
       const { modules, host, port } = await loadConnectionData(url, options);
       modules.forEach(({ namespace, route, name }) =>

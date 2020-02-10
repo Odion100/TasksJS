@@ -1,5 +1,6 @@
+"use strict";
 module.exports = function TasksJSDispatcher(events = {}) {
-  const Dispatcher = this;
+  const Dispatcher = this || {};
 
   Dispatcher.emit = (eventName, data) => {
     if (events[eventName]) events[eventName].forEach(callback => callback(data));
