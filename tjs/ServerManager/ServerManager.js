@@ -2,7 +2,7 @@
 const TasksJSServer = require("./components/Server");
 const TasksJSRouter = require("./components/Router");
 const SocketEmitter = require("./components/SocketEmitter");
-const parseMethods = require("./components/parseMethods");
+const parseMethods = require("./components/abstractMethods");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
@@ -78,6 +78,7 @@ module.exports = function TasksJSServerManager() {
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = parseMethods(object, reserved_methods, useREST);
     const namespace = `http://${host}:${socketPort}/${staticRouting ? name : shortId()}`;
+
     SocketEmitter.apply(object, [namespace, WebSocket]);
 
     if (useService) {
