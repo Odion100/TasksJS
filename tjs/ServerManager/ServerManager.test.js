@@ -5,11 +5,14 @@ const request = require("request");
 describe("TasksJSServerManager function", () => {
   it("should return an ServerManager instance", () => {
     const ServerManager = TasksJSServerManager();
+
     expect(ServerManager)
       .to.be.an("Object")
-      .that.has.all.keys(["startService", "addModule"])
+      .that.has.all.keys(["startService", "addModule", "Server", "WebSocket"])
       .that.respondsTo("startService")
-      .that.respondsTo("addModule");
+      .that.respondsTo("addModule")
+      .that.respondsTo("Server")
+      .that.respondsTo("WebSocket");
   });
 });
 describe("ServerManager", () => {

@@ -20,11 +20,11 @@ module.exports = function TasksJSServerManager() {
   };
   const server = TasksJSServer();
   const router = TasksJSRouter(server);
-
+  const { SocketServer, WebSocket } = TasksJSWebSocket();
   const moduleQueue = [];
   const modules = [];
-  const { SocketServer, WebSocket } = TasksJSWebSocket();
-  const ServerManager = {};
+
+  const ServerManager = { Server: () => server, WebSocket: () => WebSocket };
 
   ServerManager.startService = options => {
     let { route, host = "localhost", port, socketPort, staticRouting } = options;
