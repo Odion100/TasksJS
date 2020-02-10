@@ -13,7 +13,6 @@ describe("TasksJSHttpClient Test", () => {
   const multiFileUrl = `http://localhost:${port}/mf/test`;
 
   it("should return a TasksJSHttpClient instance", () => {
-    console.log(Client);
     expect(Client)
       .to.be.an("Object")
       .that.has.all.keys("request", "upload")
