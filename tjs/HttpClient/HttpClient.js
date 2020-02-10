@@ -1,8 +1,9 @@
+"use strict";
 const httpClient = require("request");
 const json = true;
 
 module.exports = function TasksJSClient() {
-  const Client = this;
+  const Client = this || {};
   Client.request = ({ method, url, body }, cb) => {
     const request = cb => {
       httpClient({ method, url, body, json }, (err, res, body) => {

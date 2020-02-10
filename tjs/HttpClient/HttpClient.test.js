@@ -1,18 +1,19 @@
 const { expect } = require("chai");
 const fs = require("fs");
-const TasksJSClient = require("./Client");
+const TasksJSHttpClient = require("./HttpClient");
 const port = 4789;
 const testServerSetup = require("./test.server");
 //test server setup
 
 beforeAll(() => new Promise(resolve => testServerSetup(port, resolve)));
-describe("TasksJSClient Test", () => {
-  const Client = TasksJSClient();
+describe("TasksJSHttpClient Test", () => {
+  const Client = TasksJSHttpClient();
   const url = `http://localhost:${port}/test`;
   const singleFileUrl = `http://localhost:${port}/sf/test`;
   const multiFileUrl = `http://localhost:${port}/mf/test`;
 
-  it("should return a TasksJSClient instance", () => {
+  it("should return a TasksJSHttpClient instance", () => {
+    console.log(Client);
     expect(Client)
       .to.be.an("Object")
       .that.has.all.keys("request", "upload")
