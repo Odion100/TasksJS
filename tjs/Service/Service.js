@@ -18,6 +18,7 @@ module.exports = function TasksJSService() {
 
     const Service = createService(connData, resetConnection);
     Service.on("disconnect", resetConnection);
+    loadedServices[url] = Service;
     return Service;
   };
 };
