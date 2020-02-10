@@ -10,8 +10,8 @@ describe("TasksJSServerModule", () => {
   });
 });
 
-describe("ServerModule function", () => {
-  it("should be able to use ServerModule.startServer to initiate a ServerManager instance that hosts the ServerModule Connection Data", async () => {
+describe("ServerModule factory", () => {
+  it("should be able to use ServerModule.startService to initiate a ServerManager instance that hosts the ServerModule Connection Data", async () => {
     const ServerModule = TasksJSServerModule();
     const route = "/testService";
     const port = 5500;
@@ -26,7 +26,15 @@ describe("ServerModule function", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "host",
+        "port",
+        "modules",
+        "route",
+        "namespace",
+        "serviceUrl"
+      )
       .that.has.property("modules")
       .that.is.an("array").that.is.empty;
   });
@@ -49,7 +57,7 @@ describe("ServerModule(constructor)", () => {
 
     expect(mod)
       .to.be.an("Object")
-      .that.has.all.keys("on", "emit", "namespace", "nsp", "test", "test2")
+      .that.has.all.keys("on", "emit", "test", "test2")
       .that.respondsTo("on")
       .that.respondsTo("emit")
       .that.respondsTo("test")
@@ -64,7 +72,15 @@ describe("ServerModule(constructor)", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "host",
+        "port",
+        "modules",
+        "route",
+        "namespace",
+        "serviceUrl"
+      )
       .that.has.property("modules")
       .that.is.an("array");
     expect(results.modules[0])
@@ -100,7 +116,7 @@ describe("ServerModule(object)", () => {
 
     expect(mod)
       .to.be.an("Object")
-      .that.has.all.keys("on", "emit", "namespace", "nsp", "action1", "action2")
+      .that.has.all.keys("on", "emit", "action1", "action2")
       .that.respondsTo("on")
       .that.respondsTo("emit")
       .that.respondsTo("action1")
@@ -115,7 +131,15 @@ describe("ServerModule(object)", () => {
 
     expect(results)
       .to.be.an("Object")
-      .that.has.all.keys("TasksJSService", "host", "port", "modules")
+      .that.has.all.keys(
+        "TasksJSService",
+        "host",
+        "port",
+        "modules",
+        "route",
+        "namespace",
+        "serviceUrl"
+      )
       .that.has.property("modules")
       .that.is.an("array");
     expect(results.modules[0])
