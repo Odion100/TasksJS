@@ -5,37 +5,37 @@ const json = true;
 module.exports = function TasksJSClient() {
   const Client = this || {};
   Client.request = ({ method, url, body }, cb) => {
-    const request = cb => {
+    const tryRequest = callback => {
       httpClient({ method, url, body, json }, (err, res, body) => {
-        if (err) cb(err);
-        else if (res.statusCode >= 400) cb(body);
-        else cb(null, body, res);
+        if (err) callback(err);
+        else if (res.statusCode >= 400) callback(body);
+        else callback(null, body, res);
       });
     };
-    if (typeof cb === "function") request(cb);
+    if (typeof cb === "function") tryRequest(cb);
     else
       return new Promise((resolve, reject) =>
-        request((err, data) => {
+        tryRequest((err, results) => {
           if (err) reject(err);
-          else resolve(data);
+          else resolve(results);
         })
       );
   };
 
   Client.upload = ({ url, formData }, cb) => {
-    const upload = cb => {
+    const tryRequest = callback => {
       httpClient.post({ url, formData, json }, (err, res, body) => {
-        if (err) cb(err);
-        else if (res.statusCode >= 400) cb(body);
-        else cb(null, body, res);
+        if (err) callback(err);
+        else if (res.statusCode >= 400) callback(body);
+        else callback(null, body, res);
       });
     };
-    if (typeof cb === "function") upload(cb);
+    if (typeof cb === "function") tryRequest(cb);
     else
       return new Promise((resolve, reject) =>
-        upload((err, data) => {
+        tryRequest((err, results) => {
           if (err) reject(err);
-          else resolve(data);
+          else resolve(results);
         })
       );
   };

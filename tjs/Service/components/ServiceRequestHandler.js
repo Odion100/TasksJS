@@ -1,14 +1,14 @@
 "use strict";
-const HttpClient = require("../../HttpClient/HttpClient");
+const HttpClient = require("../../HttpClient/HttpClient")();
 module.exports = function ServiceRequestHandler(method, fn) {
   const ServiceModule = this;
 
   return function sendRequest(data, callback) {
     const tryRequest = (cb, errCount = 0) => {
       const { route, port, host } = ServiceModule.__connectionData();
-      const singleFileURL = `http://${host}:${port}/sf/${route}/${fn}`;
-      const multiFileURL = `http://${host}:${port}/mf/${route}/${fn}`;
-      const defaultURL = `http://${host}:${port}/${route}/${fn}`;
+      const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
+      const multiFileURL = `http://${host}:${port}/mf${route}/${fn}`;
+      const defaultURL = `http://${host}:${port}${route}/${fn}`;
 
       const url = data.file ? singleFileURL : data.files ? multiFileURL : defaultURL;
 
@@ -32,7 +32,7 @@ module.exports = function ServiceRequestHandler(method, fn) {
       } else if (errCount <= 3) {
         errCount++;
         ServiceModule.resetConnection(() => tryRequest(cb, errCount));
-      } else throw Error(`(TasksJSServiceError): Invalid route`);
+      } else throw Error(`(TasksJSServiceError): Invalid route:${err}`);
     };
 
     if (typeof callback === "function") tryRequest(callback);
