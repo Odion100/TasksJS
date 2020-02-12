@@ -1,6 +1,6 @@
 "use strict";
 const HttpClient = require("../../HttpClient/HttpClient")();
-module.exports = function ServiceRequestHandler(method, fn) {
+module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ServiceModule = this;
 
   return function sendRequest(data, callback) {
@@ -31,7 +31,7 @@ module.exports = function ServiceRequestHandler(method, fn) {
         cb(err);
       } else if (errCount <= 3) {
         errCount++;
-        ServiceModule.resetConnection(() => tryRequest(cb, errCount));
+        resetConnection(() => tryRequest(cb, errCount));
       } else throw Error(`(TasksJSServiceError): Invalid route:${err}`);
     };
 

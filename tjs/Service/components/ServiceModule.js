@@ -9,8 +9,6 @@ module.exports = function TasksJSServiceModule(
 ) {
   const events = {};
   const ServiceModule = TasksJSDispatcher.apply(this || {}, [events]);
-  ServiceModule.resetConnection = resetConnection;
-
   ServiceModule.__setConnection = (host, port, route, namespace) => {
     ServiceModule.__connectionData = () => ({ route, host, port });
     SocketDispatcher.apply(ServiceModule, [namespace, events]);
@@ -18,7 +16,7 @@ module.exports = function TasksJSServiceModule(
   ServiceModule.__setConnection(host, port, route, namespace);
 
   methods.forEach(({ method, fn }) => {
-    ServiceModule[fn] = ServiceRequestHandler.apply(ServiceModule, [method, fn]);
+    ServiceModule[fn] = ServiceRequestHandler.apply(ServiceModule, [method, fn, resetConnection]);
   });
 
   return ServiceModule;
