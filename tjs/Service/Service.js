@@ -16,7 +16,7 @@ module.exports = function TasksJSService() {
       modules.forEach(({ namespace, route, name }) =>
         Service[name].__setConnection(host, port, route, namespace)
       );
-      cb();
+      if (typeof cb === "function") cb();
     };
 
     connData.modules.forEach(

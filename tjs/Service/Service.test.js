@@ -9,7 +9,7 @@ describe("Service(url, options) Factory", () => {
   const route = "service-test";
   const url = `http://localhost:${port}/${route}`;
   it("should return a promise that resolve into a backend service", async () => {
-    ServerModule("TestModule", function() {
+    ServerModule("orders", function() {
       this.action1 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
       this.action2 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
     });
@@ -17,16 +17,17 @@ describe("Service(url, options) Factory", () => {
     await ServerModule.startService({ route, port });
 
     const Service = TasksJSService();
-    const TestService = await Service(url);
-
-    expect(TestService)
+    const buAPI = await Service(url);
+    buAPI.on("connect", () => console.log("Im Super connected <<<<<<---------"));
+    buAPI.resetConnection();
+    expect(buAPI)
       .to.be.an("object")
-      .that.has.all.keys("emit", "on", "resetConnection", "TestModule")
+      .that.has.all.keys("emit", "on", "resetConnection", "orders")
       .that.respondsTo("emit")
       .that.respondsTo("on")
       .that.respondsTo("resetConnection");
 
-    expect(TestService.TestModule)
+    expect(buAPI.orders)
       .to.be.an("object")
       .that.has.all.keys(
         "emit",
@@ -48,11 +49,11 @@ describe("Service(url, options) Factory", () => {
 
   it("should be able to call methods on the backend Service", async () => {
     const Service = TasksJSService();
-    const TestService = await Service(url);
+    const buAPI = await Service(url);
 
-    const results = await TestService.TestModule.action1({ code: 3 });
+    const results = await buAPI.orders.action1({ code: 3 });
 
-    const results2 = await TestService.TestModule.action2({ code: 11 });
+    const results2 = await buAPI.orders.action2({ code: 11 });
 
     expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 3, action1: true });
     expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });

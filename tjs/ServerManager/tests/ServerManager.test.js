@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const TasksJSServerManager = require("./ServerManager");
+const TasksJSServerManager = require("../ServerManager");
 const request = require("request");
 
 describe("TasksJSServerManager function", () => {
