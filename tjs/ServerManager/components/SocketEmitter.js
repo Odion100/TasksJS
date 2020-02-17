@@ -1,10 +1,10 @@
 "use strict";
 const TasksJSDispatcher = require("../../Dispatcher/Dispatcher");
+const shortid = require("shortid");
 module.exports = function SocketEmitter(namespace, WebSocket) {
-  const Emitter = this.on && this.emit ? this : TasksJSDispatcher.apply(this);
+  const Emitter = (this || {}).on && (this || {}).emit ? this : TasksJSDispatcher.apply(this);
 
   const socket = WebSocket.of(`/${namespace}`);
-
   const emit = Emitter.emit;
 
   Emitter.emit = (name, data) => {
