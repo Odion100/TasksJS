@@ -1,7 +1,7 @@
 const { expect } = require("chai");
-const TasksJSService = require("./Service");
+const TasksJSService = require("../Service");
 
-const TasksJSServerModule = require("../ServerModule/ServerModule");
+const TasksJSServerModule = require("../../ServerModule/ServerModule");
 
 describe("Service(url, options) Factory", () => {
   const ServerModule = TasksJSServerModule();
@@ -9,7 +9,7 @@ describe("Service(url, options) Factory", () => {
   const route = "service-test";
   const url = `http://localhost:${port}/${route}`;
   it("should return a promise that resolve into a backend service", async () => {
-    ServerModule("orders", function() {
+    const orders = ServerModule("orders", function() {
       this.action1 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
       this.action2 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
     });
@@ -18,8 +18,7 @@ describe("Service(url, options) Factory", () => {
 
     const Service = TasksJSService();
     const buAPI = await Service(url);
-    buAPI.on("connect", () => console.log("Im Super connected <<<<<<---------"));
-    buAPI.resetConnection();
+
     expect(buAPI)
       .to.be.an("object")
       .that.has.all.keys("emit", "on", "resetConnection", "orders")
@@ -58,4 +57,6 @@ describe("Service(url, options) Factory", () => {
     expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 3, action1: true });
     expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });
   });
+
+  it("should be able to receive events emitted from the backend Service", async () => {});
 });
