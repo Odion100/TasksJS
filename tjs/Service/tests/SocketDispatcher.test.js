@@ -7,7 +7,6 @@ const port = 4592;
 const eventName = "test-event";
 const socket = WebSocket.of(`/${namespace}`);
 
-setTimeout(() => socket.emit("dispatch", { name: eventName, data: { testPassed: true } }), 1000);
 SocketServer.listen(port);
 
 describe("SocketDispatcher", () => {
@@ -25,5 +24,6 @@ describe("SocketDispatcher", () => {
       done();
     });
     dispatcher.on("connect", () => console.log(`I'm all the way connected!`));
+    setTimeout(() => socket.emit("dispatch", { name: eventName, data: { testPassed: true } }), 500);
   });
 });
