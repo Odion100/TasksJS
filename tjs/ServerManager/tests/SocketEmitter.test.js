@@ -13,7 +13,7 @@ describe("SocketEmiiter", () => {
 
     setTimeout(() => {
       emmiter.emit(eventName, { testPassed: true });
-    }, 2000);
+    }, 500);
     const socket = io.connect(`http://localhost:${port}/${namespace}`);
     socket.on("dispatch", dispatch => {
       expect(dispatch)
