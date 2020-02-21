@@ -6,7 +6,7 @@ const io = require("socket.io-client");
 describe("SocketEmiiter", () => {
   it("should be able to use emmiter.emit(name, data) to dispatch events to a websockt client", done => {
     const namespace = "test-namespace";
-    const port = 4592;
+    const port = 5556;
     const eventName = "test-event";
     SocketServer.listen(port);
     const emmiter = SocketEmiiter(namespace, WebSocket);

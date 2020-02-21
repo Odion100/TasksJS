@@ -12,10 +12,14 @@ module.exports = function TasksJSService() {
     const Service = SocketDispatcher.apply(this || {}, [connData.namespace]);
 
     Service.resetConnection = async cb => {
-      const { modules, host, port } = await loadConnectionData(url, options);
+      const { modules, host, port, namespace } = await loadConnectionData(url, options);
+
+      SocketDispatcher.apply(Service, [namespace]);
+
       modules.forEach(({ namespace, route, name }) =>
         Service[name].__setConnection(host, port, route, namespace)
       );
+
       if (typeof cb === "function") cb();
     };
 

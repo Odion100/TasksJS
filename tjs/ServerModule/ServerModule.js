@@ -1,13 +1,13 @@
 const TasksJSServerManager = require("../ServerManager/ServerManager");
-
+const Dispatcher = require("../Dispatcher/Dispatcher");
 module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
   function ServerModuleFactory(name, constructor) {
     const ServerModule =
-      typeof constructor === "object" && constructor instanceof Object ? constructor : {};
-
-    const reserved_methods = Object.getOwnPropertyNames(ServerModule);
+      typeof constructor === "object" && constructor instanceof Object
+        ? Dispatcher.apply(constructor)
+        : Dispatcher();
 
     if (typeof constructor === "function") {
       if (constructor.constructor.name === "AsyncFunction")
@@ -15,7 +15,7 @@ module.exports = function TasksJSServerModule() {
       else constructor.apply(ServerModule, []);
     }
 
-    ServerManager.addModule(name, ServerModule, reserved_methods);
+    ServerManager.addModule(name, ServerModule);
 
     return ServerModule;
   }

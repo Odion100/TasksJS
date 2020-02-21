@@ -65,7 +65,7 @@ module.exports = function TasksJSServerManager() {
     );
   };
 
-  ServerManager.addModule = (name, object, reserved_methods) => {
+  ServerManager.addModule = (name, object, reserved_methods = []) => {
     const {
       host,
       route,
@@ -77,7 +77,7 @@ module.exports = function TasksJSServerManager() {
     } = serverConfigurations;
 
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
-    const methods = abstractMethods(object, reserved_methods, useREST);
+    const methods = abstractMethods(object, ["on", "emit", ...reserved_methods], useREST);
     const namespace = staticRouting ? name : shortId();
 
     SocketEmitter.apply(object, [namespace, WebSocket]);

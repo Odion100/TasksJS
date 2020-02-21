@@ -74,6 +74,9 @@ describe("Service(url, options) Factory", () => {
         expect(true).to.equal(true);
         resolve();
       });
+
+      buAPI.on("connect", () => console.log("this should be called twice"));
+      buAPI.resetConnection();
       setTimeout(() => {
         eventTester.emit(eventName, { testPassed: true });
       }, 500);
