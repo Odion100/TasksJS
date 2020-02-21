@@ -30,7 +30,7 @@ module.exports = function TasksJSServerManager() {
     let { route, host = "localhost", port, socketPort, staticRouting } = options;
 
     socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
-    const namespace = `http://${host}:${socketPort}/${staticRouting ? route : shortId()}`;
+    const namespace = staticRouting ? route : shortId();
     SocketServer.listen(socketPort);
     SocketEmitter.apply(ServerManager, [namespace, WebSocket]);
 
@@ -48,7 +48,7 @@ module.exports = function TasksJSServerManager() {
         host,
         route: `/${route}`,
         serviceUrl,
-        namespace,
+        namespace: `http://${host}:${socketPort}/${namespace}`,
         TasksJSService: true
       });
     });
@@ -78,7 +78,7 @@ module.exports = function TasksJSServerManager() {
 
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = abstractMethods(object, reserved_methods, useREST);
-    const namespace = `http://${host}:${socketPort}/${staticRouting ? name : shortId()}`;
+    const namespace = staticRouting ? name : shortId();
 
     SocketEmitter.apply(object, [namespace, WebSocket]);
 
@@ -86,7 +86,7 @@ module.exports = function TasksJSServerManager() {
       const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
       modules.push({
-        namespace,
+        namespace: `http://${host}:${socketPort}/${namespace}`,
         route: `/${path}`,
         name,
         methods
