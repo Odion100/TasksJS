@@ -58,5 +58,25 @@ describe("Service(url, options) Factory", () => {
     expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });
   });
 
-  it("should be able to receive events emitted from the backend Service", async () => {});
+  it("should be able to receive events emitted from the backend Service", async () => {
+    const eventName = "testing";
+    const eventTester = ServerModule("eventTester", function() {
+      const eventTester = this;
+      eventTester.sendEvent = (data, cb) => eventTester.emit(eventName, { testPassed: true });
+    });
+
+    const Service = TasksJSService();
+    const buAPI = await Service(url);
+
+    await new Promise(resolve => {
+      buAPI.eventTester.on(eventName, data => {
+        console.log("Ladies and gentleman... mission accomplish!");
+        expect(true).to.equal(true);
+        resolve();
+      });
+      setTimeout(() => {
+        eventTester.emit(eventName, { testPassed: true });
+      }, 500);
+    });
+  });
 });
