@@ -3,7 +3,7 @@ const Dispatcher = require("../Dispatcher/Dispatcher");
 module.exports = function TasksJSServerModule() {
   const ServerManager = TasksJSServerManager();
 
-  function ServerModuleFactory(name, constructor) {
+  function ServerModuleFactory(name, constructor, reserved_methods = []) {
     const ServerModule =
       typeof constructor === "object" && constructor instanceof Object
         ? Dispatcher.apply(constructor)
@@ -15,7 +15,7 @@ module.exports = function TasksJSServerModule() {
       else constructor.apply(ServerModule, []);
     }
 
-    ServerManager.addModule(name, ServerModule);
+    ServerManager.addModule(name, ServerModule, reserved_methods);
 
     return ServerModule;
   }
