@@ -9,10 +9,18 @@ describe("Service(url, options) Factory", () => {
   const route = "service-test";
   const url = `http://localhost:${port}/${route}`;
   it("should return a promise that resolve into a backend service", async () => {
-    ServerModule("orders", function() {
-      this.action1 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
-      this.action2 = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
-    });
+    ServerModule(
+      "orders",
+      function() {
+        this.action1 = (data, cb) =>
+          cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
+        this.action2 = (data, cb) =>
+          cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
+        this.action3 = (data, cb) =>
+          cb(null, { SERVICE_TEST_PASSED: true, ...data, action3: true });
+      },
+      ["action3"]
+    );
 
     await ServerModule.startService({ route, port });
 
