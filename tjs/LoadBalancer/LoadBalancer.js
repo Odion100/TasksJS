@@ -1,6 +1,6 @@
 const ServerModuleFactory = require("../ServerModule/ServerModule");
-
-module.exports = function LoadBalancer({ port, host = "localhost", route = "loadbalancer" }) {
+const CloneManager = require("./components/CloneManager");
+module.exports = function LoadBalancer() {
   const ServerModule = ServerModuleFactory();
   const { server, startService } = ServerModule;
   const clones = ServerModule("clones", CloneManager);

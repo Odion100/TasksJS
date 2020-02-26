@@ -1,4 +1,4 @@
-const HttpClient = require("../HttpClient/HttpClient")();
+const HttpClient = require("../../HttpClient/HttpClient")();
 
 module.exports = function Router(server) {
   const CloneManager = this;
