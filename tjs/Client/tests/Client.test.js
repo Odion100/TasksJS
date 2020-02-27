@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const TasksJSClient = require("../Client");
-const TasksJSServerModule = require("../../ServerModule/ServerModule");
+const TasksJSServerModule = require("../../Service/Service");
 const ServerModule = TasksJSServerModule();
 const port = 6757;
 const route = "service-test";
@@ -21,7 +21,7 @@ describe("Client", () => {
       ["action3"]
     );
 
-    await ServerModule.startClient({ route, port });
+    await ServerModule.startService({ route, port });
 
     const Client = TasksJSClient();
     const buAPI = await Client.loadService(url);

@@ -1,4 +1,4 @@
-const ServerModuleFactory = require("../ServerModule/ServerModule");
+const ServerModuleFactory = require("../Service/Service");
 const CloneManager = require("./components/CloneManager");
 module.exports = function LoadBalancer() {
   const ServerModule = ServerModuleFactory();

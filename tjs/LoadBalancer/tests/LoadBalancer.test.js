@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const LoadBalancer = require("../LoadBalancer")();
-const ServerModuleFactory = require("../../ServerModule/ServerModule");
+const ServerModuleFactory = require("../../Service/Service");
 const HttpClient = require("../../HttpClient/HttpClient")();
 const lbPort = 5030;
 const route = "loadbalancer";
