@@ -1,14 +1,14 @@
 const { expect } = require("chai");
 const TasksJSClient = require("../Client");
-const TasksJSServerModule = require("../../Service/Service");
-const ServerModule = TasksJSServerModule();
+const TasksJSService = require("../../Service/Service");
+const Service = TasksJSService();
 const port = 6757;
 const route = "service-test";
 const url = `http://localhost:${port}/${route}`;
 
 describe("Client", () => {
   it("should be able to use Client.loadService(url, options) to return a promise that resolve into a backend service", async () => {
-    ServerModule(
+    Service.ServerModule(
       "orders",
       function() {
         this.action1 = (data, cb) =>
@@ -21,7 +21,7 @@ describe("Client", () => {
       ["action3"]
     );
 
-    await ServerModule.startService({ route, port });
+    await Service.startService({ route, port });
 
     const Client = TasksJSClient();
     const buAPI = await Client.loadService(url);
@@ -69,7 +69,7 @@ describe("Service", () => {
 
   it("should be able to receive events emitted from the backend Client", async () => {
     const eventName = "testing";
-    const eventTester = ServerModule("eventTester", function() {
+    const eventTester = Service.ServerModule("eventTester", function() {
       const eventTester = this;
       eventTester.sendEvent = (data, cb) => eventTester.emit(eventName, { testPassed: true });
     });

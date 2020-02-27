@@ -1,9 +1,11 @@
 const TasksJSServerManager = require("../ServerManager/ServerManager");
 const Dispatcher = require("../Dispatcher/Dispatcher");
-module.exports = function ServerModuleFactory() {
+module.exports = function ServiceFactory() {
   const ServerManager = TasksJSServerManager();
+  const { startService, Server, WebSocket } = ServerManager;
+  const Service = { startService, Server, WebSocket };
 
-  function ServerModule(name, constructor, reserved_methods = []) {
+  Service.ServerModule = function(name, constructor, reserved_methods = []) {
     const ServerModule =
       typeof constructor === "object" && constructor instanceof Object
         ? Dispatcher.apply(constructor)
@@ -18,10 +20,6 @@ module.exports = function ServerModuleFactory() {
     ServerManager.addModule(name, ServerModule, reserved_methods);
 
     return ServerModule;
-  }
-
-  ServerModule.startService = ServerManager.startService;
-  ServerModule.server = ServerManager.Server();
-  ServerModule.websocket = ServerManager.WebSocket();
-  return ServerModule;
+  };
+  return Service;
 };
