@@ -2,8 +2,8 @@ const Router = require("./Router");
 module.exports = function CloneManager(server) {
   const CloneManager = this;
   const cloneRouter = Router.apply(CloneManager, [server]);
+  const handledEvents = [];
   CloneManager.clones = [];
-  CloneManager.handledEvents = [];
 
   CloneManager.register = ({ port, host, route }, cb) => {
     if (!(port && route && host))

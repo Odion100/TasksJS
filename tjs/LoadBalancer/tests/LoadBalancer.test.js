@@ -32,7 +32,18 @@ describe("LoadBalancer", () => {
   });
 });
 describe("LoadBalancer.clones module", () => {
-  it("should be a ServerModule object with additional methods for LoadBalancing", () => {});
+  it("should be a ServerModule object with additional methods for LoadBalancing", () => {
+    expect(LoadBalancer.clones)
+      .to.be.an("Object")
+      .that.has.all.keys("on", "emit", "register", "dispatch", "assignDispatch", "clones")
+      .that.respondsTo("on")
+      .that.respondsTo("emit")
+      .that.respondsTo("register")
+      .that.respondsTo("dispatch")
+      .that.respondsTo("assignDispatch")
+      .that.has.property("clones")
+      .that.is.an("array");
+  });
   it("should be able to use clones.register(connData, callback) method to host connection", () => {});
 
   it("should be able to manager the routing to multiple clones of one Service", () => {});
