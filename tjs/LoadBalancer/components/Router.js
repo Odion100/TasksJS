@@ -10,7 +10,8 @@ module.exports = function Router(server) {
     function recursiveGetService(req, res) {
       if (locations.length === 0)
         return res.status(404).json({
-          message: `No services found on requested route: ${route}`
+          message: `No services found on requested route: ${route}`,
+          locations
         });
 
       location_index++;

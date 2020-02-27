@@ -12,7 +12,7 @@ module.exports = function ServerModuleFactory() {
     if (typeof constructor === "function") {
       if (constructor.constructor.name === "AsyncFunction")
         throw `(ServerModule Error): ServerModule(name, constructor) function requires a non-async function as the constructor`;
-      else constructor.apply(ServerModule, [ServerModule.server, ServerModule.websocket]);
+      else constructor.apply(ServerModule, [ServerManager.Server(), ServerManager.WebSocket()]);
     }
 
     ServerManager.addModule(name, ServerModule, reserved_methods);

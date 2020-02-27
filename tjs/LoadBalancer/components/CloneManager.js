@@ -14,7 +14,7 @@ module.exports = function CloneManager(server) {
 
     route = route.charAt(0) === "/" ? route : "/" + route;
     const url = `http://${host}:${port}${route}`;
-    let service = clones.find(service => service.route === route);
+    let service = CloneManager.clones.find(service => service.route === route);
 
     if (service) {
       if (service.locations.indexOf(url) === -1) {
