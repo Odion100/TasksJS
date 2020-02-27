@@ -1,14 +1,13 @@
 const { expect } = require("chai");
-const TasksJSService = require("../Client");
-
+const TasksJSClient = require("../Client");
 const TasksJSServerModule = require("../../ServerModule/ServerModule");
+const ServerModule = TasksJSServerModule();
+const port = 6757;
+const route = "service-test";
+const url = `http://localhost:${port}/${route}`;
 
-describe("Service(url, options) Factory", () => {
-  const ServerModule = TasksJSServerModule();
-  const port = 6757;
-  const route = "service-test";
-  const url = `http://localhost:${port}/${route}`;
-  it("should return a promise that resolve into a backend service", async () => {
+describe("Client", () => {
+  it("should be able to use Client.loadService(url, options) to return a promise that resolve into a backend service", async () => {
     ServerModule(
       "orders",
       function() {
@@ -22,10 +21,10 @@ describe("Service(url, options) Factory", () => {
       ["action3"]
     );
 
-    await ServerModule.startService({ route, port });
+    await ServerModule.startClient({ route, port });
 
-    const Service = TasksJSService();
-    const buAPI = await Service(url);
+    const Client = TasksJSClient();
+    const buAPI = await Client.loadService(url);
 
     expect(buAPI)
       .to.be.an("object")
@@ -53,10 +52,12 @@ describe("Service(url, options) Factory", () => {
       .that.respondsTo("action1")
       .that.respondsTo("action2");
   });
+});
 
-  it("should be able to call methods on the backend Service", async () => {
-    const Service = TasksJSService();
-    const buAPI = await Service(url);
+describe("Service", () => {
+  it("should be able to call methods on the backend Client", async () => {
+    const Client = TasksJSClient();
+    const buAPI = await Client.loadService(url);
 
     const results = await buAPI.orders.action1({ code: 3 });
 
@@ -66,15 +67,15 @@ describe("Service(url, options) Factory", () => {
     expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });
   });
 
-  it("should be able to receive events emitted from the backend Service", async () => {
+  it("should be able to receive events emitted from the backend Client", async () => {
     const eventName = "testing";
     const eventTester = ServerModule("eventTester", function() {
       const eventTester = this;
       eventTester.sendEvent = (data, cb) => eventTester.emit(eventName, { testPassed: true });
     });
 
-    const Service = TasksJSService();
-    const buAPI = await Service(url);
+    const Client = TasksJSClient();
+    const buAPI = await Client.loadService(url);
 
     await new Promise(resolve => {
       buAPI.eventTester.on(eventName, data => {

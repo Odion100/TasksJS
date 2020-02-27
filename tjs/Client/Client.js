@@ -3,13 +3,15 @@ const loadConnectionData = require("./components/loadConnectionData");
 const SocketDispatcher = require("./components/SocketDispatcher");
 const ServiceModule = require("./components/ServiceModule");
 
-module.exports = function TasksJSService() {
+module.exports = function TasksJSClient() {
+  const Client = {};
   const loadedServices = {};
-  return async function ServiceFactory(url, options = {}) {
+
+  Client.loadService = async (url, options = {}) => {
     if (loadedServices[url] && !options.forceReload) return loadedServices[url];
 
     const connData = await loadConnectionData(url, options);
-    const Service = SocketDispatcher.apply(this || {}, [connData.namespace]);
+    const Service = SocketDispatcher(connData.namespace);
 
     Service.resetConnection = async cb => {
       const { modules, host, port, namespace } = await loadConnectionData(url, options);
@@ -29,6 +31,9 @@ module.exports = function TasksJSService() {
 
     Service.on("disconnect", Service.resetConnection);
     loadedServices[url] = Service;
+    if (options.name) Client[options.name] = Service;
     return Service;
   };
+
+  return Client;
 };
