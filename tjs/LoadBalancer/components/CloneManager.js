@@ -38,7 +38,7 @@ module.exports = function CloneManager(server) {
   };
 
   CloneManager.assignDispatch = (event, cb) => {
-    const e = handledEvents.find(e => (e.id = event.id));
+    const e = handledEvents.find(e => e.id === event.id);
     if (!e) {
       handledEvents.push(event);
       cb(null, event);
