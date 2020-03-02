@@ -9,5 +9,5 @@ module.exports = function loadModules(system) {
   system.ServerModules.forEach(({ name, __constructor }) =>
     system.Service.ServerModule(name, __constructor)
   );
-  system.App.emit("init_complete", { system });
+  system.App.emit("init_complete", system);
 };

@@ -1,16 +1,19 @@
 const ServiceFactory = require("../Service/Service");
 const SystemObject = require("./components/SystemObject");
+const Dispatcher = require("../Dispatcher/Dispatcher");
+
 module.exports = function TasksJSApp() {
   const App = Dispatcher();
+  const Service = ServiceFactory();
   const system = {
     Services: [],
     Modules: [],
     ServerModules: [],
     configurations: {},
-    Service: ServiceFactory({ defaultModule: SystemObject(system) }),
+    Service,
     App
   };
-
+  Service.defaultModule = SystemObject(system);
   setTimeout(() => initializeApp(system), 0);
 
   App.startService = ({ host, port, route, middlewear }) => {

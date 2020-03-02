@@ -1,10 +1,9 @@
-module.exports = function SystemObjects(systemObjects) {
-  const obj = this || {};
-  obj.useModule = modName =>
-    (systemObjects.Modules.find(mod => mod.name === modName) || {}).module || {};
-  obj.useService = serviceName =>
-    (systemObjects.Service.find(mod => mod.name === serviceName) || {}).client || {};
-  obj.useConfig = ()
-   => systemObjects.configurations.module || {};
+module.exports = function SystemObject(system) {
+  console.log(system);
+  const App = this || {};
+  App.useModule = modName => (system.Modules.find(mod => mod.name === modName) || {}).module || {};
+  App.useService = serviceName =>
+    (system.Service.find(mod => mod.name === serviceName) || {}).client || {};
+  App.useConfig = () => system.configurations.module || {};
   return App;
 };
