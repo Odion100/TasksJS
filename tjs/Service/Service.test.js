@@ -7,7 +7,7 @@ describe("TasksJSService", () => {
     const Service = ServiceFactory();
     expect(Service)
       .to.be.an("object")
-      .that.has.all.keys("startService", "ServerModule", "Server", "WebSocket")
+      .that.has.all.keys("startService", "ServerModule", "Server", "WebSocket", "defaultModule")
       .that.respondsTo("startService")
       .that.respondsTo("ServerModule")
       .that.respondsTo("Server")

@@ -1,81 +1,66 @@
-//App.js provides an interface and lifecycle for loading and creating modules
 const ServiceFactory = require("../Service/Service");
-const ServerModuleFactory = require("../ServerModule/ServerModule");
-const Dispatcher = require("../Dispatcher/Dispatcher");
 const SystemObject = require("./components/SystemObject");
-
 module.exports = function TasksJSApp() {
   const App = Dispatcher();
-  const ServerModule = ServerModuleFactory();
-  const serviceQueue = [];
-  const moduleQueue = [];
-  const serverModuleQueue = [];
-  const systemObjects = {
-    Services: {},
-    Modules: {},
-    ServerModules: {},
-    config: {}
+  const system = {
+    Services: [],
+    Modules: [],
+    ServerModules: [],
+    configurations: {},
+    Service: ServiceFactory({ defaultModule: SystemObject(system) }),
+    App
   };
-  SystemObject.apply(App, [systemObjects]);
-  App.server = ServerModule.server;
-  App.websocket = ServerModule.websocket;
-  setTimeout(() => initApp.apply(App, [serviceQueue, serverModuleQueue]), 0);
+
+  setTimeout(() => initializeApp(system), 0);
 
   App.startService = ({ host, port, route, middlewear }) => {
-    ServerModule.startService({
+    system.Service.startService({
       route,
       port,
       host,
       middlewear
     });
-
     return App;
   };
 
-  let last_service = "";
   App.loadService = (name, { host = "localhost", port, route, url, limit, wait }) => {
     url = url || `http://${host}:${port}/${route}`;
-    last_service = name;
-    systemObjects.Services[name] = {
+    system.Services.push({
       name,
       url,
-      ServerModules: {},
       onLoad: null,
       limit,
-      wait
-    };
-
-    serviceQueue.push(systemObjects.Services[name]);
-
+      wait,
+      client: {}
+    });
     return App;
   };
 
   App.onLoad = handler => {
-    systemObjects.Services[last_service].onLoad = handler;
+    const service = system.Services[system.Services.length - 1];
+    service.onLoad = handler;
     return App;
   };
 
-  App.module = (name, constructor) => {
-    systemObjects.Modules[name] = {
+  App.module = (name, __constructor) => {
+    system.Modules.push({
       name,
-      constructor
-    };
-    moduleQueue.push(systemObjects.Modules[name]);
+      __constructor,
+      module: SystemObject(system)
+    });
     return App;
   };
 
-  App.ServerModule = (name, constructor) => {
-    systemObjects.ServerModules[name] = {
+  App.ServerModule = (name, __constructor) => {
+    system.ServerModules.push({
       name,
-      constructor
-    };
-    serverModuleQueue.push(systemObjects.ServerModules[name]);
+      __constructor
+    });
     return App;
   };
 
-  App.config = constructor => {
-    if (typeof constructor === "function") systemObjects.config.__constructor = constructor;
-
+  App.config = __constructor => {
+    if (typeof __constructor === "function") system.configurations.push({ __constructor });
     return App;
   };
 
