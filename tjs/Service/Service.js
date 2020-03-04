@@ -1,3 +1,4 @@
+"use strict";
 const ServerManagerFactory = require("../ServerManager/ServerManager");
 const Dispatcher = require("../Dispatcher/Dispatcher");
 

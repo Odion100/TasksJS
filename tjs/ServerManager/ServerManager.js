@@ -1,4 +1,4 @@
-//ServerManager handles routing and mapping request to objects
+"use strict";
 const TasksJSServer = require("./components/Server");
 const TasksJSRouter = require("./components/Router");
 const SocketEmitter = require("./components/SocketEmitter");
@@ -7,7 +7,6 @@ const abstractMethods = require("./components/abstractMethods");
 const shortId = require("shortid");
 
 module.exports = function TasksJSServerManager() {
-  //start the Express and WebSocket Servers
   let serverConfigurations = {
     route: null,
     port: null,

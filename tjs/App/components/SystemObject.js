@@ -1,5 +1,5 @@
+"use strict";
 module.exports = function SystemObject(system) {
-  console.log(system);
   const App = this || {};
   App.useModule = modName => (system.Modules.find(mod => mod.name === modName) || {}).module || {};
   App.useService = serviceName =>
