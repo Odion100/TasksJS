@@ -63,7 +63,8 @@ module.exports = function TasksJSApp() {
   };
 
   App.config = __constructor => {
-    if (typeof __constructor === "function") system.configurations.push({ __constructor });
+    if (typeof __constructor === "function")
+      system.configurations = { __constructor, module: SystemObject(system) };
     return App;
   };
 
