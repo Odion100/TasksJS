@@ -1,7 +1,8 @@
+"use strict";
 const ServiceFactory = require("../Service/Service");
 const SystemObject = require("./components/SystemObject");
 const Dispatcher = require("../Dispatcher/Dispatcher");
-
+const initializeApp = require("./components/initializeApp");
 module.exports = function TasksJSApp() {
   const App = Dispatcher();
   const Service = ServiceFactory();

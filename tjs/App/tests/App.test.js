@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const AppFactory = require("../App");
+//should be an tasksjs app
 describe("App Factory", () => {
   it("should return a TasksJS App", () => {
     const App = AppFactory();
@@ -26,8 +27,34 @@ describe("App Factory", () => {
       .that.respondsTo("config");
   });
 });
-//should be an tasksjs app
 
+describe("App", () => {
+  const App = AppFactory();
+  it("should be able to initialize a module", async () => {
+    return new Promise(resolve =>
+      App.module("test", function() {
+        expect(this)
+          .to.be.an("object")
+          .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
+          .that.respondsTo("useModule")
+          .that.respondsTo("useService")
+          .that.respondsTo("useConfig")
+          .that.respondsTo("on")
+          .that.respondsTo("emit");
+      }).module("test2", function() {
+        expect(this)
+          .to.be.an("object")
+          .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
+          .that.respondsTo("useModule")
+          .that.respondsTo("useService")
+          .that.respondsTo("useConfig")
+          .that.respondsTo("on")
+          .that.respondsTo("emit");
+        resolve();
+      })
+    );
+  });
+});
 //should be able to initialize modules
 
 //should be able to load and use services with the app scope
