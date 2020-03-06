@@ -19,7 +19,7 @@ module.exports = ({ Services, App }) => {
           })
           .catch(err => {
             console.warn(err);
-            App.emit("failed_connection", err);
+            App.emit("failed_connection", { err, ...serviceData });
             resolve();
           });
       });
