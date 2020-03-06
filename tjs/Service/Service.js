@@ -22,7 +22,7 @@ module.exports = function ServiceFactory({ defaultModule = {} } = {}) {
       if (constructor.constructor.name === "AsyncFunction")
         throw `(ServerModule Error): ServerModule(name, constructor) function requires a non-async function as the constructor`;
 
-      const ServerModule = Dispatcher.apply(Service.defaultModule);
+      const ServerModule = Dispatcher.apply({ ...Service.defaultModule });
       const exclude_methods = [...reserved_methods, ...Object.getOwnPropertyNames(ServerModule)];
       constructor.apply(ServerModule, [ServerManager.Server(), ServerManager.WebSocket()]);
       ServerManager.addModule(name, ServerModule, exclude_methods);
