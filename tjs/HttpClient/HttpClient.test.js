@@ -1,19 +1,19 @@
 const { expect } = require("chai");
 const fs = require("fs");
-const TasksJSHttpClient = require("./HttpClient");
+const HttpClientFactory = require("./HttpClient");
 const port = 4789;
 const testServerSetup = require("./test.server");
 //test server setup
 
 beforeAll(() => new Promise(resolve => testServerSetup(port, resolve)));
-describe("TasksJSHttpClient Test", () => {
-  const Client = TasksJSHttpClient();
+describe("HttpClientFactory Test", () => {
+  const HttpClient = HttpClientFactory();
   const url = `http://localhost:${port}/test`;
   const singleFileUrl = `http://localhost:${port}/sf/test`;
   const multiFileUrl = `http://localhost:${port}/mf/test`;
 
-  it("should return a TasksJSHttpClient instance", () => {
-    expect(Client)
+  it("should return a HttpClient instance", () => {
+    expect(HttpClient)
       .to.be.an("Object")
       .that.has.all.keys("request", "upload")
       .that.respondsTo("request")
@@ -22,7 +22,7 @@ describe("TasksJSHttpClient Test", () => {
 
   it("should be able to make http requests using a callback", async () => {
     const results = await new Promise((resolve, reject) => {
-      Client.request(
+      HttpClient.request(
         {
           method: "GET",
           url: "http://localhost:4789/test",
@@ -45,7 +45,7 @@ describe("TasksJSHttpClient Test", () => {
   });
 
   it("should be able to make http requests using a promise", async () => {
-    const results = await Client.request({
+    const results = await HttpClient.request({
       method: "GET",
       url,
       body: { getWithPromise: true }
@@ -61,7 +61,7 @@ describe("TasksJSHttpClient Test", () => {
   });
 
   it("should be able to make PUT requests", async () => {
-    const results = await Client.request({
+    const results = await HttpClient.request({
       method: "GET",
       url,
       body: { getWithPromise: true }
@@ -77,7 +77,7 @@ describe("TasksJSHttpClient Test", () => {
   });
 
   it("should be able to make POST requests", async () => {
-    const results = await Client.request({
+    const results = await HttpClient.request({
       method: "POST",
       url,
       body: { test: true }
@@ -92,7 +92,7 @@ describe("TasksJSHttpClient Test", () => {
       });
   });
   it("should be able to make DELETE requests", async () => {
-    const results = await Client.request({
+    const results = await HttpClient.request({
       method: "DELETE",
       url,
       body: { test: true }
@@ -109,7 +109,7 @@ describe("TasksJSHttpClient Test", () => {
 
   it("should be able to upload a file", async () => {
     const file = fs.createReadStream(__dirname + "/test.file.json");
-    const results = await Client.upload({
+    const results = await HttpClient.upload({
       url: singleFileUrl,
       formData: { file }
     });
@@ -128,7 +128,7 @@ describe("TasksJSHttpClient Test", () => {
       fs.createReadStream(__dirname + "/test.file.json"),
       fs.createReadStream(__dirname + "/test.file.json")
     ];
-    const multiUploadResponse = await Client.upload({
+    const multiUploadResponse = await HttpClient.upload({
       url: multiFileUrl,
       formData: { files }
     });

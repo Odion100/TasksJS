@@ -1,42 +1,34 @@
 //These are all the abstractions that make up TasksJS
-const TasksJSApp = require("./tjs/App/App");
-const TasksJSLoadBalancer = require("./tjs/LoadBalancer/LoadBalancer");
-const TasksJSServerModule = require("./tjs/ServerModule/ServerModule");
-const TasksJSServer = require("./tjs/Server/Server");
-const TasksJSServerManager = require("./tjs/ServerManager/ServerManager");
-const TasksJSService = require("./tjs/Service/Service");
-const TasksJSClient = require("./tjs/Client/Client");
-const TasksJSModule = require("./tjs/Module/Module");
+const AppFactory = require("./tjs/App/App");
+const LoadBalancerFactory = require("./tjs/LoadBalancer/LoadBalancer");
+const ServiceFactory = require("./tjs/Service/Service");
+const ServerManagerFactory = require("./tjs/ServerManager/ServerManager");
+const ClientFactory = require("./tjs/Client/Client");
+const HttpClientFactory = require("./tjs/HttpClient/HttpClient");
 
-//this index file exports a function to ensure non-singleton behavior
-module.exports = function TasksJS() {
-  const App = TasksJSApp;
-  const app = App();
-  const Client = TasksJSClient();
-  const ServerModule = TasksJSServerModule();
-  //create separate names for these main utilites
-  const Service = TasksJSService();
-  const LoadBalancer = TasksJSLoadBalancer;
+const App = AppFactory();
+const ServerManager = ServerManagerFactory();
+const HttpClient = HttpClientFactory();
+const Service = ServiceFactory();
+const Client = ClientFactory();
+const LoadBalancer = LoadBalancerFactory();
 
-  return {
-    //Export these pre-created objects for convenient object destructuring
-    //These are the main utilities for app development
-    App,
-    Client,
-    LoadBalancer,
-    ServerModule,
-    Service,
-    app,
-    //export all modules themselves
-    //all these modules export factory functions
-    //to ensure non-singleton behavior
-    TasksJSApp,
-    TasksJSLoadBalancer,
-    TasksJSServerModule,
-    TasksJSServer,
-    TasksJSService,
-    TasksJSClient,
-    TasksJSModule,
-    TasksJSServerManager
-  };
+module.exports = {
+  //Export these pre-created objects for convenient object destructuring
+  //These are the main utilities for app development
+  App,
+  HttpClient,
+  LoadBalancer,
+  Client,
+  Service,
+  ServerManager,
+  //export all modules themselves
+  //all these modules export factory functions
+  //to ensure non-singleton behavior
+  AppFactory,
+  LoadBalancerFactory,
+  ServiceFactory,
+  ClientFactory,
+  HttpClientFactory,
+  ServerManagerFactory
 };

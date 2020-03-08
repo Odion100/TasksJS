@@ -1,11 +1,20 @@
 const { expect } = require("chai");
-const TasksJSClient = require("../Client");
-const TasksJSService = require("../../Service/Service");
-const Service = TasksJSService();
+const ClientFactory = require("../Client");
+const ServiceFactory = require("../../Service/Service");
+const Service = ServiceFactory();
 const port = 6757;
 const route = "service-test";
 const url = `http://localhost:${port}/${route}`;
 
+describe("Client Factory", () => {
+  it("should return a TasksJS Client", () => {
+    const Client = ClientFactory();
+    expect(Client)
+      .to.be.an("object")
+      .that.has.property("loadService")
+      .that.is.a("function");
+  });
+});
 describe("Client", () => {
   it("should be able to use Client.loadService(url, options) to return a promise that resolve into a backend service", async () => {
     Service.ServerModule(
@@ -23,7 +32,7 @@ describe("Client", () => {
 
     await Service.startService({ route, port });
 
-    const Client = TasksJSClient();
+    const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
     expect(buAPI)
@@ -56,7 +65,7 @@ describe("Client", () => {
 
 describe("Service", () => {
   it("should be able to call methods on the backend Client", async () => {
-    const Client = TasksJSClient();
+    const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
     const results = await buAPI.orders.action1({ code: 3 });
@@ -74,7 +83,7 @@ describe("Service", () => {
       eventTester.sendEvent = (data, cb) => eventTester.emit(eventName, { testPassed: true });
     });
 
-    const Client = TasksJSClient();
+    const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
     await new Promise(resolve => {

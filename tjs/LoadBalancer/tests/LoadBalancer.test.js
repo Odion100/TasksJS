@@ -4,6 +4,35 @@ const ServiceFactory = require("../../Service/Service");
 const HttpClient = require("../../HttpClient/HttpClient")();
 const lbPort = 5030;
 const route = "loadbalancer";
+
+describe("LoadBalancerFactory", () => {
+  it("should return a TasksJS LoadBalancer", () => {
+    expect(LoadBalancer)
+      .to.be.an("object")
+      .that.has.all.keys(
+        "startService",
+        "Server",
+        "WebSocket",
+        "defaultModule",
+        "ServerModule",
+        "clones"
+      )
+      .that.respondsTo("startService")
+      .that.respondsTo("Server")
+      .that.respondsTo("WebSocket")
+      .that.respondsTo("ServerModule");
+    expect(LoadBalancer.clones)
+      .to.be.an("object")
+      .that.has.all.keys("on", "emit", "clones", "register", "dispatch", "assignDispatch")
+      .that.respondsTo("emit")
+      .that.respondsTo("on")
+      .that.respondsTo("register")
+      .that.respondsTo("dispatch")
+      .that.respondsTo("assignDispatch")
+      .that.has.property("clones")
+      .that.is.an("array");
+  });
+});
 describe("LoadBalancer", () => {
   it("should return an object with properties: startService (fn), clones (Service)", () => {
     expect(LoadBalancer).to.be.an("object");
