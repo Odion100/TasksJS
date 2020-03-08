@@ -66,6 +66,7 @@ module.exports = function TasksJSApp() {
   App.config = __constructor => {
     if (typeof __constructor === "function")
       system.configurations = { __constructor, module: SystemObject(system) };
+    else throw Error("App.config methods requires a constructor function as it first parameter.");
     return App;
   };
 

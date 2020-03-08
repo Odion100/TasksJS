@@ -1,9 +1,9 @@
-const Client = require("../../Client/Client");
+const Client = require("../../Client/Client")();
 module.exports = ({ Services, App }) => {
   return Promise.all(
     Services.map(serviceData => {
       const { url, limit, wait, name, onLoad } = serviceData;
-      new Promise(resolve => {
+      return new Promise(resolve => {
         Client.loadService(url, { limit, wait })
           .then(service => {
             serviceData.client = service;
