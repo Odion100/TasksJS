@@ -3,7 +3,7 @@ const HttpClient = require("../../HttpClient/HttpClient")();
 module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ServiceModule = this;
 
-  return function sendRequest(data, callback) {
+  return function sendRequest(data = {}, callback) {
     const tryRequest = (cb, errCount = 0) => {
       const { route, port, host } = ServiceModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
