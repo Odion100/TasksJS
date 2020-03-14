@@ -14,9 +14,10 @@ describe("SocketDispatcher", () => {
   it("should return an EventDispatcher object with methods on and emit", async () => {
     expect(dispatcher)
       .to.be.an("object")
-      .that.has.all.keys("on", "emit")
+      .that.has.all.keys("on", "emit", "disconnect")
       .that.respondsTo("on")
-      .that.respondsTo("emit");
+      .that.respondsTo("emit")
+      .that.respondsTo("disconnect");
   });
   it("Should be able to emit and handle events", done => {
     dispatcher.on(eventName, data => {
@@ -34,9 +35,10 @@ describe("SocketDispatcher.apply()", () => {
   it("should return an EventDispatcher object with methods on and emit", async () => {
     expect(dispatcher)
       .to.be.an("object")
-      .that.has.all.keys("on", "emit")
+      .that.has.all.keys("on", "emit", "disconnect")
       .that.respondsTo("on")
-      .that.respondsTo("emit");
+      .that.respondsTo("emit")
+      .that.respondsTo("disconnect");
   });
   it("Should be able to emit and handle events", done => {
     dispatcher.on(eventName, data => {

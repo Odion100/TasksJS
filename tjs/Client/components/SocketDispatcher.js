@@ -10,5 +10,6 @@ module.exports = function SocketDispatcher(namespace, events = {}) {
   socket.on("disconnect", () => dispatcher.emit("disconnect"));
   socket.on("connect", () => dispatcher.emit("connect"));
 
+  dispatcher.disconnect = () => socket.disconnect();
   return dispatcher;
 };

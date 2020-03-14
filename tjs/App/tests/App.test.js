@@ -49,10 +49,11 @@ describe("App: Loading Services", () => {
 
         expect(system.Services[0].client)
           .to.be.an("object")
-          .that.has.all.keys("emit", "on", "resetConnection", "mod")
+          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
           .that.respondsTo("emit")
           .that.respondsTo("on")
-          .that.respondsTo("resetConnection");
+          .that.respondsTo("resetConnection")
+          .that.respondsTo("disconnect");
         resolve();
       });
     });
@@ -75,10 +76,11 @@ describe("App: Loading Services", () => {
       App.loadService("test", { route, port }).onLoad(test => {
         expect(test)
           .to.be.an("object")
-          .that.has.all.keys("emit", "on", "resetConnection", "mod")
+          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
           .that.respondsTo("emit")
           .that.respondsTo("on")
-          .that.respondsTo("resetConnection");
+          .that.respondsTo("resetConnection")
+          .that.respondsTo("disconnect");
         resolve();
       });
     });
@@ -102,7 +104,7 @@ describe("App: Loading Services", () => {
         .on("service_loaded", test => {
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "mod")
+            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
@@ -110,7 +112,7 @@ describe("App: Loading Services", () => {
         .on("service_loaded:test", test => {
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "mod")
+            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
@@ -138,7 +140,7 @@ describe("App: Loading Services", () => {
           const test = this.useService("test");
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "mod")
+            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
