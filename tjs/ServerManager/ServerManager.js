@@ -82,7 +82,7 @@ module.exports = function TasksJSServerManager() {
     SocketEmitter.apply(object, [namespace, WebSocket]);
 
     if (useService) {
-      const path = staticRouting ? `${route}/${name}` : `${shortId()}/${shortId()}`;
+      const path = staticRouting || useREST ? `${route}/${name}` : `${shortId()}/${shortId()}`;
 
       modules.push({
         namespace: `http://${host}:${socketPort}/${namespace}`,
