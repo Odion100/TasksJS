@@ -36,9 +36,9 @@ module.exports = function TasksJSRouter(server) {
       });
 
     const data = {
-      ...(body.data || {}),
-      ...query,
       ...params,
+      ...query,
+      ...(body.data || {}),
       file,
       files
     };
