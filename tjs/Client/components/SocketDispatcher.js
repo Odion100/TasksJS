@@ -7,7 +7,10 @@ module.exports = function SocketDispatcher(namespace, events = {}) {
     (this || {}).on && (this || {}).emit ? this : TasksJSDispatcher.apply(this, [events]);
   const socket = io.connect(namespace);
   socket.on("dispatch", ({ name, data }) => dispatcher.emit(name, data));
-  socket.on("disconnect", () => dispatcher.emit("disconnect"));
+  socket.on("disconnect", () => {
+    socket.disconnect();
+    dispatcher.emit("disconnect");
+  });
   socket.on("connect", () => dispatcher.emit("connect"));
 
   dispatcher.disconnect = () => socket.disconnect();

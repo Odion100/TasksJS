@@ -14,7 +14,6 @@ module.exports = function TasksJSClient() {
     const Service = SocketDispatcher(connData.namespace);
 
     Service.resetConnection = async cb => {
-      Service.disconnect();
       const { modules, host, port, namespace } = await loadConnectionData(url, options);
 
       SocketDispatcher.apply(Service, [namespace]);
