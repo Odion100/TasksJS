@@ -1,6 +1,4 @@
 module.exports = function TasksJSRouter(server) {
-  //user (express) server.all to handle all request to a given ServerModule
-
   const addService = (ServerModule, route, { fn, method }) => {
     server[method](
       [`/${route}/${fn}`, `/sf/${route}/${fn}`, `/mf/${route}/${fn}`],
@@ -35,6 +33,7 @@ module.exports = function TasksJSRouter(server) {
         TasksJSServiceError: true
       });
 
+    if (req.params.id === "tjs-query") req.params.id = undefined;
     const data = {
       ...params,
       ...query,

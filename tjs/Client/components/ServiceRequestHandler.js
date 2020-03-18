@@ -4,7 +4,7 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ServiceModule = this;
 
   const makeQuery = data => {
-    let query = "none/?";
+    let query = "tjs-query/?";
     const props = Object.getOwnPropertyNames(data);
     props.forEach(name => (query += name + "=" + data[name] + "&"));
     return query;
