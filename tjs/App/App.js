@@ -12,18 +12,13 @@ module.exports = function TasksJSApp() {
     ServerModules: [],
     configurations: {},
     Service,
-    App
+    App,
   };
   Service.defaultModule = SystemObject(system);
   setTimeout(() => initializeApp(system), 0);
 
-  App.startService = ({ host, port, route, middlewear }) => {
-    system.Service.startService({
-      route,
-      port,
-      host,
-      middlewear
-    });
+  App.startService = (options) => {
+    system.Service.startService(options);
     return App;
   };
 
@@ -35,12 +30,12 @@ module.exports = function TasksJSApp() {
       onLoad: null,
       limit,
       wait,
-      client: {}
+      client: {},
     });
     return App;
   };
 
-  App.onLoad = handler => {
+  App.onLoad = (handler) => {
     const service = system.Services[system.Services.length - 1];
     service.onLoad = handler;
     return App;
@@ -50,7 +45,7 @@ module.exports = function TasksJSApp() {
     system.Modules.push({
       name,
       __constructor,
-      module: SystemObject(system)
+      module: SystemObject(system),
     });
     return App;
   };
@@ -58,12 +53,12 @@ module.exports = function TasksJSApp() {
   App.ServerModule = (name, __constructor) => {
     system.ServerModules.push({
       name,
-      __constructor
+      __constructor,
     });
     return App;
   };
 
-  App.config = __constructor => {
+  App.config = (__constructor) => {
     if (typeof __constructor === "function")
       system.configurations = { __constructor, module: SystemObject(system) };
     else throw Error("App.config methods requires a constructor function as it first parameter.");
