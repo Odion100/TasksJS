@@ -13,7 +13,7 @@ module.exports = function TasksJSRouter(server) {
 
   const addREST = (ServerModule, route, { method }) => {
     server[method](
-      [`/${route}/:id`, `/${route}/:id/:resource`],
+      [`/${route}`],
       (req, res, next) => {
         req.fn = method;
         req.ServerModule = ServerModule;
@@ -30,7 +30,7 @@ module.exports = function TasksJSRouter(server) {
       return res.status(404).json({
         message: "TasksJSServiceError: Object resource not found",
         status: 404,
-        TasksJSServiceError: true
+        TasksJSServiceError: true,
       });
 
     if (req.params.id === "tjs-query") req.params.id = undefined;
@@ -39,7 +39,7 @@ module.exports = function TasksJSRouter(server) {
       ...query,
       ...(body.data || {}),
       file,
-      files
+      files,
     };
 
     const callback = (err, results) => {

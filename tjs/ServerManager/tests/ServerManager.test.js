@@ -23,7 +23,7 @@ describe("ServerManager", () => {
     const url = `http://localhost:${port}${route}`;
 
     await ServerManager.startService({ route, port });
-    const results = await new Promise(resolve => {
+    const results = await new Promise((resolve) => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
       });
@@ -54,7 +54,7 @@ describe("ServerManager", () => {
 
     ServerManager.addModule(name, {});
     ServerManager.addModule(name + 1, {});
-    const results = await new Promise(resolve => {
+    const results = await new Promise((resolve) => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
       });
@@ -91,7 +91,7 @@ describe("ServerManager", () => {
 
     await ServerManager.startService({ route, port });
 
-    const results = await new Promise(resolve => {
+    const results = await new Promise((resolve) => {
       request({ url, json: true }, (err, res, body) => {
         resolve(body);
       });
@@ -128,7 +128,7 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
       get: (data, cb) => cb(null, { REST_TEST_PASSED: true }),
       put: () => {},
       post: () => {},
-      delete: () => {}
+      delete: () => {},
     };
 
     ServerManager.addModule(name, object);
@@ -136,11 +136,11 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
     await ServerManager.startService({
       route,
       port,
-      useREST: true
+      useREST: true,
     });
 
-    const results = await new Promise(resolve => {
-      request({ url: `${url}/${name}/id/resource`, json: true }, (err, res, body) => {
+    const results = await new Promise((resolve) => {
+      request({ url: `${url}/${name}`, json: true }, (err, res, body) => {
         resolve(body);
       });
     });
@@ -158,7 +158,7 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
       get: (data, cb) => cb(null, { SERVICE_TEST_PASSED: true }),
       put: (data, cb) => cb(null, { SERVICE_TEST_PASSED: true }),
       post: () => {},
-      delete: () => {}
+      delete: () => {},
     };
 
     ServerManager.addModule(name, object);
@@ -167,10 +167,10 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
       route,
       port,
       staticRouting: true,
-      useREST: true
+      useREST: true,
     });
 
-    const results = await new Promise(resolve => {
+    const results = await new Promise((resolve) => {
       request({ url: `${url}/${name}/get`, json: true }, (err, res, body) => {
         resolve(body);
       });

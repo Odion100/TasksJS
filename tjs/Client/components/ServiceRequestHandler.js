@@ -3,10 +3,10 @@ const HttpClient = require("../../HttpClient/HttpClient")();
 module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ServiceModule = this;
 
-  const makeQuery = data => {
-    let query = "tjs-query/?";
+  const makeQuery = (data) => {
+    let query = "?";
     const props = Object.getOwnPropertyNames(data);
-    props.forEach(name => (query += name + "=" + data[name] + "&"));
+    props.forEach((name) => (query += name + "=" + data[name] + "&"));
     return query;
   };
 
@@ -23,18 +23,18 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
         HttpClient.request({
           url: `${url}${method === "get" ? makeQuery(data) : ""}`,
           method,
-          body: { data }
+          body: { data },
         })
-          .then(results => cb(null, results))
-          .catch(err => ErrorHandler(err, errCount, cb));
+          .then((results) => cb(null, results))
+          .catch((err) => ErrorHandler(err, errCount, cb));
       else
         HttpClient.upload({
           url,
           method,
-          formData: data
+          formData: data,
         })
-          .then(results => cb(null, results))
-          .catch(err => ErrorHandler(err, errCount, cb));
+          .then((results) => cb(null, results))
+          .catch((err) => ErrorHandler(err, errCount, cb));
     };
 
     const ErrorHandler = (err, errCount, cb) => {
