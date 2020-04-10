@@ -9,17 +9,14 @@ const url = `http://localhost:${port}/${route}`;
 describe("Client Factory", () => {
   it("should return a TasksJS Client", () => {
     const Client = ClientFactory();
-    expect(Client)
-      .to.be.an("object")
-      .that.has.property("loadService")
-      .that.is.a("function");
+    expect(Client).to.be.an("object").that.has.property("loadService").that.is.a("function");
   });
 });
 describe("Client", () => {
   it("should be able to use Client.loadService(url, options) to return a promise that resolve into a backend service", async () => {
     Service.ServerModule(
       "orders",
-      function() {
+      function () {
         this.action1 = (data, cb) =>
           cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
         this.action2 = (data, cb) =>
@@ -79,7 +76,7 @@ describe("Service", () => {
 
   it("should be able to receive events emitted from the backend Client", async () => {
     const eventName = "testing";
-    const eventTester = Service.ServerModule("eventTester", function() {
+    const eventTester = Service.ServerModule("eventTester", function () {
       const eventTester = this;
       eventTester.sendEvent = (data, cb) => eventTester.emit(eventName, { testPassed: true });
     });
@@ -87,17 +84,12 @@ describe("Service", () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
-    await new Promise(resolve => {
-      buAPI.eventTester.on(eventName, data => {
-        console.log("Ladies and gentleman... mission accomplish!");
-        expect(true).to.equal(true);
-        resolve();
-      });
-
-      buAPI.on("connect", () => console.log("this should be called twice"));
-      buAPI.resetConnection();
-      setTimeout(() => eventTester.emit(eventName, { testPassed: true }), 500);
+    buAPI.eventTester.on(eventName, (data) => {
+      console.log("Ladies and gentleman... mission accomplish!");
+      expect(true).to.equal(true);
     });
+
+    eventTester.emit(eventName, { testPassed: true });
   });
 
   it("should be able to send REST http requests", async () => {
@@ -107,7 +99,7 @@ describe("Service", () => {
     const port = "8492";
     const url = `http://localhost:${port}/${route}`;
     const useREST = true;
-    Service.ServerModule("restTester", function() {
+    Service.ServerModule("restTester", function () {
       this.get = (data, cb) => cb(null, { REST_TEST_PASSED: true, getResponse: true });
 
       this.put = (data, cb) => cb(null, { REST_TEST_PASSED: true, putResponse: true });

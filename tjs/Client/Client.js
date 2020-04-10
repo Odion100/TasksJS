@@ -12,8 +12,10 @@ module.exports = function TasksJSClient() {
 
     const connData = await loadConnectionData(url, options);
     const Service = SocketDispatcher(connData.namespace);
+    loadedServices[url] = Service;
+    if (options.name) Client[options.name] = Service;
 
-    Service.resetConnection = async cb => {
+    Service.resetConnection = async (cb) => {
       const { modules, host, port, namespace } = await loadConnectionData(url, options);
 
       SocketDispatcher.apply(Service, [namespace]);
@@ -26,12 +28,12 @@ module.exports = function TasksJSClient() {
     };
 
     connData.modules.forEach(
-      mod => (Service[mod.name] = ServiceModule(mod, connData, Service.resetConnection))
+      (mod) => (Service[mod.name] = ServiceModule(mod, connData, Service.resetConnection))
     );
 
     Service.on("disconnect", Service.resetConnection);
-    loadedServices[url] = Service;
-    if (options.name) Client[options.name] = Service;
+
+    await new Promise((resolve) => Service.on("connect", resolve));
     return Service;
   };
 
