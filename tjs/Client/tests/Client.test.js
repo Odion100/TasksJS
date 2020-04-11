@@ -84,9 +84,16 @@ describe("Service", () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
-    buAPI.eventTester.on(eventName, (data) => {
+    buAPI.eventTester.on(eventName, (data, event) => {
       console.log("Ladies and gentleman... mission accomplish!");
-      expect(true).to.equal(true);
+      // console.log(data);
+      // console.log(event);
+      expect(data).to.deep.equal({ testPassed: true });
+      expect(event).to.be.an("object").that.has.all.keys("id", "name", "data", "type");
+      expect(event.name).to.equal("testing");
+      expect(event.data).to.deep.equal({ testPassed: true });
+      expect(event.id).to.be.a("string");
+      expect(event.type).to.equal("WebSocket");
     });
 
     eventTester.emit(eventName, { testPassed: true });

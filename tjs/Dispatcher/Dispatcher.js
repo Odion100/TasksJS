@@ -2,8 +2,8 @@
 module.exports = function TasksJSDispatcher(events = {}) {
   const Dispatcher = this || {};
 
-  Dispatcher.emit = (eventName, data) => {
-    if (events[eventName]) events[eventName].forEach(callback => callback(data));
+  Dispatcher.emit = (eventName, data, event) => {
+    if (events[eventName]) events[eventName].forEach((callback) => callback(data, event));
     return Dispatcher;
   };
 

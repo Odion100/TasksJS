@@ -19,8 +19,8 @@ describe("SocketDispatcher", () => {
       .that.respondsTo("emit")
       .that.respondsTo("disconnect");
   });
-  it("Should be able to emit and handle events", done => {
-    dispatcher.on(eventName, data => {
+  it("Should be able to emit and handle events", (done) => {
+    dispatcher.on(eventName, (data) => {
       expect(data).to.deep.equal({ testPassed: true });
       done();
     });
@@ -40,9 +40,11 @@ describe("SocketDispatcher.apply()", () => {
       .that.respondsTo("emit")
       .that.respondsTo("disconnect");
   });
-  it("Should be able to emit and handle events", done => {
-    dispatcher.on(eventName, data => {
+  it("Should be able to emit and handle events", (done) => {
+    dispatcher.on(eventName, (data, event) => {
       expect(data).to.deep.equal({ testPassed: true });
+      expect(event).to.deep.equal({ name: "testing-event", data: { testPassed: true } });
+      //console.log(event);
       console.log(`I'm all the way connected too!`);
       done();
     });
