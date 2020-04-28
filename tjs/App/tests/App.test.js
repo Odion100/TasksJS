@@ -35,16 +35,16 @@ describe("App: Loading Services", () => {
     const route = "test-service";
     const port = "8499";
 
-    Service.ServerModule("mod", function() {
+    Service.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     });
 
     await Service.startService({ route, port });
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", { route, port }).on("init_complete", system => {
+      App.loadService("test", { route, port }).on("init_complete", (system) => {
         expect(system.Services[0]).to.be.an("object");
 
         expect(system.Services[0].client)
@@ -64,16 +64,16 @@ describe("App: Loading Services", () => {
     const route = "test-service";
     const port = "8422";
 
-    Service.ServerModule("mod", function() {
+    Service.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     });
 
     await Service.startService({ route, port });
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", { route, port }).onLoad(test => {
+      App.loadService("test", { route, port }).onLoad((test) => {
         expect(test)
           .to.be.an("object")
           .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
@@ -91,17 +91,17 @@ describe("App: Loading Services", () => {
     const route = "test-service";
     const port = "8423";
 
-    Service.ServerModule("mod", function() {
+    Service.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     });
 
     await Service.startService({ route, port });
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const App = AppFactory();
       App.loadService("test", { route, port })
-        .on("service_loaded", test => {
+        .on("service_loaded", (test) => {
           expect(test)
             .to.be.an("object")
             .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
@@ -109,7 +109,7 @@ describe("App: Loading Services", () => {
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
         })
-        .on("service_loaded:test", test => {
+        .on("service_loaded:test", (test) => {
           expect(test)
             .to.be.an("object")
             .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
@@ -126,17 +126,17 @@ describe("App: Loading Services", () => {
     const route = "test-service";
     const port = "8442";
 
-    Service.ServerModule("mod", function() {
+    Service.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     });
 
     await Service.startService({ route, port });
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const App = AppFactory();
       App.loadService("test", { route, port })
-        .module("module_name", function() {
+        .module("module_name", function () {
           const test = this.useService("test");
           expect(test)
             .to.be.an("object")
@@ -154,8 +154,8 @@ describe("App: Loading Services", () => {
 describe("App SystemObjects: Initializing Modules,  ServerModules and configurations", () => {
   it("should be able to use App.module to initialize a module", async () => {
     const App = AppFactory();
-    return new Promise(resolve =>
-      App.module("test", function() {
+    return new Promise((resolve) =>
+      App.module("test", function () {
         expect(this)
           .to.be.an("object")
           .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
@@ -164,7 +164,7 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
           .that.respondsTo("useConfig")
           .that.respondsTo("on")
           .that.respondsTo("emit");
-      }).module("test2", function() {
+      }).module("test2", function () {
         expect(this)
           .to.be.an("object")
           .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
@@ -208,11 +208,11 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
     const url = `http://localhost:${port}/${route}`;
 
     App.startService({ route, port })
-      .ServerModule("mod", function() {
+      .ServerModule("mod", function () {
         this.test = () => {};
         this.test2 = () => {};
       })
-      .ServerModule("mod2", function() {
+      .ServerModule("mod2", function () {
         this.test = () => {};
         this.test2 = () => {};
       });
@@ -240,23 +240,23 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
       .that.is.an("array");
     expect(connData.modules[0].methods, [
       { method: "PUT", name: "test" },
-      { method: "PUT", name: "test2" }
+      { method: "PUT", name: "test2" },
     ]);
   });
 
   it('should be able to use App.on("init_complete", callback) fire a callback when App initialization is complete', async () => {
     const App = AppFactory();
 
-    App.ServerModule("mod", function() {
+    App.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
-    }).module("mod", function() {
+    }).module("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     });
 
-    await new Promise(resolve =>
-      App.on("init_complete", system => {
+    await new Promise((resolve) =>
+      App.on("init_complete", (system) => {
         expect(system)
           .to.be.an("object")
           .that.has.all.keys(
@@ -265,7 +265,8 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
             "Modules",
             "ServerModules",
             "configurations",
-            "App"
+            "App",
+            "routing"
           );
         resolve();
       })
@@ -275,21 +276,21 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
   it("should be able to use App.config(constructor) to construct a configuartion module", async () => {
     const App = AppFactory();
 
-    App.ServerModule("mod", function() {
+    App.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
     })
-      .module("mod", function() {
+      .module("mod", function () {
         this.test = () => {};
         this.test2 = () => {};
       })
-      .config(function(next) {
+      .config(function (next) {
         this.test = () => {};
         this.test2 = () => {};
         next();
       });
 
-    await new Promise(resolve =>
+    await new Promise((resolve) =>
       App.on("init_complete", ({ configurations }) => {
         expect(configurations)
           .to.be.an("object")
@@ -307,7 +308,7 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
 describe("SystemObjects", () => {
   it("should be able to use this.useModule and this.useService within modules and ServerModule", () => {
     const App = AppFactory();
-    App.module("mod1", function() {
+    App.module("mod1", function () {
       expect(this)
         .to.be.an("object")
         .that.respondsTo("useService")
@@ -316,7 +317,7 @@ describe("SystemObjects", () => {
 
       this.testPassed = true;
     })
-      .module("mod2", function() {
+      .module("mod2", function () {
         expect(this)
           .to.be.an("object")
           .that.respondsTo("useService")
@@ -327,7 +328,7 @@ describe("SystemObjects", () => {
         expect(mod1.testPassed).to.equal(true);
         expect(config.configPassed).to.equal(true);
       })
-      .config(function(next) {
+      .config(function (next) {
         expect(this)
           .to.be.an("object")
           .that.respondsTo("useService")
@@ -336,6 +337,6 @@ describe("SystemObjects", () => {
         this.configPassed = true;
         next();
       });
-    return new Promise(resolve => App.on("init_complete", () => resolve()));
+    return new Promise((resolve) => App.on("init_complete", () => resolve()));
   });
 });

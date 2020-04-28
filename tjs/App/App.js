@@ -13,12 +13,13 @@ module.exports = function TasksJSApp() {
     configurations: {},
     Service,
     App,
+    routing: null,
   };
   Service.defaultModule = SystemObject(system);
   setTimeout(() => initializeApp(system), 0);
 
   App.startService = (options) => {
-    system.Service.startService(options);
+    system.routing = options;
     return App;
   };
 

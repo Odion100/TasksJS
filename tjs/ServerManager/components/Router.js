@@ -43,7 +43,12 @@ module.exports = function TasksJSRouter(server) {
     };
 
     const callback = (err, results) => {
-      if (err) res.status(err.status || 500).json({ ...err, TasksJSServiceError: true });
+      if (err)
+        res.status(err.status || 500).json({
+          status: 500,
+          ...err,
+          TasksJSServiceError: true,
+        });
       else res.json(results);
     };
 
