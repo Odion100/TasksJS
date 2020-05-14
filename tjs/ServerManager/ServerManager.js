@@ -11,21 +11,22 @@ module.exports = function TasksJSServerManager() {
     route: null,
     port: null,
     host: "localhost",
+    serviceUrl: null,
     socketPort: null,
     useREST: false,
     useService: true,
     staticRouting: false,
-    middleware: []
+    middleware: [],
   };
   const server = TasksJSServer();
-  const router = TasksJSRouter(server);
+  const router = TasksJSRouter(server, () => serverConfigurations);
   const { SocketServer, WebSocket } = TasksJSWebSocket();
   const moduleQueue = [];
   const modules = [];
 
   const ServerManager = { Server: () => server, WebSocket: () => WebSocket };
 
-  ServerManager.startService = options => {
+  ServerManager.startService = (options) => {
     let { route, host = "localhost", port, socketPort, staticRouting } = options;
 
     socketPort = socketPort || parseInt(Math.random() * parseInt(Math.random() * 10000)) + 1023;
@@ -48,11 +49,11 @@ module.exports = function TasksJSServerManager() {
         route: `/${route}`,
         serviceUrl,
         namespace: `http://${host}:${socketPort}/${namespace}`,
-        TasksJSService: true
+        TasksJSService: true,
       });
     });
 
-    return new Promise(resolve =>
+    return new Promise((resolve) =>
       server.listen(port, () => {
         console.log(`(TasksJSService): ${route} --> Listening on ${host}:${port}`);
         moduleQueue.forEach(({ name, object, reserved_methods }) =>
@@ -72,7 +73,7 @@ module.exports = function TasksJSServerManager() {
       staticRouting,
       useService,
       useREST,
-      socketPort
+      socketPort,
     } = serverConfigurations;
 
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
@@ -88,12 +89,12 @@ module.exports = function TasksJSServerManager() {
         namespace: `http://${host}:${socketPort}/${namespace}`,
         route: `/${path}`,
         name,
-        methods
+        methods,
       });
-      methods.forEach(method => router.addService(object, path, method));
+      methods.forEach((method) => router.addService(object, path, method));
     }
     if (useREST)
-      methods.forEach(method => {
+      methods.forEach((method) => {
         switch (method.fn) {
           case "get":
           case "put":

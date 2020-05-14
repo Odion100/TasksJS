@@ -1,4 +1,4 @@
-module.exports = function TasksJSRouter(server) {
+module.exports = function TasksJSRouter(server, config) {
   const addService = (ServerModule, route, { fn, method }) => {
     server[method](
       [`/${route}/${fn}`, `/sf/${route}/${fn}`, `/mf/${route}/${fn}`],
@@ -42,17 +42,25 @@ module.exports = function TasksJSRouter(server) {
       files,
     };
 
-    const callback = (err, results) => {
-      if (err)
-        res.status(err.status || 500).json({
-          status: 500,
-          ...err,
+    const callback = (error, results) => {
+      if (error) {
+        const status = error.status || 500;
+        const message = error.message;
+        res.status(status).json({
+          status,
+          error,
           TasksJSServiceError: true,
+          serviceUrl: config().serviceUrl,
+          message,
         });
-      else res.json(results);
+      } else res.json(results);
     };
 
-    ServerModule[fn](data, callback, req, res);
+    try {
+      ServerModule[fn](data, callback, req, res);
+    } catch (error) {
+      callback(error);
+    }
   };
 
   return { addService, addREST };
