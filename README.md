@@ -1,26 +1,26 @@
 ## TasksJS
 
-*Note:* TasksJS and this readem file are currently undergoing renovations
+TasksJS is an end-to-end framework for developing microservices software systems in NodeJS. It's a wrapper on top of ExpressJS and Socket.io.  
+Use TasksJS to create objects with methods on a server application, and to load and use those objects and methods in client applications. 
 
-TasksJS is a framework for creating object-oriented web APIs. 
-Instead of creating several endpoints for handling client-server communication, as you do with Express, with TasksJS you create objects on the server that can be loaded and used on the client.  Simple as that!
-
-TasksJS comes with several abstractions for facilitating web app development: 
-
+TasksJS comes with several objects that can be used to facilitating web application development: 
 ```
 const { 
     App,
-    Client,
+    HttpClient,
     LoadBalancer,
-    ServerModule,
+    Client,
     Service,
+    ServerManager,
  } = require("TasksJS")();
 ```
-Notice that ` require("TasksJS") ` exports a factory function. You then call that function to return a ***TasksJS*** instance which consists of several objects and functions. The main  abstractions used for client-server communication are the following:
 
-- ***ServerModule*** - Used to create objects on the server that can be loaded and used on the client. 
-- ***Service*** - Used on the client to load a *Service* object from the server consisting of one or more *ServerModule*.
-- ***App*** - Provides a modular interface and lifecycle for loading *Services* asynchronously, app configurations and module/object initialization. 
+Notice that ` require("TasksJS") ` exports a factory function. Call that function and deconcatonate from the object it returns, the objects you need. The main  abstractions used for client-server communication are the following:
+
+
+- ***Service*** - Used to create objects with method on a server application that can be loaded and used on a client application. 
+- ***Cllient*** - Used on the client to load a *Service* object whice .
+- ***App*** - Provides a modular interface and lifecycle for creating and loading *Services* asynchronously, app configurations, and module/object initialization. 
 
 ---
 
