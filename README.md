@@ -1,7 +1,6 @@
 ## TasksJS
 
-TasksJS is an end-to-end framework for developing microservices software systems in NodeJS. It's a wrapper on top of ExpressJS and Socket.io.  
-Use TasksJS to create objects with methods on a server application, and to load and use those objects and methods in client applications. 
+TasksJS is an end-to-end framework for developing microservices software systems in NodeJS. It's a wrapper on top of ExpressJS and Socket.io. Use TasksJS to create objects with methods on a server application, and to load and use those objects and methods in client applications. 
 
 TasksJS comes with several objects that can be used to facilitating web application development: 
 ```
@@ -19,7 +18,7 @@ Notice that ` require("TasksJS") ` exports a factory function. Call that functio
 
 
 - ***Service*** - Used to create objects with method on a server application that can be loaded and used on a client application. 
-- ***Cllient*** - Used on the client to load a *Service* object whice .
+- ***Cllient*** - Used on the client to load a *Service* object which contains all the objects created by the *Service*.
 - ***App*** - Provides a modular interface and lifecycle for creating and loading *Services* asynchronously, app configurations, and module/object initialization. 
 
 ---
