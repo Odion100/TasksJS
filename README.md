@@ -40,9 +40,9 @@ Service.ServerModule("Users", function(){
    }
 })
 ```
-In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameter.
+In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor || object, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameters.
 
-The  ***Service.ServerModule(name, constructor, [options])*** function can take an object instead of a constructor function as it's second argument. See below. We've added another *ServerModule* with the name "Orders" and an object as it's constructor.
+The  ***Service.ServerModule(name, constructor || object, [options])*** function can take an object instead of a constructor function as it's second argument. See below. We've added another *ServerModule* with the name "Orders" and an object as it's constructor.
 
 ```
 const { Service } = require("TasksJS")();
@@ -66,7 +66,7 @@ Service.ServerModule("Orders", {
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
+Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
 
 ```
 const { Service } = require("TasksJS")();
