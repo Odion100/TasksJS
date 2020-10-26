@@ -42,7 +42,7 @@ Service.ServerModule("Users", function(){
 ```
 In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameter.
 
-The  ***Service.ServerModule(name, constructor, [options])*** function can take an object instead of a constructor function as it's second argument. See below:
+The  ***Service.ServerModule(name, constructor, [options])*** function can take an object instead of a constructor function as it's second argument. See below. We've added another *ServerModule* with the name "Orders" and an object as it's constructor.
 
 ```
 const { Service } = require("TasksJS")();
@@ -66,7 +66,7 @@ Service.ServerModule("Orders", {
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will starts an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
+Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
 
 ```
 const { Service } = require("TasksJS")();
@@ -105,7 +105,7 @@ The ***Client.loadService(url, [options])*** function can be used on a client ap
    
    console.log(Users, Orders)
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created on those objects can optionally take a callback as its second argument or it will return a promise if a callback is not used.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise.
 
 ```
     const { Client } = require("TasksJS")();
@@ -122,7 +122,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
 ```
-We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we're using the  *Users.on( event_name, cb )* method to listen for events coming from the *Service*.
+We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we've added the  *Users.on( event_name, cb )* method to listen for events coming from the *Service*.
 
 ```
     const { Client } = require("TasksJS")();
@@ -143,7 +143,7 @@ We can also receive events emitted from the modules we've loaded using the ***Cl
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
 ```
-Now all we have to do is go our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by a client application. Below you can see that we added that method at the end of the *Users.add* method, so the *new_user* event will be called
+Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below you can see that we added that method at the end of the *Users.add* method, so the *new_user* event will be emitted every time the *Users.add* method is called.
 ```
 const { Service } = require("TasksJS")();
 
