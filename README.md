@@ -1,8 +1,8 @@
 ## TasksJS
 
-TasksJS is an end-to-end framework for developing microservices software systems in NodeJS. It's a wrapper on top of ExpressJS and Socket.io. Use TasksJS to create objects with methods on a server application, and to load and use those objects in a client applications. 
+TasksJS is an end-to-end framework for developing microservice software systems in NodeJS. It's a wrapper on top of ExpressJS and Socket.io. Use TasksJS to create objects with methods on a server application, and to load and use those objects in a client application. 
 
-TasksJS comes with several objects that can be used to facilitating web application development: 
+TasksJS comes with several objects that are used to facilitate web application development: 
 ```
 const { 
     App,
@@ -18,7 +18,7 @@ Notice that ` require("TasksJS") ` exports a factory function. Call that functio
 
 
 - ***Service*** - Used to register an object with methods on a server application that can be loaded and used on a client application. 
-- ***Cllient*** - Used in a client application to load a *Service*, which contains all the objects registered by the *Service*.
+- ***Client*** - Used in a client application to load a *Service*, which contains all the objects registered by the *Service*.
 - ***App*** - Provides a modular interface and lifecycle methods for asynchronously creating and loading *Services*. 
 
 ---
@@ -66,7 +66,7 @@ Service.ServerModule("Orders", {
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* and use their methods from a client applicaiton, we need to call the ***Service.startService( options)*** function. This will starts an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and sets up routing for the applicaiton. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
+Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will starts an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
 
 ```
 const { Service } = require("TasksJS")();
@@ -105,7 +105,7 @@ The ***Client.loadService(url, [options])*** function can be used on a client ap
    
    console.log(Users, Orders)
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demostarte that the methods we created on those objects can optionally take a callback as its second argument or it will return a promise if a callback is not used.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created on those objects can optionally take a callback as its second argument or it will return a promise if a callback is not used.
 
 ```
     const { Client } = require("TasksJS")();
@@ -121,4 +121,52 @@ Now that we've loaded the *Service* that we created in the previous example, and
    
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
+```
+We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we're using the  *Users.on( event_name, cb )* method to listen for events coming from the *Service*.
+
+```
+    const { Client } = require("TasksJS")();
+   
+   const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
+   
+   //console.log(Users, Orders)
+   
+   Users.add({message:"User.add Test"}, function(err, results){
+        if(err) console.log(err)
+        else console.log(results)
+   })
+   
+   Users.on("new_user", function(event){
+        console.log(event);
+   })
+   
+   const response = await Orders.search({ message: "Orders.search test" });
+   console.log(response)
+```
+Now all we have to do is go our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by a client application. Below you can see that we added that method at the end of the *Users.add* method, so the *new_user* event will be called
+```
+const { Service } = require("TasksJS")();
+
+Service.StartService({
+    route:"test/service",
+    port: "4400",
+    host:"localhost"
+})
+
+Service.ServerModule("Users", function(){
+   const Users = this;
+   
+   Users.add = function (data, cb){
+      console.log(data);
+      cb(null, { message:"You have successfully called the Users.add method" });
+      Users.emit("new_user", { message:"new_user event test" });
+   }
+})
+
+Service.ServerModule("Orders", { 
+   search: function (data, cb){
+      console.log(data);
+      cb(null, { message:"You have successfully called the Orders.search method" });
+   }
+})
 ```
