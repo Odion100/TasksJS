@@ -24,7 +24,7 @@ Notice that ` require("TasksJS") ` exports a factory function. Call that functio
 ---
 
 # Quick Start
-#### Service.ServerModule(name, constructor || object, [options])
+## Service.ServerModule(name, constructor || object, [options])
 
 Use ***Service.ServerModule(name, constructor || object, [options])*** function to register an object on the server that can be loaded and used on the client. See the following example.
 
@@ -66,7 +66,8 @@ Service.ServerModule("Orders", {
      }
 })
 ```
-#### Service.startService(options)
+
+## Service.startService(options)
 
 Before we can access the objects registered by this *Service* and use their methods from a client applicaiton, we need to call the ***Service.startService( options)*** function. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
 
@@ -99,7 +100,7 @@ Service.ServerModule("Orders", {
 The ***Service.startService(name, options)*** function starts an **ExpressJS** Server and **Socket.io** WebSocket Server under the hood, and sets up routing for the applicaiton. Now lets see how these objects can be accessed from a client application.
 
 
-#### Client.loadService(url)
+## Client.loadService(url)
 
 The ***Client.loadService(url)*** function can be used to load objects registered by a remote service. 
 
