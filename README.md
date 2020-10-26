@@ -17,8 +17,8 @@ const {
 Notice that ` require("TasksJS") ` exports a factory function. Call that function and deconcatonate from the object it returns. The main  abstractions used for client-server communication are the following:
 
 
-- ***Service*** - Used to register objects with methods on a server application that can be loaded and used on a client application. 
-- ***Cllient*** - Used in the client application to load a *Service* which contains all the objects registered by the *Service*.
+- ***Service*** - Used to register an object with methods on a server application that can be loaded and used on a client application. 
+- ***Cllient*** - Used in a client application to load a *Service*, which contains all the objects registered by the *Service*.
 - ***App*** - Provides a modular interface and lifecycle methods for asynchronously creating and loading *Services*. 
 
 ---
@@ -38,13 +38,11 @@ Service.ServerModule("Users", function(){
       console.log(data);
       cb(null, { message:"You have successfully called the Users.add method" });
    }
-
 })
-
 ```
-In the code above we created a *ServerModule* passing the name "Users" and a constructor function as the first two arguments. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS.
+In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS.
 
-The  ***ServerModule(name, constructor, [options])*** function can also take an object instead of a constructor function as it's second argument. See below:
+The  ***Service.ServerModule(name, constructor, [options])*** function can take an object instead of a constructor function as it's second argument. See below:
 
 ```
 const { Service } = require("TasksJS")();
@@ -56,7 +54,6 @@ Service.ServerModule("Users", function(){
       console.log(data);
       cb(null, { message:"You have successfully called the Users.add method" });
    }
-
 })
 
 Service.ServerModule("Orders", { 
@@ -69,7 +66,7 @@ Service.ServerModule("Orders", {
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* and use their methods from a client applicaiton, we need to call the ***Service.startService( options)*** function. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
+Before we can access the objects registered by this *Service* and use their methods from a client applicaiton, we need to call the ***Service.startService( options)*** function. This will starts an **ExpressJS** Server and a **Socket.io** WebSocket Server under the hood, and sets up routing for the applicaiton. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
 
 ```
 const { Service } = require("TasksJS")();
@@ -87,22 +84,27 @@ Service.ServerModule("Users", function(){
       console.log(data);
       cb(null, { message:"You have successfully called the Users.add method" });
    }
-
 })
 
 Service.ServerModule("Orders", { 
-     search: function (data, cb){
-        console.log(data);
-        cb(null, { message:"You have successfully called the Orders.search method" });
-     }
+   search: function (data, cb){
+      console.log(data);
+      cb(null, { message:"You have successfully called the Orders.search method" });
+   }
 })
 ```
-The ***Service.startService(name, options)*** function starts an **ExpressJS** Server and **Socket.io** WebSocket Server under the hood, and sets up routing for the applicaiton. Now lets see how these objects can be accessed from a client application.
+Now lets see how these objects can be accessed from a client application.
 
+## Client.loadService(url, [options])
 
-## Client.loadService(url)
-
-The ***Client.loadService(url)*** function can be used to load objects registered by a remote service. 
+The ***Client.loadService(url, [options])*** function can be used on a client application to load a *Service*. The function requires the url (string) of the service you want to load as its first argument, and will return a promise that will resolve into an object containing all modules registered by that service. See below. ***NOTE:*** You must be within an async function in order to use the await keyword when returning a promise.
+```
+   const { Client } = require("TasksJS")();
+   
+   const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
+   
+   console.log(Users, Orders)
+```
 
 First, we destructure the ***SeverModule*** function from the ***TasksJS*** instance. We then use the ***ServerModule.startService(options)*** function to initialize an Express and SocketIO server that will handle routing and mapping HTTP request and WebSocket events to each ServerModule instance created. Keep in mind that the ***ServerModule.startService*** function  must be called before any modules are created.
 
@@ -140,8 +142,6 @@ ServerModule("queue", function(){
 
 ```
 
-
-```
 #### Service(url, [options])
 
 With the TasksJS ***Service(url, [options])*** function on the client-side, you can load and call methods on objects that were created on the server-side using the ***ServerModule*** function. 
