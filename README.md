@@ -97,7 +97,7 @@ Now lets see how these objects can be accessed from a client application.
 
 ## Client.loadService(url, [options])
 
-The ***Client.loadService(url, [options])*** function can be used on a client application to load a *Service*. The function requires the url (string) of the service you want to load as its first argument, and will return a promise that will resolve into an object containing all modules registered by that service. See below. ***NOTE:*** You must be within an async function in order to use the await keyword when returning a promise.
+The ***Client.loadService(url, [options])*** function can be used to load a *Service*. The function requires the url (string) of the service you want to load as its first argument, and will return a promise that will resolve into an object containing all modules registered by that service. See below. ***NOTE:*** You must be within an async function in order to use the await keyword when returning a promise.
 ```
    const { Client } = require("TasksJS")();
    
