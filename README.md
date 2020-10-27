@@ -144,7 +144,7 @@ We can also receive events emitted from the modules we've loaded using the ***Cl
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
 ```
-Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below you can see that we added that method at the end of the *Users.add* method, so the *new_user* event will be emitted every time the *Users.add* method is called.
+Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below, notice that we added ```Users.emit("new_user", { message:"new_user event test" });``` at the end of the *Users.add* method, so the *new_user* event will be emitted every time the this method is called.
 ```
 const { Service } = require("TasksJS")();
 
