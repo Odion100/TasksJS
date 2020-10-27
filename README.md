@@ -112,7 +112,8 @@ Now that we've loaded the *Service* that we created in the previous example, and
    
    const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
    
-   //console.log(Users, Orders)
+   console.log("Users", Users);
+   console.log("Orders", Orders);
    
    Users.add({message:"User.add Test"}, function(err, results){
         if(err) console.log(err)
@@ -129,7 +130,8 @@ We can also receive events emitted from the modules we've loaded using the ***Cl
    
    const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
    
-   //console.log(Users, Orders)
+   console.log("Users", Users);
+   console.log("Orders", Orders);
    
    Users.add({message:"User.add Test"}, function(err, results){
         if(err) console.log(err)
