@@ -106,7 +106,7 @@ The ***Client.loadService(url, [options])*** function can be used to load a *Ser
    console.log(Users, Orders);
    
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise. In the *Users.add(data, cb)* method we used a callback, but with the *Orders.search(data, cb)* method we left out the callback and used the await keyword.
 
 ```
     const { Client } = require("TasksJS")();
