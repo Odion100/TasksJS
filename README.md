@@ -26,7 +26,7 @@ Notice that ` require("TasksJS") ` exports a factory function. Call that functio
 # Quick Start
 ## Service.ServerModule(name, constructor || object, [options])
 
-Use ***Service.ServerModule(name, constructor || object, [options])*** function to register an object on the server that can be loaded and used on the client. See the following example. 
+Use ***Service.ServerModule(name, constructor || object, [options])*** function to register an object on the server that can be loaded and used on the client. Follow the example below. 
 
 ```
 const { Service } = require("TasksJS")();
