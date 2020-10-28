@@ -40,7 +40,7 @@ Service.ServerModule("Users", function(){
    }
 })
 ```
-In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor || object, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameters.
+In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor || object, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameters. Use the first argument of the callback function to send an error and the second argument to send a success response.
 
 The  ***Service.ServerModule(name, constructor || object, [options])*** function can take an object instead of a constructor function as it's second argument. See below. We've added another *ServerModule* with the name "Orders" and an object as it's constructor.
 
