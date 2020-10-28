@@ -123,7 +123,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
 ```
-We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we've added the  *Users.on( event_name, cb )* method to listen for events coming from the *Service*.
+We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we're using the  *Users.on(event_name, cb)* method to listen for events coming from the *Service*.
 
 ```
    const { Client } = require("TasksJS")();
