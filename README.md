@@ -71,7 +71,7 @@ Before we can access the objects registered by this *Service* and use their meth
 ```
 const { Service } = require("TasksJS")();
 
-Service.StartService({
+Service.startService({
     route:"test/service",
     port: "4400",
     host:"localhost"
@@ -148,7 +148,7 @@ Now all we have to do is go to our server application and use the *Users.emit(ev
 ```
 const { Service } = require("TasksJS")();
 
-Service.StartService({
+Service.startService({
     route:"test/service",
     port: "4400",
     host:"localhost"
