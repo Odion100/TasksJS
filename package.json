@@ -86,7 +86,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "jest --verbose --testPathIgnorePatterns 'client-setup.test.js'"
+    "test": "jest --verbose tjs/"
   },
   "version": "2.0.0",
   "devDependencies": {
