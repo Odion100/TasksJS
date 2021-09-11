@@ -5,14 +5,14 @@ const ServiceModule = require("./components/ServiceModule");
 
 module.exports = function TasksJSClient() {
   const Client = {};
-  const loadedServices = {};
+  Client.loadedServices = {};
 
   Client.loadService = async (url, options = {}) => {
-    if (loadedServices[url] && !options.forceReload) return loadedServices[url];
+    if (Client.loadedServices[url] && !options.forceReload) return Client.loadedServices[url];
 
     const connData = await loadConnectionData(url, options);
     const Service = SocketDispatcher(connData.namespace);
-    loadedServices[url] = Service;
+    Client.loadedServices[url] = Service;
     if (options.name) Client[options.name] = Service;
 
     Service.resetConnection = async (cb) => {
