@@ -5,6 +5,7 @@ const ServiceFactory = require("./tjs/Service/Service");
 const ServerManagerFactory = require("./tjs/ServerManager/ServerManager");
 const ClientFactory = require("./tjs/Client/Client");
 const HttpClientFactory = require("./tjs/HttpClient/HttpClient");
+const DispatcherFactory = require("./tjs/Dispatcher/Dispatcher");
 
 const App = AppFactory();
 const ServerManager = ServerManagerFactory();
@@ -12,7 +13,7 @@ const HttpClient = HttpClientFactory();
 const Service = ServiceFactory();
 const Client = ClientFactory();
 const LoadBalancer = LoadBalancerFactory();
-
+const Dispatcher = DispatcherFactory();
 module.exports = {
   //Export these pre-created objects for convenient object destructuring
   //These are the main utilities for app development
@@ -22,6 +23,7 @@ module.exports = {
   Client,
   Service,
   ServerManager,
+  Dispatcher,
   //export all modules themselves
   //all these modules export factory functions
   //to ensure non-singleton behavior
@@ -30,5 +32,6 @@ module.exports = {
   ServiceFactory,
   ClientFactory,
   HttpClientFactory,
-  ServerManagerFactory
+  ServerManagerFactory,
+  DispatcherFactory,
 };
