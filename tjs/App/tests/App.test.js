@@ -30,7 +30,7 @@ describe("App Factory", () => {
   });
 });
 describe("App: Loading Services", () => {
-  it("should be able to use App.loadService to load as hosted Service", async () => {
+  it("should be able to use App.loadService(obj_url) to load as hosted Service", async () => {
     const Service = ServiceFactory();
     const route = "test-service";
     const port = "8499";
@@ -45,6 +45,35 @@ describe("App: Loading Services", () => {
     await new Promise((resolve) => {
       const App = AppFactory();
       App.loadService("test", { route, port }).on("init_complete", (system) => {
+        expect(system.Services[0]).to.be.an("object");
+
+        expect(system.Services[0].client)
+          .to.be.an("object")
+          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
+          .that.respondsTo("emit")
+          .that.respondsTo("on")
+          .that.respondsTo("resetConnection")
+          .that.respondsTo("disconnect");
+        resolve();
+      });
+    });
+  });
+
+  it("should be able to use App.loadService(str_url) to load as hosted Service", async () => {
+    const Service = ServiceFactory();
+    const route = "test-service";
+    const port = "8503";
+
+    Service.ServerModule("mod", function () {
+      this.test = () => {};
+      this.test2 = () => {};
+    });
+
+    await Service.startService({ route, port });
+
+    await new Promise((resolve) => {
+      const App = AppFactory();
+      App.loadService("test", `http://localhost:${port}/${route}`).on("init_complete", (system) => {
         expect(system.Services[0]).to.be.an("object");
 
         expect(system.Services[0].client)

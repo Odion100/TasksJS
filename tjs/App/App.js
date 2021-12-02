@@ -3,6 +3,7 @@ const ServiceFactory = require("../Service/Service");
 const SystemObject = require("./components/SystemObject");
 const Dispatcher = require("../Dispatcher/Dispatcher");
 const initializeApp = require("./components/initializeApp");
+const URL = require("url");
 module.exports = function TasksJSApp() {
   const App = Dispatcher();
   const Service = ServiceFactory();
@@ -23,14 +24,23 @@ module.exports = function TasksJSApp() {
     return App;
   };
 
-  App.loadService = (name, { host = "localhost", port, route, url, limit, wait }) => {
-    url = url || `http://${host}:${port}/${route}`;
+  App.loadService = (name, options) => {
+    const url =
+      typeof options === "string"
+        ? URL.parse(options)
+        : URL.format({
+            protocol: "http",
+            hostname: options.host || "localhost",
+            port: options.port,
+            pathname: options.route[0] === "/" ? options.route : "/" + options.route,
+          });
+
     system.Services.push({
       name,
       url,
       onLoad: null,
-      limit,
-      wait,
+      limit: options.limit,
+      wait: options.wait,
       client: {},
     });
     return App;
