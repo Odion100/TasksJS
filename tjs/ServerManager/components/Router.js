@@ -25,22 +25,13 @@ module.exports = function TasksJSRouter(server, config) {
 
   const routeHandler = (req, res) => {
     const { params, query, file, files, body, fn, ServerModule = {} } = req;
-
+    if (req.params.id === "tjs-query") req.params.id = undefined;
     if (typeof ServerModule[fn] !== "function")
       return res.status(404).json({
         message: "TasksJSServiceError: Object resource not found",
         status: 404,
         TasksJSServiceError: true,
       });
-
-    if (req.params.id === "tjs-query") req.params.id = undefined;
-    const data = {
-      ...params,
-      ...query,
-      ...(body.data || {}),
-      file,
-      files,
-    };
 
     const callback = (error, results) => {
       if (error) {
@@ -55,13 +46,28 @@ module.exports = function TasksJSRouter(server, config) {
         });
       } else res.json(results);
     };
+    const __arguments = body.__arguments || [{}];
+    __arguments.push(callback);
+    if (isObject(__arguments[0]))
+      __arguments[0] = {
+        ...params,
+        ...query,
+        ...__arguments[0],
+        file,
+        files,
+      };
 
     try {
-      ServerModule[fn](data, callback, req, res);
+      ServerModule[fn].apply({ req, res }, __arguments);
     } catch (error) {
       callback(error);
     }
   };
 
   return { addService, addREST };
+};
+
+const isObject = (value) => {
+  if (value === "object") return !value ? false : !Array.isArray(value);
+  else false;
 };

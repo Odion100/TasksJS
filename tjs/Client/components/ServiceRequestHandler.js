@@ -10,20 +10,30 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
     return query;
   };
 
-  return function sendRequest(data = {}, callback) {
+  return function sendRequest() {
+    const callback =
+      typeof arguments[arguments.length - 1] === "function"
+        ? arguments[arguments.length - 1]
+        : null;
+    const __arguments = callback
+      ? Array.from(arguments).splice(0, arguments.length - 1)
+      : Array.from(arguments);
+
+    if (__arguments.length === 0) __arguments.push({});
+
     const tryRequest = (cb, errCount = 0) => {
       const { route, port, host } = ServiceModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
       const multiFileURL = `http://${host}:${port}/mf${route}/${fn}`;
       const defaultURL = `http://${host}:${port}${route}/${fn === "get" ? "" : fn}`;
-
-      const url = `${data.file ? singleFileURL : data.files ? multiFileURL : defaultURL}`;
+      const { file, files } = __arguments[0];
+      const url = file ? singleFileURL : files ? multiFileURL : defaultURL;
 
       if (url === defaultURL)
         HttpClient.request({
-          url: `${url}${method === "get" ? makeQuery(data) : ""}`,
+          url: `${url}${method === "get" ? makeQuery(__arguments[0]) : ""}`,
           method,
-          body: { data },
+          body: { __arguments },
         })
           .then((results) => cb(null, results))
           .catch((err) => ErrorHandler(err, errCount, cb));
@@ -31,7 +41,7 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
         HttpClient.upload({
           url,
           method,
-          formData: data,
+          formData: { ...__arguments[0], __arguments },
         })
           .then((results) => cb(null, results))
           .catch((err) => ErrorHandler(err, errCount, cb));

@@ -23,6 +23,9 @@ describe("Client", () => {
           cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
         this.action3 = (data, cb) =>
           cb(null, { SERVICE_TEST_PASSED: true, ...data, action3: true });
+        this.multiArgTest = (arg1, arg2, arg3, cb) =>
+          cb(null, { SERVICE_TEST_PASSED: true, multiArgTest: true, arg1, arg2, arg3 });
+        this.noArgTest = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, noArgTest: true });
       },
       ["action3"]
     );
@@ -49,7 +52,9 @@ describe("Client", () => {
         "__setConnection",
         "__connectionData",
         "action1",
-        "action2"
+        "action2",
+        "multiArgTest",
+        "noArgTest"
       )
       .that.respondsTo("emit")
       .that.respondsTo("on")
@@ -57,12 +62,14 @@ describe("Client", () => {
       .that.respondsTo("__setConnection")
       .that.respondsTo("__connectionData")
       .that.respondsTo("action1")
-      .that.respondsTo("action2");
+      .that.respondsTo("action2")
+      .that.respondsTo("multiArgTest")
+      .that.respondsTo("noArgTest");
   });
 });
 
 describe("Service", () => {
-  it("should be able to call methods on the backend Client", async () => {
+  it("should be able to call methods from the frontend client to the backend ServerModule", async () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
@@ -73,6 +80,76 @@ describe("Service", () => {
     expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 3, action1: true });
     expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });
   });
+  it("should be able to send multiple arguments (including a callback function) to the backend ServerModule", async () => {
+    const Client = ClientFactory();
+    const buAPI = await Client.loadService(url);
+    const arg1 = 1,
+      arg2 = 2,
+      arg3 = 3;
+
+    await new Promise((resolve) =>
+      buAPI.orders.multiArgTest(arg1, arg2, arg3, (err, results) => {
+        expect(results).to.deep.equal({
+          SERVICE_TEST_PASSED: true,
+          multiArgTest: true,
+          arg1,
+          arg2,
+          arg3,
+        });
+        resolve();
+      })
+    );
+  });
+  it("should be able to send multiple arguments (excluding a callback and using a promise) to the backend ServerModule", async () => {
+    const Client = ClientFactory();
+    const buAPI = await Client.loadService(url);
+    const arg1 = 4,
+      arg2 = 5,
+      arg3 = 6;
+
+    const results = await buAPI.orders.multiArgTest(arg1, arg2, arg3);
+
+    expect(results).to.deep.equal({
+      SERVICE_TEST_PASSED: true,
+      multiArgTest: true,
+      arg1,
+      arg2,
+      arg3,
+    });
+  });
+  it("should be able to send callback as the only arguments to the backend ServerModule", async () => {
+    const Client = ClientFactory();
+    const buAPI = await Client.loadService(url);
+
+    await new Promise((resolve) =>
+      buAPI.orders.noArgTest((err, results) => {
+        expect(results).to.deep.equal({
+          SERVICE_TEST_PASSED: true,
+          noArgTest: true,
+        });
+        resolve();
+      })
+    );
+  });
+  it("should be able to send no arguments and use a promise to the backend ServerModule", async () => {
+    const Client = ClientFactory();
+    const buAPI = await Client.loadService(url);
+    const results = await buAPI.orders.noArgTest(3);
+
+    expect(results).to.deep.equal({
+      SERVICE_TEST_PASSED: true,
+      noArgTest: true,
+    });
+  });
+  // it(
+  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
+  // );
+  // it(
+  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
+  // );
+  // it(
+  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
+  // );
 
   it("should be able to receive events emitted from the backend Client", async () => {
     const eventName = "testing";
