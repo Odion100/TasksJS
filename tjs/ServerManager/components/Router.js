@@ -46,7 +46,7 @@ module.exports = function TasksJSRouter(server, config) {
         });
       } else res.json(results);
     };
-    const __arguments = body.__arguments || [{}];
+    const __arguments = body.__arguments || [];
     __arguments.push(callback);
     if (isObject(__arguments[0]))
       __arguments[0] = {
