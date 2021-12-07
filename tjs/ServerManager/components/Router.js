@@ -58,6 +58,7 @@ module.exports = function TasksJSRouter(server, config) {
       };
 
     try {
+      console.log(__arguments, body);
       ServerModule[fn].apply({ req, res }, __arguments);
     } catch (error) {
       callback(error);

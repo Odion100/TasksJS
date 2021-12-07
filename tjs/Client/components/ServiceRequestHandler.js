@@ -1,5 +1,10 @@
 "use strict";
 const HttpClient = require("../../HttpClient/HttpClient")();
+const isObject = (value) => {
+  if (value === "object") return !value ? false : !Array.isArray(value);
+  else false;
+};
+
 module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ServiceModule = this;
 
@@ -19,19 +24,19 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
       ? Array.from(arguments).splice(0, arguments.length - 1)
       : Array.from(arguments);
 
-    if (__arguments.length === 0) __arguments.push({});
-
     const tryRequest = (cb, errCount = 0) => {
       const { route, port, host } = ServiceModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
       const multiFileURL = `http://${host}:${port}/mf${route}/${fn}`;
       const defaultURL = `http://${host}:${port}${route}/${fn === "get" ? "" : fn}`;
-      const { file, files } = __arguments[0];
+      const { file, files } = __arguments[0] || {};
       const url = file ? singleFileURL : files ? multiFileURL : defaultURL;
 
       if (url === defaultURL)
         HttpClient.request({
-          url: `${url}${method === "get" ? makeQuery(__arguments[0]) : ""}`,
+          url: `${url}${
+            method === "get" && isObject(__arguments[0]) ? makeQuery(__arguments[0]) : ""
+          }`,
           method,
           body: { __arguments },
         })

@@ -25,7 +25,7 @@ describe("Client", () => {
           cb(null, { SERVICE_TEST_PASSED: true, ...data, action3: true });
         this.multiArgTest = (arg1, arg2, arg3, cb) =>
           cb(null, { SERVICE_TEST_PASSED: true, multiArgTest: true, arg1, arg2, arg3 });
-        this.noArgTest = (data, cb) => cb(null, { SERVICE_TEST_PASSED: true, noArgTest: true });
+        this.noArgTest = (cb) => cb(null, { SERVICE_TEST_PASSED: true, noArgTest: true });
       },
       ["action3"]
     );
@@ -134,7 +134,7 @@ describe("Service", () => {
   it("should be able to send no arguments and use a promise to the backend ServerModule", async () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
-    const results = await buAPI.orders.noArgTest(3);
+    const results = await buAPI.orders.noArgTest();
 
     expect(results).to.deep.equal({
       SERVICE_TEST_PASSED: true,
@@ -184,22 +184,27 @@ describe("Service", () => {
     const url = `http://localhost:${port}/${route}`;
     const useREST = true;
     Service.ServerModule("restTester", function () {
-      this.get = (data, cb) => cb(null, { REST_TEST_PASSED: true, getResponse: true });
+      this.get = (data, cb) => cb(null, { REST_TEST_PASSED: true, getResponse: true, ...data });
 
-      this.put = (data, cb) => cb(null, { REST_TEST_PASSED: true, putResponse: true });
+      this.put = (cb) => cb(null, { REST_TEST_PASSED: true, putResponse: true });
 
-      this.post = (data, cb) => cb(null, { REST_TEST_PASSED: true, postResponse: true });
+      this.post = (cb) => cb(null, { REST_TEST_PASSED: true, postResponse: true });
 
-      this.delete = (data, cb) => cb(null, { REST_TEST_PASSED: true, deleteResponse: true });
+      this.delete = (cb) => cb(null, { REST_TEST_PASSED: true, deleteResponse: true });
     });
 
     await Service.startService({ route, port, useREST });
     const buAPI = await Client.loadService(url);
-    const getResponse = await buAPI.restTester.get();
+    const getResponse = await buAPI.restTester.get({ name: "GET TEST", id: 12 });
     const putResponse = await buAPI.restTester.put();
     const postResponse = await buAPI.restTester.post();
     const deleteResponse = await buAPI.restTester.delete();
-    expect(getResponse).to.deep.equal({ REST_TEST_PASSED: true, getResponse: true });
+    expect(getResponse).to.deep.equal({
+      REST_TEST_PASSED: true,
+      getResponse: true,
+      name: "GET TEST",
+      id: 12,
+    });
     expect(putResponse).to.deep.equal({ REST_TEST_PASSED: true, putResponse: true });
     expect(postResponse).to.deep.equal({ REST_TEST_PASSED: true, postResponse: true });
     expect(deleteResponse).to.deep.equal({ REST_TEST_PASSED: true, deleteResponse: true });
