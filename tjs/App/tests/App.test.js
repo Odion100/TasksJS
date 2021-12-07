@@ -211,8 +211,8 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
     const route = "test-service";
     const port = "8493";
     const url = `http://localhost:${port}/${route}`;
-    App.startService({ route, port });
 
+    await new Promise((resolve) => App.startService({ route, port }).on("init_complete", resolve));
     const connData = await HttpClient.request({ url });
 
     expect(connData)
@@ -235,16 +235,18 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
     const route = "test-service";
     const port = "8494";
     const url = `http://localhost:${port}/${route}`;
-
-    App.startService({ route, port })
-      .ServerModule("mod", function () {
-        this.test = () => {};
-        this.test2 = () => {};
-      })
-      .ServerModule("mod2", function () {
-        this.test = () => {};
-        this.test2 = () => {};
-      });
+    await new Promise((resolve) =>
+      App.startService({ route, port })
+        .ServerModule("mod", function () {
+          this.test = () => {};
+          this.test2 = () => {};
+        })
+        .ServerModule("mod2", function () {
+          this.test = () => {};
+          this.test2 = () => {};
+        })
+        .on("init_complete", resolve)
+    );
 
     const connData = await HttpClient.request({ url });
 
@@ -295,7 +297,10 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
             "ServerModules",
             "configurations",
             "App",
-            "routing"
+            "routing",
+            "useService",
+            "useModule",
+            "useConfig"
           );
         resolve();
       })

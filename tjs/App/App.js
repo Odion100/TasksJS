@@ -16,6 +16,7 @@ module.exports = function TasksJSApp() {
     App,
     routing: null,
   };
+  SystemObject.apply(system);
   Service.defaultModule = SystemObject(system);
   setTimeout(() => initializeApp(system), 0);
 

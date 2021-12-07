@@ -16,6 +16,7 @@ module.exports = function TasksJSServerManager() {
     useREST: false,
     useService: true,
     staticRouting: false,
+    validateArgs: true,
     middleware: [],
   };
   const server = TasksJSServer();
@@ -66,15 +67,8 @@ module.exports = function TasksJSServerManager() {
   };
 
   ServerManager.addModule = (name, object, reserved_methods = []) => {
-    const {
-      host,
-      route,
-      serviceUrl,
-      staticRouting,
-      useService,
-      useREST,
-      socketPort,
-    } = serverConfigurations;
+    const { host, route, serviceUrl, staticRouting, useService, useREST, socketPort } =
+      serverConfigurations;
 
     if (!serviceUrl) return moduleQueue.push({ name, object, reserved_methods });
     const methods = abstractMethods(object, ["on", "emit", ...reserved_methods], useREST);
@@ -91,7 +85,7 @@ module.exports = function TasksJSServerManager() {
         name,
         methods,
       });
-      methods.forEach((method) => router.addService(object, path, method));
+      methods.forEach((method) => router.addService(object, path, method, name));
     }
     if (useREST)
       methods.forEach((method) => {
@@ -100,7 +94,7 @@ module.exports = function TasksJSServerManager() {
           case "put":
           case "post":
           case "delete":
-            router.addREST(object, `${route}/${name}`, method);
+            router.addREST(object, `${route}/${name}`, method, name);
         }
       });
   };

@@ -1,8 +1,9 @@
 module.exports = function TasksJSRouter(server, config) {
-  const addService = (ServerModule, route, { fn, method }) => {
+  const addService = (ServerModule, route, { fn, method }, module_name) => {
     server[method](
       [`/${route}/${fn}`, `/sf/${route}/${fn}`, `/mf/${route}/${fn}`],
       (req, res, next) => {
+        req.module_name = module_name;
         req.fn = fn;
         req.ServerModule = ServerModule;
         next();
@@ -11,10 +12,11 @@ module.exports = function TasksJSRouter(server, config) {
     );
   };
 
-  const addREST = (ServerModule, route, { method }) => {
+  const addREST = (ServerModule, route, { method }, module_name) => {
     server[method](
       [`/${route}`],
       (req, res, next) => {
+        req.module_name = module_name;
         req.fn = method;
         req.ServerModule = ServerModule;
         next();
@@ -24,28 +26,25 @@ module.exports = function TasksJSRouter(server, config) {
   };
 
   const routeHandler = (req, res) => {
-    const { params, query, file, files, body, fn, ServerModule = {} } = req;
-    if (req.params.id === "tjs-query") req.params.id = undefined;
-    if (typeof ServerModule[fn] !== "function")
-      return res.status(404).json({
-        message: "TasksJSServiceError: Object resource not found",
-        status: 404,
-        TasksJSServiceError: true,
-      });
-
+    const { params, query, file, files, body, fn, ServerModule = {}, module_name } = req;
     const callback = (error, results) => {
       if (error) {
-        const status = error.status || 500;
-        const message = error.message;
-        res.status(status).json({
-          status,
-          error,
+        error.status |= error.status || 500;
+        res.status(error.status).json({
+          ...error,
           TasksJSServiceError: true,
           serviceUrl: config().serviceUrl,
-          message,
+          module_name,
+          fn,
         });
       } else res.json(results);
     };
+
+    if (typeof ServerModule[fn] !== "function")
+      return callback({
+        message: "Object resource not found",
+        status: 404,
+      });
     const __arguments = body.__arguments || [];
     __arguments.push(callback);
     if (isObject(__arguments[0]))
@@ -56,9 +55,14 @@ module.exports = function TasksJSRouter(server, config) {
         file,
         files,
       };
-
     try {
-      console.log(__arguments, body);
+      if (config().validateArgs)
+        if (ServerModule[fn].length > 0 && ServerModule[fn].length !== __arguments.length)
+          return callback({
+            message: `In valid number of arguments: Expected ${ServerModule[fn].length} (including a callback function), Recieved ${__arguments.length} (including a callback function).`,
+            status: 400,
+          });
+
       ServerModule[fn].apply({ req, res }, __arguments);
     } catch (error) {
       callback(error);
