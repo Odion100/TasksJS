@@ -67,7 +67,7 @@ In the *ServerModule* constructor function above, the `this` value is the init
 
 ## Service.startService(options)
 
-Before we can access the objects hosted by this *Service* from a client application, we need to call the ```Service.startService( options)``` function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function at the bottom, but the order does not matter. 
+Before we can access the objects hosted by this *Service* from a client application, we need to call the ```Service.startService(options)``` function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function at the bottom, but the order does not matter. 
 
 ```javascript
 const { Service } = require("sht-tasks");
