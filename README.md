@@ -123,7 +123,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    console.log(response) 
 ```
 ## Sending and Receiving Websocket Events
-We can also receive WebSocket events emitted from the remote objects we've loaded using the ```Client.loadService(url)``` function. In the example below we're using the  ```Users.on(event_name, callback)``` method to listen for events coming from the *ServerModule*.
+We can also receive WebSocket events emitted from the remote objects we've loaded using the ```Client.loadService(url)``` function. In the example below we're using the  ```Users.on(event_name, callback)``` method to listen for events coming from the "Users" *ServerModule*.
 
 ```javascript
    const { Client } = require("sht-tasks");
@@ -145,7 +145,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
    
    console.log(response)
 ```
-Now let's go to our server application and call the ```Users.emit(event_name, data)``` method to emit a websocket event that can received by its corresponding Clients. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" })``` at the end of the ```Users.add``` method, so the ```new_user``` event will be emitted every time the this method is called.
+Now let's go to our server application and call the ```Users.emit(event_name, data)``` method to emit a websocket event that can be received by its corresponding Clients. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" })``` at the end of the ```Users.add``` method, so the ```new_user``` event will be emitted every time the this method is called.
 ```javascript
 const { Service } = require("sht-tasks");
 
