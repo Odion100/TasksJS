@@ -13,7 +13,7 @@ const {
  } = require("sht-tasks");
 ```
 
-Call ```require("sht-tasks")``` and deconcatonate from the object it returns. The main  abstractions used for client-server communication are the following:
+Call ```require("sht-tasks")``` and deconcatonate from the object it returns. The main  abstractions used for client-to-server interactions are the following:
 
 - ***Service*** - Used to create or register an object that can be loaded and used on a client application. 
 - ***Client*** - Used in a client application to remotely load a *Service*, which contains all the objects added to the *Service*.
