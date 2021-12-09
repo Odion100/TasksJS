@@ -2,7 +2,7 @@
 
 TasksJS is an end-to-end framework for developing modular software systems in NodeJS and was designed with microservices architecture in mind. It's a wrapper on top of ExpressJS and Socket.io. With TasksJS instead of creating a server with many endpoints, you can create or have existing objects on a server that can be accessed on a client application. Basically any objects added to a TasksJS Service can be loaded and used by a TasksJS Client. 
 
-TasksJS comes with the following objects that are used to for web application development: 
+TasksJS comes with the following objects that are used for web application development: 
 ```javascript
 const { 
     App,
@@ -62,11 +62,11 @@ Service.ServerModule("Orders", function(){
    }
 })
 ```
-In the *ServerModule* constructor function above the ` this ` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(start_date, end_date, cb)...```, has  3 parameters including a callback function as its last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModules* can be configured to use synchronous return values instead of asynchronous callbacks.
+In the *ServerModule* constructor function above the ` this ` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(start_date, end_date, cb)...```, has  3 parameters including a callback function as its last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModule* methods can be configured to use synchronous return values instead of asynchronous callbacks.
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function near the bottom, but the placement does not matter. 
+Before we can access the objects registered by this *Service* from a client application, we need to call the ```Service.startService( options)``` function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function near the bottom, but the order does not matter. 
 
 ```javascript
 const { Service } = require("sht-k");
@@ -92,25 +92,25 @@ Service.ServerModule("Orders", function(){
 Service.startService({ route:"test/service", port: "4400", host:"localhost" })
 
 ```
-Now lets see how these objects can be accessed from a client application.
+Now lets see how these objects can be loaded into a client application.
 
 ## Client.loadService(url, [options])
 
-The ***Client.loadService(url, [options])*** function can be used to load a *Service*. The function requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object containing all modules registered by that service. See below. ***NOTE:*** You must be within an async function in order to use the await keyword when returning a promise.
+The ```Client.loadService(url)``` function can be used to load a *Service*. This method requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object containing all modules added to that service. See below. ***NOTE: You must be within an async function in order to use the ```await``` keyword when returning a promise.***
 ```javascript
    const { Client } = require("sht-tasks");
    
-   const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
+   const { Users, Orders } = await Client.loadService("http://localhost:4400/test/service");
    
    console.log(Users, Orders);
    
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* modules registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise. In the *Users.add(data, cb)* method we used a callback, but with the *Orders.search(data, cb)* method we left out the callback and used the await keyword.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise. In the *Users.add(data, cb)* method we used a callback, but with the *Orders.search(data, cb)* method we left out the callback and used the ```await``` keyword.
 
 ```javascript
    const { Client } = require("sht-tasks");
    
-   const { Users, Orders} = await Client.loadService("http://localhost:4400/test/service");
+   const { Users, Orders } = await Client.loadService("http://localhost:4400/test/service");
    
    console.log(Users, Orders);;
    
