@@ -15,7 +15,7 @@ const {
 
 Call ```require("sht-tasks")``` and deconcatonate from the object it returns. The main  abstractions used for client-server communication are the following:
 
-- ***Service*** - Used to create or pass an object that can be loaded and used on a client application. 
+- ***Service*** - Used to create or register an object that can be loaded and used on a client application. 
 - ***Client*** - Used in a client application to load a *Service*, which contains all the objects added to the *Service*.
 - ***App*** - Provides a modular interface and lifecycle methods for asynchronously creating and loading *Services*. 
 
@@ -24,7 +24,7 @@ Call ```require("sht-tasks")``` and deconcatonate from the object it returns. Th
 # Quick Start
 
 ## Service.ServerModule(name, constructor/object)
-Use the ```Service.ServerModule(name, constructor/object)``` method to add an object to a *TasksKJS Service*. This allows you to load an instance of that object on a client, and call any methods on that object remotely.
+Use the ```Service.ServerModule(name, constructor/object)``` method to add an object to a *TasksJS Service*. This allows you to load an instance of that object on a client, and call any methods on that object remotely.
 
 ```javascript
 const { Service } = require("sht-tasks");
@@ -62,14 +62,14 @@ Service.ServerModule("Orders", function(){
    }
 })
 ```
-In the *ServerModule* constructor function above the ` this ` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(start_date, end_date, cb)...```, has  3 parameters including a callback function as its last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModules* can be configured to use synchronous return values instead of asynchronoud callbacks.
+In the *ServerModule* constructor function above the ` this ` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(start_date, end_date, cb)...```, has  3 parameters including a callback function as its last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModules* can be configured to use synchronous return values instead of asynchronous callbacks.
 
 ## Service.startService(options)
 
 Before we can access the objects registered by this *Service* from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function near the bottom, but the placement does not matter. 
 
 ```javascript
-const { Service } = require("sht-tasks");
+const { Service } = require("sht-k");
 
 const Users = {};
 
