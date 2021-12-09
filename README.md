@@ -16,7 +16,7 @@ const {
 Call ```require("sht-tasks")``` and deconcatonate from the object it returns. The main  abstractions used for client-server communication are the following:
 
 - ***Service*** - Used to create or register an object that can be loaded and used on a client application. 
-- ***Client*** - Used in a client application to load a *Service*, which contains all the objects added to the *Service*.
+- ***Client*** - Used in a client application to remotely load a *Service*, which contains all the objects added to the *Service*.
 - ***App*** - Provides a modular interface and lifecycle methods for asynchronously creating and loading *Services*. 
 
 ---
@@ -69,7 +69,7 @@ In the *ServerModule* constructor function above the ` this ` value is the ini
 Before we can access the objects registered by this *Service* from a client application, we need to call the ```Service.startService( options)``` function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function near the bottom, but the order does not matter. 
 
 ```javascript
-const { Service } = require("sht-k");
+const { Service } = require("sht-tasks");
 
 const Users = {};
 
@@ -96,7 +96,7 @@ Now lets see how these objects can be loaded into a client application.
 
 ## Client.loadService(url, [options])
 
-The ```Client.loadService(url)``` function can be used to load a *Service*. This method requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object containing all modules added to that service. See below. ***NOTE: You must be within an async function in order to use the ```await``` keyword when returning a promise.***
+The ```Client.loadService(url)``` function can be used to load a TasksJS *Service*. This method requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object that containing all the modules added to that service. See below. ***NOTE: You must be within an async function in order to use the ```await``` keyword when returning a promise.***
 ```javascript
    const { Client } = require("sht-tasks");
    
@@ -121,6 +121,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
+   
 ```
 We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we're using the  *Users.on(event_name, cb)* method to listen for events coming from the *Service*.
 
@@ -142,6 +143,7 @@ We can also receive events emitted from the modules we've loaded using the ***Cl
    
    const response = await Orders.search({ message: "Orders.search test" });
    console.log(response)
+   
 ```
 Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" });``` at the end of the *Users.add* method, so the *new_user* event will be emitted every time the this method is called.
 ```javascript
