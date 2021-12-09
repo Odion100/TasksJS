@@ -24,72 +24,73 @@ Call ```require("sht-tasks")``` and deconcatonate from the object it returns. Th
 # Quick Start
 
 ## Service.ServerModule(name, constructor/object)
-With the ```Service.ServerModule(name, constructor/object)``` function you can add an object to a TasksKJS Service. This allows you to load an instance of that object on a client, and call any methods on that object remotely.
+Use the ```Service.ServerModule(name, constructor/object)``` method to add an object to a *TasksKJS Service*. This allows you to load an instance of that object on a client, and call any methods on that object remotely.
 
 ```javascript
 const { Service } = require("sht-tasks");
 
-Service.ServerModule("Users", function(){
-   const Users = this;
+const Users = {};
+
+Users.add = function (data, cb){
+    console.log(data);
+    cb(null, { message:"You have successfully called the Users.add method" });
+}
+
+Service.ServerModule("Users", Users)
+```
+In the code above we created an object ```Users``` and gave it the add method. The ```Service.ServerModule(name, constructor/object)``` function takes the name assigned to the object as the first argument and the object itself as the second argument. 
+
+Alternatively, you can use a constructor function instead of an object as the second argument. See in the example below. 
+```javascript
+const { Service } = require("sht-tasks");
+
+const Users = {};
+
+Users.add = function (data, cb){
+    console.log(data);
+    cb(null, { message:"You have successfully called the Users.add method" });
+}
+
+Service.ServerModule("Users", Users)
+
+Service.ServerModule("Orders", function(){
+   const Orders = this;
    
-   Users.add = function (data, cb){
+   Orders.find = function (start_date, end_date, cb){
       console.log(data);
       cb(null, { message:"You have successfully called the Users.add method" });
    }
 })
 ```
-In the code above we created a *ServerModule* by passing the string "Users" and a constructor function as the first two arguments of the ***Service.ServerModule(name, constructor/object, [options])*** method. In the constructor function the ` this ` value is assigned to a variable which is also named Users. Every method added to the ` this ` value will be accessible from a client application running TasksJS. Notice that the method we created (Users.add) is expecting some data and a callback function as its first and second parameters. Use the first argument of the callback function to send an error and the second argument to send a success response.
-
-The  ***Service.ServerModule(name, constructor/object, [options])*** function can take an object instead of a constructor function as it's second argument. See below. We've added another *ServerModule* with the name "Orders" and an object as it's constructor.
-
-```javascript
-const { Service } = require("sht-tasks");
-
-Service.ServerModule("Users", function(){
-   const Users = this;
-   
-   Users.add = function (data, cb){
-      console.log(data);
-      cb(null, { message:"You have successfully called the Users.add method" });
-   }
-})
-
-Service.ServerModule("Orders", { 
-     search: function (data, cb){
-        console.log(data);
-        cb(null, { message:"You have successfully called the Orders.search method" });
-     }
-})
-```
+In the *ServerModule* constructor function above the ` this ` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created ```Orders.find(start_date, end_date, cb)``` is expecting  3 parameters including a callback function as its last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModules* can be configured to use synchronous return values instead of asynchronoud callbacks.
 
 ## Service.startService(options)
 
-Before we can access the objects registered by this *Service* and use their methods from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the application. In the example below we added the ***Service.startService(options)*** function near the top, but the placement does not matter. 
+Before we can access the objects registered by this *Service* from a client application, we need to call the ***Service.startService( options)*** function. This will start an **ExpressJS** Server and a **Socket.io** WebSocket Server, and set up routing for the *Service*. In the example below we added the ```Service.startService(options)``` function near the bottom, but the placement does not matter. 
 
 ```javascript
 const { Service } = require("sht-tasks");
 
-Service.startService({
-    route:"test/service",
-    port: "4400",
-    host:"localhost"
-})
+const Users = {};
 
-Service.ServerModule("Users", function(){
-   const Users = this;
+Users.add = function (data, cb){
+    console.log(data);
+    cb(null, { message:"You have successfully called the Users.add method" });
+}
+
+Service.ServerModule("Users", Users)
+
+Service.ServerModule("Orders", function(){
+   const Orders = this;
    
-   Users.add = function (data, cb){
+   Orders.find = function (start_date, end_date, cb){
       console.log(data);
       cb(null, { message:"You have successfully called the Users.add method" });
    }
 })
 
-Service.ServerModule("Orders", { 
-   search: function (data, cb){
-      console.log(data);
-      cb(null, { message:"You have successfully called the Orders.search method" });
-   }
-})
+Service.startService({ route:"test/service", port: "4400", host:"localhost" })
+
 ```
 Now lets see how these objects can be accessed from a client application.
 
