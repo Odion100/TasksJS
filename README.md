@@ -23,7 +23,7 @@ Call ```require("sht-tasks")``` and deconcatonate from the object it returns. Th
 
 # Quick Start
 
-## Service.ServerModule(name, constructor/object)
+## Service.ServerModule(name, constructor/object, [options])
 Use the ```Service.ServerModule(name, constructor/object)``` method to add an object to a *TasksJS Service*. This allows you to load an instance of that object on a client, and call any methods on that object remotely.
 
 ```javascript
@@ -31,9 +31,9 @@ const { Service } = require("sht-tasks");
 
 const Users = {};
 
-Users.add = function (data, cb){
+Users.add = function (data, callback){
     console.log(data);
-    cb(null, { message:"You have successfully called the Users.add method" });
+    callback(null, { message:"You have successfully called the Users.add method" });
 }
 
 Service.ServerModule("Users", Users)
@@ -46,9 +46,9 @@ const { Service } = require("sht-tasks");
 
 const Users = {};
 
-Users.add = function (data, cb){
+Users.add = function (data, callback){
     console.log(data);
-    cb(null, { message:"You have successfully called the Users.add method" });
+    callback(null, { message:"You have successfully called the Users.add method" });
 }
 
 Service.ServerModule("Users", Users)
@@ -56,9 +56,9 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, cb){
+   Orders.find = function (arg1, arg2, callback){
       console.log(data);
-      cb(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Users.add method" });
    }
 })
 ```
@@ -73,9 +73,9 @@ const { Service } = require("sht-tasks");
 
 const Users = {};
 
-Users.add = function (data, cb){
+Users.add = function (data, callback){
     console.log(data);
-    cb(null, { message:"You have successfully called the Users.add method" });
+    callback(null, { message:"You have successfully called the Users.add method" });
 }
 
 Service.ServerModule("Users", Users)
@@ -83,29 +83,27 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, cb){
+   Orders.find = function (start_date, end_date, callback){
       console.log(data);
-      cb(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Users.add method" });
    }
 })
 
 Service.startService({ route:"test/service", port: "4400", host:"localhost" })
-
 ```
 Now lets see how these objects can be loaded into a client application.
 
 ## Client.loadService(url, [options])
 
-The ```Client.loadService(url)``` function can be used to load a TasksJS *Service*. This method requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object that containing all the modules added to that service. See below. ***NOTE: You must be within an async function in order to use the ```await``` keyword when returning a promise.***
+The ```Client.loadService(url)``` function can be used to load a TasksJS *Service*. This method requires the url (string) of the *Service* you want to load as its first argument, and will return a promise that will resolve into an object that containing all the modules added to that service. See below. **NOTE: You must be within an async function in order to use the ```await``` keyword when returning a promise.**
 ```javascript
    const { Client } = require("sht-tasks");
    
    const { Users, Orders } = await Client.loadService("http://localhost:4400/test/service");
    
    console.log(Users, Orders);
-   
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects registered by the *Service*, we can now call the methods we created on those objects. In the example below we demonstrate that the methods we created can optionally take a callback as its second argument or, if a callback is not used, it will return a promise. In the *Users.add(data, cb)* method we used a callback, but with the *Orders.search(data, cb)* method we left out the callback and used the ```await``` keyword.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects registered by the *Service*, we can now call the methods belonging to those objects. In the example below, we demonstrate that methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(data, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
 
 ```javascript
    const { Client } = require("sht-tasks");
@@ -119,11 +117,12 @@ Now that we've loaded the *Service* that we created in the previous example, and
         else console.log(results)
    })
    
-   const response = await Orders.search({ message: "Orders.search test" });
-   console.log(response)
+   const response = await Orders.search("hello", "world");
    
+   console.log(response) 
 ```
-We can also receive events emitted from the modules we've loaded using the ***Client.loadService(url, [options])*** function. In the example below we're using the  *Users.on(event_name, cb)* method to listen for events coming from the *Service*.
+## Sending and Receiving Websocket Events
+We can also receive WebSocket events emitted from the remote objects we've loaded using the ```Client.loadService(url, [options])``` function. In the example below we're using the  ```Users.on(event_name, callback)``` method to listen for events coming from the *Service*.
 
 ```javascript
    const { Client } = require("sht-tasks");
@@ -141,34 +140,32 @@ We can also receive events emitted from the modules we've loaded using the ***Cl
         console.log(event);
    })
    
-   const response = await Orders.search({ message: "Orders.search test" });
-   console.log(response)
+   const response = await Orders.find({ message: "Orders.search test" });
    
+   console.log(response)
 ```
-Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" });``` at the end of the *Users.add* method, so the *new_user* event will be emitted every time the this method is called.
+Now all we have to do is go to our server application and use the *Users.emit(event_name, data)* method to emit a websocket event that can be received by client applications. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" })``` at the end of the ```Users.add``` method, so the ```new_user``` event will be emitted every time the this method is called.
 ```javascript
 const { Service } = require("sht-tasks");
 
-Service.startService({
-    route:"test/service",
-    port: "4400",
-    host:"localhost"
-})
+const Users = {};
 
-Service.ServerModule("Users", function(){
-   const Users = this;
+Users.add = function (data, callback){
+    console.log(data);
+    callback(null, { message:"You have successfully called the Users.add method" });
+    Users.emit("new_user", { message:"new_user event test" });
+}
+
+Service.ServerModule("Users", Users)
+
+Service.ServerModule("Orders", function(){
+   const Orders = this;
    
-   Users.add = function (data, cb){
+   Orders.find = function (start_date, end_date, callback){
       console.log(data);
-      cb(null, { message:"You have successfully called the Users.add method" });
-      Users.emit("new_user", { message:"new_user event test" });
+      callback(null, { message:"You have successfully called the Users.add method" });
    }
 })
 
-Service.ServerModule("Orders", { 
-   search: function (data, cb){
-      console.log(data);
-      cb(null, { message:"You have successfully called the Orders.search method" });
-   }
-})
+Service.startService({ route:"test/service", port: "4400", host:"localhost" })
 ```
