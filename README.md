@@ -113,7 +113,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    
    console.log(Users, Orders);;
    
-   Users.add({ message:"User.add Test" }, function(err, results){
+   Users.add({ message:"Users.add Test" }, function(err, results){
         if(err) console.log(err)
         else console.log(results)
    })
