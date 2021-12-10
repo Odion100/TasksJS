@@ -18,6 +18,8 @@ module.exports = function TasksJSServerManager() {
     staticRouting: false,
     validateArgs: true,
     middleware: [],
+    useCallbacks: true,
+    useReturnValues: false,
   };
   const server = TasksJSServer();
   const router = TasksJSRouter(server, () => serverConfigurations);

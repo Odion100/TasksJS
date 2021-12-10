@@ -149,15 +149,6 @@ describe("Service", () => {
       noArgTest: true,
     });
   });
-  // it(
-  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
-  // );
-  // it(
-  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
-  // );
-  // it(
-  //   "should validate the number of arguments passed from the client function the backend ServerModule function"
-  // );
 
   it("should be able to receive events emitted from the backend Client", async () => {
     const eventName = "testing";
@@ -259,5 +250,28 @@ describe("Service", () => {
       arg1,
       arg2,
     });
+  });
+
+  it("should be able to use 'useReturnValue' configuration option to enable synchronouse return values from ServerModule methods", async () => {
+    const service = ServiceFactory();
+    const route = "sync/test";
+    const port = 4920;
+    const host = "localhost";
+    const url = `http://localhost:${port}/${route}`;
+    service.ServerModule("AsyncMath", function () {
+      this.max = Math.max;
+      this.min = Math.min;
+      this.round = Math.round;
+    });
+
+    await service.startService({ route, port, host, useReturnValues: true, useCallbacks: false });
+    const Client = ClientFactory();
+    const { AsyncMath } = await Client.loadService(url);
+    const results = await AsyncMath.max(10, 2);
+    expect(results).to.equal(10);
+    const results2 = await AsyncMath.min(10, 2);
+    expect(results2).to.equal(2);
+    const results3 = await AsyncMath.round(10.2);
+    expect(results3).to.equal(10);
   });
 });

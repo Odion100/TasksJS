@@ -27,43 +27,60 @@ module.exports = function TasksJSRouter(server, config) {
 
   const routeHandler = (req, res) => {
     const { params, query, file, files, body, fn, ServerModule = {}, module_name } = req;
+    const { useCallbacks, useReturnValues, serviceUrl, validateArgs } = config();
     const callback = (error, results) => {
       if (error) {
-        error.status |= error.status || 500;
+        error.status = error.status || 500;
         res.status(error.status).json({
           ...error,
           TasksJSServiceError: true,
-          serviceUrl: config().serviceUrl,
+          serviceUrl: serviceUrl,
           module_name,
           fn,
         });
       } else res.json(results);
     };
-
-    if (typeof ServerModule[fn] !== "function")
-      return callback({
-        message: "Object resource not found",
-        status: 404,
-      });
-    const __arguments = body.__arguments || [];
-    __arguments.push(callback);
-    if (isObject(__arguments[0]))
-      __arguments[0] = {
-        ...params,
-        ...query,
-        ...__arguments[0],
-        file,
-        files,
-      };
     try {
-      if (config().validateArgs)
-        if (ServerModule[fn].length > 0 && ServerModule[fn].length !== __arguments.length)
+      const returnValue = (results) => {
+        if (isObject(results)) {
+          if (results.status >= 400) cb(results);
+          else callback(null, results);
+        } else callback(null, results);
+      };
+
+      if (typeof ServerModule[fn] !== "function")
+        return callback({
+          message: "Object resource not found",
+          status: 404,
+        });
+      const __arguments = body.__arguments || [];
+      if (useCallbacks) __arguments.push(callback);
+      if (isObject(__arguments[0]))
+        __arguments[0] = {
+          ...params,
+          ...query,
+          ...__arguments[0],
+          file,
+          files,
+        };
+
+      if (validateArgs)
+        if (ServerModule[fn].length > 0 && ServerModule[fn].length !== __arguments.length) {
+          const callbackMsg = useCallbacks ? " (including a callback function)" : "";
           return callback({
-            message: `In valid number of arguments: Expected ${ServerModule[fn].length} (including a callback function), Recieved ${__arguments.length} (including a callback function).`,
+            message: `In valid number of arguments: Expected ${ServerModule[fn].length}${callbackMsg}, Recieved ${__arguments.length}${callbackMsg}.`,
             status: 400,
           });
+        }
 
-      ServerModule[fn].apply({ req, res }, __arguments);
+      const results = ServerModule[fn].apply({ req, res }, __arguments);
+
+      if (useReturnValues)
+        if (!useCallbacks) returnValue(results);
+        else {
+          //in this case check to see that results are not undefined are null
+          if (results || results === false) returnValue(results);
+        }
     } catch (error) {
       callback(error);
     }
