@@ -59,7 +59,7 @@ Service.ServerModule("Orders", function(){
    
    Orders.find = function (arg1, arg2, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 ```
@@ -86,7 +86,7 @@ Service.ServerModule("Orders", function(){
    
    Orders.find = function (start_date, end_date, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 
@@ -164,7 +164,7 @@ Service.ServerModule("Orders", function(){
    
    Orders.find = function (start_date, end_date, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 
