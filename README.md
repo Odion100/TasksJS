@@ -63,7 +63,7 @@ Service.ServerModule("Orders", function(){
    }
 })
 ```
-In the *ServerModule* constructor function above, the `this` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(arg1, arg2, callback)...```, has  3 parameters including a callback function as the last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first argument of the callback function to respond with an error, and the second argument to send a success response. Note: *ServerModule* methods can be configured to work with synchronous return values instead of asynchronous callbacks.
+In the *ServerModule* constructor function above, the `this` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(arg1, arg2, callback)...```, has  3 parameters including a callback function as the last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first parameter of the callback function to respond with an error, and the second parameter to send a success response. Note: *ServerModule* methods can be configured to work with synchronous return values instead of asynchronous callbacks.
 
 ## Service.startService(options)
 
@@ -145,7 +145,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
    
    console.log(response)
 ```
-Now let's go to our server application and call the ```Users.emit(event_name, data)``` method to emit a websocket event that can be received by its corresponding Clients. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" })``` at the end of the ```Users.add``` method, so the ```new_user``` event will be emitted every time the this method is called.
+Now let's go to our server application and call the ```Users.emit(event_name, data)``` method to emit a websocket event that can be received by its corresponding Clients. Below, notice that we've added ```Users.emit("new_user", { message:"new_user event test" })``` at the end of the ```Users.add``` method, so the ```new_user``` event will be emitted every time this method is called.
 ```javascript
 const { Service } = require("sht-tasks");
 
