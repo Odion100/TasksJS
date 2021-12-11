@@ -141,7 +141,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
         console.log(event);
    })
    
-   const response = await Orders.find({ message: "Orders.find test" });
+   const response = await Orders.find("hello", "world");
    
    console.log(response)
 ```
