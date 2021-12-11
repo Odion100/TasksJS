@@ -104,7 +104,7 @@ The ```Client.loadService(url)``` function can be used to load a TasksJS *Servic
    
    console.log(Users, Orders);
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that the methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(data, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that the methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(arg1, arg2, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
 
 ```javascript
    const { Client } = require("sht-tasks");
