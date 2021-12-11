@@ -132,7 +132,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
    
    console.log(Users, Orders);
    
-   Users.add({ message:"User.add Test" }, function(err, results){
+   Users.add({ message:"Users.add Test" }, function(err, results){
         if(err) console.log(err)
         else console.log(results)
    })
