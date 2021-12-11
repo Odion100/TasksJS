@@ -84,7 +84,7 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, callback){
+   Orders.find = function (arg1, arg2, callback){
       console.log(data);
       callback(null, { message:"You have successfully called the Orders.find method" });
    }
@@ -162,7 +162,7 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, callback){
+   Orders.find = function (arg1, arg2, callback){
       console.log(data);
       callback(null, { message:"You have successfully called the Orders.find method" });
    }
