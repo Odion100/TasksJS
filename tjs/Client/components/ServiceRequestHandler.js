@@ -6,7 +6,7 @@ const isObject = (value) => {
 };
 
 module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
-  const ServiceModule = this;
+  const ClientModule = this;
 
   const makeQuery = (data) => {
     let query = "?";
@@ -25,7 +25,7 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
       : Array.from(arguments);
 
     const tryRequest = (cb, errCount = 0) => {
-      const { route, port, host } = ServiceModule.__connectionData();
+      const { route, port, host } = ClientModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
       const multiFileURL = `http://${host}:${port}/mf${route}/${fn}`;
       const defaultURL = `http://${host}:${port}${route}/${fn === "get" ? "" : fn}`;

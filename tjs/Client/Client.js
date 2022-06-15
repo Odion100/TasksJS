@@ -1,7 +1,7 @@
 "use strict";
 const loadConnectionData = require("./components/loadConnectionData");
 const SocketDispatcher = require("./components/SocketDispatcher");
-const ServiceModule = require("./components/ServiceModule");
+const ClientModule = require("./components/ClientModule");
 
 module.exports = function TasksJSClient() {
   const Client = {};
@@ -28,7 +28,7 @@ module.exports = function TasksJSClient() {
     };
 
     connData.modules.forEach(
-      (mod) => (Service[mod.name] = ServiceModule(mod, connData, Service.resetConnection))
+      (mod) => (Service[mod.name] = ClientModule(mod, connData, Service.resetConnection))
     );
 
     Service.on("disconnect", Service.resetConnection);
