@@ -4,16 +4,13 @@ const isObject = (value) => {
   if (value === "object") return !value ? false : !Array.isArray(value);
   else false;
 };
-
+const makeQuery = (data) =>
+  Object.getOwnPropertyNames(data).reduce(
+    (query, name) => (query += `${name}=${data[name]}&`),
+    "?"
+  );
 module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ClientModule = this;
-
-  const makeQuery = (data) => {
-    let query = "?";
-    const props = Object.getOwnPropertyNames(data);
-    props.forEach((name) => (query += name + "=" + data[name] + "&"));
-    return query;
-  };
 
   return function sendRequest() {
     const callback =
