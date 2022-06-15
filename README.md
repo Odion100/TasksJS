@@ -1,6 +1,6 @@
-# TasksJS
+# TasksJS ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)
 
-TasksJS is an end-to-end framework for developing modular software systems in NodeJS and is designed with microservices architecture in mind. It's a wrapper on top of ExpressJS and Socket.io. With TasksJS instead of creating a server with many endpoints, you can create or have existing objects on a server that can be accessed from a client application. Basically any objects added to a TasksJS Service can be loaded and used by a TasksJS Client. 
+TasksJS is an end-to-end framework for developing modular software systems in NodeJS and is designed with microservices architecture in mind. It's a wrapper on top of ExpressJS and Socket.io. With TasksJS instead of creating a server with many endpoints, you can create or have existing objects on a server that can be easily accessed from a client application. Basically any objects added to a TasksJS Service can be loaded and used by a TasksJS Client. 
 
 TasksJS comes with the following objects that are used for web application development: 
 ```javascript
@@ -59,7 +59,7 @@ Service.ServerModule("Orders", function(){
    
    Orders.find = function (arg1, arg2, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 ```
@@ -84,9 +84,9 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, callback){
+   Orders.find = function (arg1, arg2, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 
@@ -104,7 +104,7 @@ The ```Client.loadService(url)``` function can be used to load a TasksJS *Servic
    
    console.log(Users, Orders);
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that the methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(data, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that the methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(arg1, arg2, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
 
 ```javascript
    const { Client } = require("sht-tasks");
@@ -113,7 +113,7 @@ Now that we've loaded the *Service* that we created in the previous example, and
    
    console.log(Users, Orders);;
    
-   Users.add({ message:"User.add Test" }, function(err, results){
+   Users.add({ message:"Users.add Test" }, function(err, results){
         if(err) console.log(err)
         else console.log(results)
    })
@@ -132,7 +132,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
    
    console.log(Users, Orders);
    
-   Users.add({ message:"User.add Test" }, function(err, results){
+   Users.add({ message:"Users.add Test" }, function(err, results){
         if(err) console.log(err)
         else console.log(results)
    })
@@ -141,7 +141,7 @@ We can also receive WebSocket events emitted from the remote objects we've loade
         console.log(event);
    })
    
-   const response = await Orders.find({ message: "Orders.find test" });
+   const response = await Orders.find("hello", "world");
    
    console.log(response)
 ```
@@ -162,9 +162,9 @@ Service.ServerModule("Users", Users)
 Service.ServerModule("Orders", function(){
    const Orders = this;
    
-   Orders.find = function (start_date, end_date, callback){
+   Orders.find = function (arg1, arg2, callback){
       console.log(data);
-      callback(null, { message:"You have successfully called the Users.add method" });
+      callback(null, { message:"You have successfully called the Orders.find method" });
    }
 })
 
