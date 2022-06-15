@@ -1,8 +1,8 @@
 "use strict";
 const HttpClient = require("../../HttpClient/HttpClient")();
 const isObject = (value) => {
-  if (value === "object") return !value ? false : !Array.isArray(value);
-  else false;
+  if (typeof value === "object") return !value ? false : !Array.isArray(value);
+  else return false;
 };
 const makeQuery = (data) =>
   Object.getOwnPropertyNames(data).reduce(
