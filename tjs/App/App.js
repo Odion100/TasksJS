@@ -1,29 +1,41 @@
 "use strict";
+const { isNode } = require("../../utils/ProcessChecker");
 const ServiceFactory = require("../Service/Service");
 const SystemObject = require("./components/SystemObject");
 const Dispatcher = require("../Dispatcher/Dispatcher");
 const initializeApp = require("./components/initializeApp");
 const URL = require("url");
+
 module.exports = function TasksJSApp() {
   const App = Dispatcher();
-  const Service = ServiceFactory();
   const system = {
     Services: [],
     Modules: [],
     ServerModules: [],
     configurations: {},
-    Service,
     App,
     routing: null,
   };
   SystemObject.apply(system);
-  Service.defaultModule = SystemObject(system);
   setTimeout(() => initializeApp(system), 0);
 
-  App.startService = (options) => {
-    system.routing = options;
-    return App;
-  };
+  if (isNode) {
+    system.Service = ServiceFactory();
+    system.Service.defaultModule = SystemObject(system);
+
+    App.startService = (options) => {
+      system.routing = options;
+      return App;
+    };
+
+    App.ServerModule = (name, __constructor) => {
+      system.ServerModules.push({
+        name,
+        __constructor,
+      });
+      return App;
+    };
+  }
 
   App.loadService = (name, options) => {
     const url =
@@ -58,14 +70,6 @@ module.exports = function TasksJSApp() {
       name,
       __constructor,
       module: SystemObject(system),
-    });
-    return App;
-  };
-
-  App.ServerModule = (name, __constructor) => {
-    system.ServerModules.push({
-      name,
-      __constructor,
     });
     return App;
   };

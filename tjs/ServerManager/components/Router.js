@@ -26,7 +26,7 @@ module.exports = function TasksJSRouter(server, config) {
   };
 
   const routeHandler = (req, res) => {
-    const { params, query, file, files, body, fn, ServerModule = {}, module_name } = req;
+    const { query, file, files, body, fn, ServerModule = {}, module_name, method } = req;
     const { useCallbacks, useReturnValues, serviceUrl, validateArgs } = config();
     const callback = (error, results) => {
       if (error) {
@@ -54,11 +54,11 @@ module.exports = function TasksJSRouter(server, config) {
           status: 404,
         });
       const __arguments = body.__arguments || [];
+
+      if (!isEmpty(query) && !__arguments.length) __arguments.push(query);
       if (useCallbacks) __arguments.push(callback);
-      if (isObject(__arguments[0]))
+      if (isObject(__arguments[0]) && method === "PUT")
         __arguments[0] = {
-          ...params,
-          ...query,
           ...__arguments[0],
           file,
           files,
@@ -89,7 +89,6 @@ module.exports = function TasksJSRouter(server, config) {
   return { addService, addREST };
 };
 
-const isObject = (value) => {
-  if (value === "object") return !value ? false : !Array.isArray(value);
-  else false;
-};
+const isObject = (value) =>
+  typeof value === "object" ? (!value ? false : !Array.isArray(value)) : false;
+const isEmpty = (obj) => Object.getOwnPropertyNames(obj).length === 0;

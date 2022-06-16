@@ -1,4 +1,5 @@
 //These are all the abstractions that make up TasksJS
+const { isNode } = require("./utils/ProcessChecker");
 const AppFactory = require("./tjs/App/App");
 const LoadBalancerFactory = require("./tjs/LoadBalancer/LoadBalancer");
 const ServiceFactory = require("./tjs/Service/Service");
@@ -7,13 +8,15 @@ const ClientFactory = require("./tjs/Client/Client");
 const HttpClientFactory = require("./tjs/HttpClient/HttpClient");
 const DispatcherFactory = require("./tjs/Dispatcher/Dispatcher");
 
+const ServerManager = isNode ? ServerManagerFactory() : null;
+const Service = isNode ? ServiceFactory() : null;
+const LoadBalancer = isNode ? LoadBalancerFactory() : null;
+
 const App = AppFactory();
-const ServerManager = ServerManagerFactory();
 const HttpClient = HttpClientFactory();
-const Service = ServiceFactory();
 const Client = ClientFactory();
-const LoadBalancer = LoadBalancerFactory();
 const Dispatcher = DispatcherFactory();
+
 module.exports = {
   //Export these pre-created objects for convenient object destructuring
   //These are the main utilities for app development
