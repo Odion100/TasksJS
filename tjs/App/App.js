@@ -16,7 +16,7 @@ module.exports = function TasksJSApp() {
     App,
     routing: null,
   };
-  SystemObject.apply(system);
+  SystemObject.apply(system, [system]);
   setTimeout(() => initializeApp(system), 0);
 
   if (isNode) {
