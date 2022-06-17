@@ -23,7 +23,7 @@ Call ```require("sht-tasks")``` and de-concatenate from the object it returns. T
 
 # Quick Start
 
-## Service.ServerModule(name, constructor/object, [options])
+## Service.ServerModule(name, constructor, [,options])
 Use the ```Service.ServerModule(name, constructor/object)``` method to register an object to be hosted by a *TasksJS Service*. This will allows you to load an instance of that object onto a client application, and call any methods on that object remotely.
 
 ```javascript
