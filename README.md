@@ -13,7 +13,7 @@ const {
  } = require("sht-tasks");
 ```
 
-Call ```require("sht-tasks")``` and deconcatonate from the object it returns. The main  abstractions used for client-to-server interactions are the following:
+Call ```require("sht-tasks")``` and de-concatenate from the object it returns. The main  abstractions used for client-to-server interactions are the following:
 
 - ***Service*** - Used to create and host objects that can be loaded and used by a TasksJS Client. 
 - ***Client*** - Used in a client application to load a *Service*, which contains all the objects added to the *Service*.
