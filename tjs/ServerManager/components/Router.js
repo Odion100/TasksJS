@@ -68,12 +68,12 @@ module.exports = function TasksJSRouter(server, config) {
         if (ServerModule[fn].length > 0 && ServerModule[fn].length !== __arguments.length) {
           const callbackMsg = useCallbacks ? " (including a callback function)" : "";
           return callback({
-            message: `In valid number of arguments: Expected ${ServerModule[fn].length}${callbackMsg}, Recieved ${__arguments.length}${callbackMsg}.`,
+            message: `In valid number of arguments: Expected ${ServerModule[fn].length}${callbackMsg}, Received ${__arguments.length}${callbackMsg}.`,
             status: 400,
           });
         }
 
-      const results = ServerModule[fn].apply({ req, res }, __arguments);
+      const results = ServerModule[fn].apply({ req, res, ...ServerModule }, __arguments);
 
       if (useReturnValues)
         if (!useCallbacks) returnValue(results);
