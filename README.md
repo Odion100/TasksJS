@@ -65,7 +65,7 @@ Service.ServerModule("Orders", function(){
    }
 })
 ```
-In the *ServerModule* constructor function above, the `this` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(arg1, arg2, callback)...```, has  3 parameters including a callback function as the last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first parameter of the callback function to respond with an error, and the second parameter to send a success response. Note: *ServerModule* methods can be configured to work with synchronous return values instead of asynchronous callbacks.
+In the *ServerModule* constructor function above, the `this` value is the initial instance of the *ServerModule* object. Every method added to the ` this ` value will be accessible when the object is loaded by a *TasksJS Client*. Notice that the method we created, ```Orders.find = function(arg1, arg2, callback)...```, has  3 parameters including a callback function as the last argument. By defualt all *ServerModule* methods will recieve a callback function as its last argument. Use the first parameter of the callback function to respond with an error, and the second parameter to send a success response. Note: *ServerModule* methods can be configured to work with synchronous return values instead of asynchronous callbacks (read more about Service configuration [here](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#apploadserviceurl)).
 
 ## Service.startService(options)
 
@@ -106,7 +106,7 @@ The ```Client.loadService(url)``` function can be used to load a TasksJS *Servic
    
    console.log(Users, Orders);
 ```
-Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that the methods on the ServerModule objects can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(arg1, arg2, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
+Now that we've loaded the *Service* that we created in the previous example, and have a handle on the *Users* and *Orders* objects hosted by the *Service*, we can now call any method on those objects. In the example below, we demonstrate that when a methods for the ServerModule objects is called from the client, it can optionally take a callback as the last argument or, if a callback is not used, it will return a promise. With the ```Users.add(data, callback)``` method we used a callback, but with the ```Orders.find(arg1, arg2, callback)``` method we left out the callback function and used the ```await``` keyword to return a promise.
 
 ```javascript
    const { Client } = require("sht-tasks");
