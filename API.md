@@ -1,6 +1,6 @@
 # TasksJS API Documentation
 
-<details open>
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#app">App</a></b></summary>
     
 - [**.startService(options)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appstartserviceoptions) 
@@ -14,14 +14,14 @@
 
 </details>
 
-<details open>
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#client">Client</a></b></summary>
     
 - [**.loadService(url)**]() 
 
 </details>
 
-<details open>
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md">ClientModule</a></b></summary>
     
 - [**[method]([,args...] [,callback])**]() 
@@ -30,7 +30,7 @@
 
 </details>
 
-<details open>
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md">ServerModule</a></b></summary>
     
 - [**[method]([,args...] [,callback])**]() 
@@ -39,7 +39,7 @@
 
 </details>
 
-<details open>
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#service">Service</a></b></summary>
     
 - [**.startService(options)**]() 
