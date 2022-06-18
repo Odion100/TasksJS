@@ -233,7 +233,7 @@ describe("Service", () => {
       expect(error).to.deep.equal({
         TasksJSServiceError: true,
         message:
-          "In valid number of arguments: Expected 4 (including a callback function), Recieved 1 (including a callback function).",
+          "In valid number of arguments: Expected 4 (including a callback function), Received 1 (including a callback function).",
         serviceUrl: url,
         status: 400,
         fn: "multiArgTest",
@@ -252,7 +252,7 @@ describe("Service", () => {
     });
   });
 
-  it("should be able to use 'useReturnValue' configuration option to enable synchronouse return values from ServerModule methods", async () => {
+  it("should be able to use 'useReturnValue' configuration option to enable synchronous return values from ServerModule methods", async () => {
     const service = ServiceFactory();
     const route = "sync/test";
     const port = 4920;
