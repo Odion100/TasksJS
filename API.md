@@ -1,28 +1,61 @@
 # TasksJS API Documentation
+
 <details open>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#app">App</a></b></summary>
     
 - [**.startService(options)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appstartserviceoptions) 
 - [**.loadService(url)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#apploadserviceurl) 
 - [**.onLoad(callback)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#apponloadcallback) 
-- [**.ServerModule(name, constructor [,reserved_methods])**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appservermodulename-constructor-options) 
-- [**.Module(name, constructor)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appmodulename-constructor-options) 
+- [**.ServerModule(name, constructor [,reserved_methods])**]() 
+- [**.Module(name, constructor)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appmodulename-constructor) 
 - [**.config(constructor)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appconfigconstructor) 
-- [**.on(event, callback)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appconfigconstructor) 
-- [**.emit(event, payload)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appconfigconstructor)
+- [**.on(event, callback)**]() 
+- [**.emit(event, payload)**]()
+
+</details>
+
+<details open>
+   <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#client">Client</a></b></summary>
+    
+- [**.loadService(url)**]() 
+
+</details>
+
+<details open>
+   <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md">ClientModule</a></b></summary>
+    
+- [**[method]([,args...] [,callback])**]() 
+- [**.on(name, constructor [,options])**]() 
+- [**.emit()**]()  
+
+</details>
+
+<details open>
+   <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md">ServerModule</a></b></summary>
+    
+- [**[method]([,args...] [,callback])**]() 
+- [**.on(name, constructor [,options])**]() 
+- [**.emit()**]()  
 
 </details>
 
 <details open>
    <summary><b><a href="https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#service">Service</a></b></summary>
     
-- [**.startService(options)**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appstartserviceoptions) 
-- [**.ServerModule(name, constructor [,options])**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appservermodulename-constructor-options) 
-- [**.Server()**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appmodulename-constructor-options) 
-- [**.WebSocket()**](https://github.com/Odion100/TasksJS/edit/tasksjs2.0/API.md#appconfigconstructor) 
+- [**.startService(options)**]() 
+- [**.ServerModule(name, constructor [,options])**]() 
+- [**.Server()**]() 
+- [**.WebSocket()**]() 
 
 </details>
 
+---
+
+## Client
+
+
+##
+Client.loadService(url)
 ---
 
 ## App
