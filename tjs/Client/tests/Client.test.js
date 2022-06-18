@@ -219,7 +219,7 @@ describe("Service", () => {
       expect(error).to.deep.equal({
         TasksJSServiceError: true,
         message:
-          "In valid number of arguments: Expected 1 (including a callback function), Recieved 2 (including a callback function).",
+          "In valid number of arguments: Expected 1 (including a callback function), Received 2 (including a callback function).",
         serviceUrl: url,
         status: 400,
         fn: "noArgTest",
