@@ -1,5 +1,7 @@
 # TasksJS API Documentation
 
+Welcome to the docs! Following is a list of the objects used and created when developing web software systems with TasksJS. TasksJS is an end-to-end framework for developing modular, microservices software systems in NodeJS. Check out [**Quick Start**](https://github.com/Odion100/TasksJS#quick-start) for an example of how simple it is to develope object-orientated APIs with TasksJS. 
+
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#app">App</a></b></summary>
     
@@ -24,7 +26,7 @@
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md">ClientModule</a></b></summary>
     
-- [**[method]([,args...] [,callback])**]() 
+- [**[created_method]([args...] [,callback])**]() 
 - [**.on(name, constructor [,options])**]() 
 - [**.emit()**]()  
 
@@ -33,7 +35,7 @@
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md">ServerModule</a></b></summary>
     
-- [**[method]([,args...] [,callback])**]() 
+- [**[created_method]([args...] [,callback])**]() 
 - [**.on(name, constructor [,options])**]() 
 - [**.emit()**]()  
 
