@@ -9,7 +9,6 @@ const {
     Service,
     Client,
     LoadBalancer,
-    HttpClient,
  } = require("sht-tasks");
 ```
 
