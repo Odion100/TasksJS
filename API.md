@@ -7,31 +7,45 @@ Welcome to the docs! Following is a list of the objects used and created when de
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#app">App</a></b></summary>
     
-- [**.startService(options)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#appstartserviceoptions) 
-- [**.loadService(url)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#apploadserviceurl) 
-- [**.onLoad(callback)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#apponloadcallback) 
-- [**.ServerModule(name, constructor [,reserved_methods])**]() 
-- [**.Module(name, constructor)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#appmodulename-constructor) 
-- [**.config(constructor)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#appconfigconstructor) 
-- [**.on(event, callback)**]() 
-- [**.emit(event, payload)**]()
+- [**startService(options)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#appstartserviceoptions) 
+- [**loadService(url)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#apploadserviceurl) 
+- [**onLoad(callback)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#apponloadcallback) 
+- [**ServerModule(name, constructor [,reserved_methods])**]() 
+- [**Module(name, constructor)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#appmodulename-constructor) 
+- [**config(constructor)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#appconfigconstructor) 
+- [**on(event, callback)**]() 
+- [**emit(event, payload)**]()
 
 </details>
 
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#client">Client</a></b></summary>
     
-- [**.loadService(url)**]() 
+- [**loadService(url)**]() 
 
 </details>
 
 <details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#service">Service</a></b></summary>
     
-- [**.startService(options)**]() 
-- [**.ServerModule(name, constructor [,options])**]() 
-- [**.Server()**]() 
-- [**.WebSocket()**]() 
+- [**startService(options)**]() 
+- [**ServerModule(name, constructor [,options])**]() 
+- [**Server()**]() 
+- [**WebSocket()**]() 
+
+</details>
+
+<details>
+   <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#service">LoadBalancer</a></b></summary>
+    
+- [**startService(options)**]() 
+- [**ServerModule(name, constructor [,options])**]() 
+- [**Server()**]() 
+- [**WebSocket()**]() 
+- [**clones**]()
+  - [**register(options)**]()  
+  - [**dispatch(event)**]()
+  - [**assignDispatch(event)**]()
 
 </details>
 
@@ -41,8 +55,8 @@ Welcome to the docs! Following is a list of the objects used and created when de
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md">ClientModule</a></b></summary>
     
 - [**[created_method]([args...] [,callback])**]() 
-- [**.on(name, constructor [,options])**]() 
-- [**.emit()**]()  
+- [**on(name, constructor [,options])**]() 
+- [**emit()**]()  
 
 </details>
 
@@ -50,18 +64,11 @@ Welcome to the docs! Following is a list of the objects used and created when de
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md">ServerModule</a></b></summary>
     
 - [**[created_method]([args...] [,callback])**]() 
-- [**.on(name, constructor [,options])**]() 
-- [**.emit()**]()  
+- [**on(name, constructor [,options])**]() 
+- [**emit()**]()  
 
 </details>
 
----
-
-## Client
-
-
-##
-Client.loadService(url)
 ---
 
 ## App
@@ -83,7 +90,12 @@ Client.loadService(url)
 ## App.config(constructor)
 
 
+---
 
+## Client
+
+
+## Client.loadService(url)
 
 ---
 
