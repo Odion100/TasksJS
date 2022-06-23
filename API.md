@@ -26,6 +26,18 @@ Welcome to the docs! Following is a list of the objects used and created when de
 </details>
 
 <details>
+   <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#service">Service</a></b></summary>
+    
+- [**.startService(options)**]() 
+- [**.ServerModule(name, constructor [,options])**]() 
+- [**.Server()**]() 
+- [**.WebSocket()**]() 
+
+</details>
+
+---
+
+<details>
    <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md">ClientModule</a></b></summary>
     
 - [**[created_method]([args...] [,callback])**]() 
@@ -40,16 +52,6 @@ Welcome to the docs! Following is a list of the objects used and created when de
 - [**[created_method]([args...] [,callback])**]() 
 - [**.on(name, constructor [,options])**]() 
 - [**.emit()**]()  
-
-</details>
-
-<details>
-   <summary><b><a href="https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#service">Service</a></b></summary>
-    
-- [**.startService(options)**]() 
-- [**.ServerModule(name, constructor [,options])**]() 
-- [**.Server()**]() 
-- [**.WebSocket()**]() 
 
 </details>
 
