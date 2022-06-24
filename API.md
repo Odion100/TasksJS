@@ -8,7 +8,7 @@ Welcome to the docs! Following is a list of the objects used and created when de
    <summary><b><a href="https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#app">App</a></b></summary>
     
 - [**startService(options)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#appstartserviceoptions) 
-- [**loadService(url)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#apploadserviceurl) 
+- [**loadService(name, url)**](https://github.com/Odion100/TasksJS/blob/tasksjs2.0/API.md#apploadserviceurl) 
 - [**onLoad(callback)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#apponloadcallback) 
 - [**ServerModule(name, constructor [,reserved_methods])**]() 
 - [**Module(name, constructor)**](https://github.com/Odion100/TasksJS/tasksjs2.0/API.md#appmodulename-constructor) 
@@ -71,13 +71,19 @@ Welcome to the docs! Following is a list of the objects used and created when de
 
 ---
 
-## App
+## App 
+  **App** combinds the both functionalites of TasksJS Service and Client into one object, while also providing a module interface and lifecycle events. Access the App instance by deconcatanating from the object return when loading TasksJS `require("sht-tasks")`.
+  
+  ```javascript
+const { App } = require("sht-tasks");
+```
+  
 
 
 ## App.startService(options)
 
 
-## App.loadService(url)
+## App.loadService(name, url)
 
 
 ## App.onLoad(callback)
@@ -127,7 +133,8 @@ Users.add = function (data, callback){
     console.log(data);
     callback(null, { message:"You have successfully called the Users.add method" });
 }
+````
 
-Service.S
+Service.startService
 
 ---
