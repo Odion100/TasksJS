@@ -78,6 +78,10 @@ Welcome to the docs! Following is a list of the objects used and created when de
 const { App } = require("sht-tasks");
 ```
   
+## App.ServerModule(name, constructor [,reserved_methods])
+Use **App.ServerModule(name, constructor)** function to create or pass an object that can be loaded by a TasksJS Client. 
+ - ***name*** (string) - name assigned to the module or object
+ - ***constructor*** (object/function) - 
 
 
 ## App.startService(options)
@@ -88,8 +92,6 @@ const { App } = require("sht-tasks");
 
 ## App.onLoad(callback)
 
-
-## App.ServerModule(name, constructor [,reserved_methods])
 
 ## App.Module(name, constructor)
 
