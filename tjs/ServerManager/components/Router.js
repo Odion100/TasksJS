@@ -1,3 +1,7 @@
+const isObject = (value) =>
+  typeof value === "object" ? (!value ? false : !Array.isArray(value)) : false;
+const isEmpty = (obj) => Object.getOwnPropertyNames(obj).length === 0;
+
 module.exports = function TasksJSRouter(server, config) {
   const addService = (ServerModule, route, { fn, method }, module_name) => {
     server[method](
@@ -40,14 +44,14 @@ module.exports = function TasksJSRouter(server, config) {
         });
       } else res.json(results);
     };
-    try {
-      const returnValue = (results) => {
-        if (isObject(results)) {
-          if (results.status >= 400) cb(results);
-          else callback(null, results);
-        } else callback(null, results);
-      };
 
+    const returnValue = (results) => {
+      if (isObject(results)) {
+        if (results.status >= 400) cb(results);
+        else callback(null, results);
+      } else callback(null, results);
+    };
+    try {
       if (typeof ServerModule[fn] !== "function")
         return callback({
           message: "Object resource not found",
@@ -77,10 +81,8 @@ module.exports = function TasksJSRouter(server, config) {
 
       if (useReturnValues)
         if (!useCallbacks) returnValue(results);
-        else {
-          //in this case check to see that results are not undefined are null
-          if (results || results === false) returnValue(results);
-        }
+        else if (results || results === false) returnValue(results);
+      //in this case check to see that results are not undefined are null
     } catch (error) {
       callback(error);
     }
@@ -88,7 +90,3 @@ module.exports = function TasksJSRouter(server, config) {
 
   return { addService, addREST };
 };
-
-const isObject = (value) =>
-  typeof value === "object" ? (!value ? false : !Array.isArray(value)) : false;
-const isEmpty = (obj) => Object.getOwnPropertyNames(obj).length === 0;
