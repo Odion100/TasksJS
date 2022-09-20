@@ -77,7 +77,7 @@ module.exports = function TasksJSRouter(server, config) {
           });
         }
 
-      const results = ServerModule[fn].apply({ req, res, ...ServerModule }, __arguments);
+      const results = ServerModule[fn].apply(ServerModule, __arguments);
 
       if (useReturnValues)
         if (!useCallbacks) returnValue(results);
