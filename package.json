@@ -91,6 +91,12 @@
   "version": "2.10.10",
   "devDependencies": {
     "chai": "^4.3.4",
+    "cz-conventional-changelog": "^3.3.0",
     "mocha": "^6.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
