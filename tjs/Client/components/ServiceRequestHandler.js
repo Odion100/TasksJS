@@ -24,7 +24,7 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
       const { route, port, host } = ClientModule.__connectionData();
       const singleFileURL = `http://${host}:${port}/sf${route}/${fn}`;
       const multiFileURL = `http://${host}:${port}/mf${route}/${fn}`;
-      const defaultURL = `http://${host}:${port}${route}/${fn === "get" ? "" : fn}`;
+      const defaultURL = `http://${host}:${port}${route}/${fn}`;
       const { file, files } = __arguments[0] || {};
       const url = file ? singleFileURL : files ? multiFileURL : defaultURL;
 

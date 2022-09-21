@@ -7,15 +7,10 @@ module.exports = function ServiceFactory({ defaultModule = {} } = {}) {
   const { startService, Server, WebSocket } = ServerManager;
   const Service = { startService, Server, WebSocket, defaultModule };
 
-  Service.ServerModule = function(name, constructor, reserved_methods = []) {
+  Service.ServerModule = function (name, constructor, reserved_methods = []) {
     if (typeof constructor === "object" && constructor instanceof Object) {
-      const ServerModule = Dispatcher.apply({ ...constructor, ...Service.defaultModule });
-      const exclude_methods = [
-        ...reserved_methods,
-        ...Object.getOwnPropertyNames(Service.defaultModule)
-      ];
-      ServerManager.addModule(name, ServerModule, exclude_methods);
-      return ServerModule;
+      ServerManager.addModule(name, constructor, reserved_methods);
+      return constructor;
     }
 
     if (typeof constructor === "function") {
