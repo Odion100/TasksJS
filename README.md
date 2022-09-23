@@ -1,6 +1,6 @@
 # TasksJS ![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg) ![JS 100%](https://img.shields.io/badge/JavaScript-100%25-green)
 
-TasksJS is a framework for developing modular web APIs in NodeJS and was designed with microservices architecture in mind. It's a wrapper on top of ExpressJS and Socket.io. With TasksJS instead of creating a server with many endpoints, you can create or have existing objects on a server that can be easily accessed from a client application. Basically any objects added to a TasksJS Service can be loaded and used by a TasksJS Client. 
+TasksJS is a framework for developing modular web APIs. It's a wrapper on top of ExpressJS and Socket.io. With TasksJS, instead of creating a server with many endpoints, you can simply export objects from the server to the client application. Basically any objects added to a TasksJS Service can be loaded and used by a TasksJS Client. 
 
 TasksJS comes with the following objects that are used for web API development: 
 ```javascript
