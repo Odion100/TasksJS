@@ -46,8 +46,8 @@ module.exports = function TasksJSRouter(server, config) {
       return sendResponse;
     };
     const sendResponse = (results) => {
-      const status = results?.status || setResponse.status;
-      const message = results?.message || setResponse.message;
+      const status = results.status || setResponse.status;
+      const message = results.message || setResponse.message;
       res.status(status).json({
         serviceUrl,
         module_name,
@@ -58,7 +58,7 @@ module.exports = function TasksJSRouter(server, config) {
       });
     };
 
-    if (typeof ServerModule?.[fn] !== "function")
+    if (typeof ServerModule[fn] !== "function")
       return sendResponse({
         message: `SystemLink:${module_name}.${fn} method resource not found`,
         status: 404,
