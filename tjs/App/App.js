@@ -37,23 +37,11 @@ module.exports = function TasksJSApp() {
     };
   }
 
-  App.loadService = (name, options) => {
-    const url =
-      typeof options === "string"
-        ? URL.parse(options)
-        : URL.format({
-            protocol: "http",
-            hostname: options.host || "localhost",
-            port: options.port,
-            pathname: options.route[0] === "/" ? options.route : "/" + options.route,
-          });
-
+  App.loadService = (name, url) => {
     system.Services.push({
       name,
       url,
       onLoad: null,
-      limit: options.limit,
-      wait: options.wait,
       client: {},
     });
     return App;
@@ -77,7 +65,10 @@ module.exports = function TasksJSApp() {
   App.config = (__constructor) => {
     if (typeof __constructor === "function")
       system.configurations = { __constructor, module: SystemObject(system) };
-    else throw Error("App.config methods requires a constructor function as it first parameter.");
+    else
+      throw Error(
+        "App.config methods requires a constructor function as it first parameter."
+      );
     return App;
   };
 

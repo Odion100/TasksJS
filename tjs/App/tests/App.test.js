@@ -30,35 +30,6 @@ describe("App Factory", () => {
   });
 });
 describe("App: Loading Services", () => {
-  it("should be able to use App.loadService(obj_url) to load as hosted Service", async () => {
-    const Service = ServiceFactory();
-    const route = "test-service";
-    const port = "8499";
-
-    Service.ServerModule("mod", function () {
-      this.test = () => {};
-      this.test2 = () => {};
-    });
-
-    await Service.startService({ route, port });
-
-    await new Promise((resolve) => {
-      const App = AppFactory();
-      App.loadService("test", { route, port }).on("init_complete", (system) => {
-        expect(system.Services[0]).to.be.an("object");
-
-        expect(system.Services[0].client)
-          .to.be.an("object")
-          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
-          .that.respondsTo("emit")
-          .that.respondsTo("on")
-          .that.respondsTo("resetConnection")
-          .that.respondsTo("disconnect");
-        resolve();
-      });
-    });
-  });
-
   it("should be able to use App.loadService(str_url) to load as hosted Service", async () => {
     const Service = ServiceFactory();
     const route = "test-service";
@@ -73,18 +44,27 @@ describe("App: Loading Services", () => {
 
     await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", `http://localhost:${port}/${route}`).on("init_complete", (system) => {
-        expect(system.Services[0]).to.be.an("object");
+      App.loadService("test", `http://localhost:${port}/${route}`).on(
+        "init_complete",
+        (system) => {
+          expect(system.Services[0]).to.be.an("object");
 
-        expect(system.Services[0].client)
-          .to.be.an("object")
-          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
-          .that.respondsTo("emit")
-          .that.respondsTo("on")
-          .that.respondsTo("resetConnection")
-          .that.respondsTo("disconnect");
-        resolve();
-      });
+          expect(system.Services[0].client)
+            .to.be.an("object")
+            .that.has.all.keys(
+              "emit",
+              "on",
+              "resetConnection",
+              "disconnect",
+              "mod"
+            )
+            .that.respondsTo("emit")
+            .that.respondsTo("on")
+            .that.respondsTo("resetConnection")
+            .that.respondsTo("disconnect");
+          resolve();
+        }
+      );
     });
   });
 
@@ -92,6 +72,7 @@ describe("App: Loading Services", () => {
     const Service = ServiceFactory();
     const route = "test-service";
     const port = "8422";
+    const url = `http://localhost:${port}/${route}`;
 
     Service.ServerModule("mod", function () {
       this.test = () => {};
@@ -102,10 +83,16 @@ describe("App: Loading Services", () => {
 
     await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", { route, port }).onLoad((test) => {
+      App.loadService("test", url).onLoad((test) => {
         expect(test)
           .to.be.an("object")
-          .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
+          .that.has.all.keys(
+            "emit",
+            "on",
+            "resetConnection",
+            "disconnect",
+            "mod"
+          )
           .that.respondsTo("emit")
           .that.respondsTo("on")
           .that.respondsTo("resetConnection")
@@ -119,7 +106,7 @@ describe("App: Loading Services", () => {
     const Service = ServiceFactory();
     const route = "test-service";
     const port = "8423";
-
+    const url = `http://localhost:${port}/${route}`;
     Service.ServerModule("mod", function () {
       this.test = () => {};
       this.test2 = () => {};
@@ -129,11 +116,17 @@ describe("App: Loading Services", () => {
 
     await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", { route, port })
+      App.loadService("test", url)
         .on("service_loaded", (test) => {
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
+            .that.has.all.keys(
+              "emit",
+              "on",
+              "resetConnection",
+              "disconnect",
+              "mod"
+            )
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
@@ -141,7 +134,13 @@ describe("App: Loading Services", () => {
         .on("service_loaded:test", (test) => {
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
+            .that.has.all.keys(
+              "emit",
+              "on",
+              "resetConnection",
+              "disconnect",
+              "mod"
+            )
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
@@ -154,6 +153,7 @@ describe("App: Loading Services", () => {
     const Service = ServiceFactory();
     const route = "test-service";
     const port = "8442";
+    const url = `http://localhost:${port}/${route}`;
 
     Service.ServerModule("mod", function () {
       this.test = () => {};
@@ -164,12 +164,18 @@ describe("App: Loading Services", () => {
 
     await new Promise((resolve) => {
       const App = AppFactory();
-      App.loadService("test", { route, port })
+      App.loadService("test", url)
         .module("module_name", function () {
           const test = this.useService("test");
           expect(test)
             .to.be.an("object")
-            .that.has.all.keys("emit", "on", "resetConnection", "disconnect", "mod")
+            .that.has.all.keys(
+              "emit",
+              "on",
+              "resetConnection",
+              "disconnect",
+              "mod"
+            )
             .that.respondsTo("emit")
             .that.respondsTo("on")
             .that.respondsTo("resetConnection");
@@ -187,7 +193,13 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
       App.module("test", function () {
         expect(this)
           .to.be.an("object")
-          .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
+          .that.has.all.keys(
+            "useModule",
+            "useService",
+            "useConfig",
+            "on",
+            "emit"
+          )
           .that.respondsTo("useModule")
           .that.respondsTo("useService")
           .that.respondsTo("useConfig")
@@ -196,7 +208,13 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
       }).module("test2", function () {
         expect(this)
           .to.be.an("object")
-          .that.has.all.keys("useModule", "useService", "useConfig", "on", "emit")
+          .that.has.all.keys(
+            "useModule",
+            "useService",
+            "useConfig",
+            "on",
+            "emit"
+          )
           .that.respondsTo("useModule")
           .that.respondsTo("useService")
           .that.respondsTo("useConfig")
@@ -212,7 +230,9 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
     const port = "8493";
     const url = `http://localhost:${port}/${route}`;
 
-    await new Promise((resolve) => App.startService({ route, port }).on("init_complete", resolve));
+    await new Promise((resolve) =>
+      App.startService({ route, port }).on("init_complete", resolve)
+    );
     const connData = await HttpClient.request({ url });
 
     expect(connData)
@@ -331,7 +351,13 @@ describe("App SystemObjects: Initializing Modules,  ServerModules and configurat
           .that.has.all.keys("module", "__constructor")
           .that.has.property("module")
           .that.is.an("object")
-          .that.has.all.keys("useService", "useModule", "useConfig", "test", "test2");
+          .that.has.all.keys(
+            "useService",
+            "useModule",
+            "useConfig",
+            "test",
+            "test2"
+          );
 
         resolve();
       })
