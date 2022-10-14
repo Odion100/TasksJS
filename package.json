@@ -50,7 +50,7 @@
     "body-parser": "^1.18.3",
     "chai-as-promised": "^7.1.1",
     "express": "^4.16.4",
-    "jest": "^24.9.0",
+    "jest": "^29.1.2",
     "mime": "^2.4.0",
     "multer": "^1.4.2",
     "multitaskhandler": "^1.4.1",
