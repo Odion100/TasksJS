@@ -1,6 +1,9 @@
+const { response } = require("express");
+
 const isObject = (value) =>
   typeof value === "object" ? (!value ? false : !Array.isArray(value)) : false;
 const isEmpty = (obj) => Object.getOwnPropertyNames(obj).length === 0;
+const isPromise = (p) => typeof p === "object" && typeof p.then === "function";
 
 module.exports = function TasksJSRouter(server, config) {
   const addService = (ServerModule, route, { fn, method }, module_name) => {
@@ -30,61 +33,53 @@ module.exports = function TasksJSRouter(server, config) {
   };
 
   const routeHandler = (req, res) => {
-    const { query, file, files, body, fn, ServerModule = {}, module_name, method } = req;
-    const { useCallbacks, useReturnValues, serviceUrl, validateArgs } = config();
-    const callback = (error, results) => {
-      if (error) {
-        error.status = error.status || 500;
-        res.status(error.status).json({
-          ...error,
-          TasksJSServiceError: true,
-          serviceUrl: serviceUrl,
-          module_name,
-          fn,
-        });
-      } else res.json(results);
+    const { query, file, files, body, fn, ServerModule, module_name, method } = req;
+    const { serviceUrl } = config();
+
+    const setResponse = {
+      status: 200,
+      message: `SystemLink: ${module_name}.${fn}() returned successfully`,
+    };
+    const set = ({ status = setResponse.status, message = setResponse.message }) => {
+      setResponse.status = status;
+      setResponse.message = message;
+      return sendResponse;
+    };
+    const sendResponse = (results) => {
+      const status = results?.status || setResponse.status;
+      const message = results?.message || setResponse.message;
+      res.status(status).json({
+        serviceUrl,
+        module_name,
+        fn,
+        status,
+        message,
+        ...(status < 500 ? { returnValue: results } : { error: results }),
+      });
     };
 
-    const returnValue = (results) => {
-      if (isObject(results)) {
-        if (results.status >= 400) cb(results);
-        else callback(null, results);
-      } else callback(null, results);
-    };
+    if (typeof ServerModule?.[fn] !== "function")
+      return sendResponse({
+        message: `SystemLink:${module_name}.${fn} method resource not found`,
+        status: 404,
+      });
+
     try {
-      if (typeof ServerModule[fn] !== "function")
-        return callback({
-          message: "Object resource not found",
-          status: 404,
-        });
-      const __arguments = body.__arguments || [];
+      const args = body.__arguments || [];
+      if (!isEmpty(query) && !args.length) args.push(query);
+      if (isObject(args[0]) && method === "PUT") args[0] = { ...args[0], file, files };
 
-      if (!isEmpty(query) && !__arguments.length) __arguments.push(query);
-      if (useCallbacks) __arguments.push(callback);
-      if (isObject(__arguments[0]) && method === "PUT")
-        __arguments[0] = {
-          ...__arguments[0],
-          file,
-          files,
-        };
+      const results = ServerModule[fn].apply({ ...ServerModule, set }, args);
 
-      if (validateArgs)
-        if (ServerModule[fn].length > 0 && ServerModule[fn].length !== __arguments.length) {
-          const callbackMsg = useCallbacks ? " (including a callback function)" : "";
-          return callback({
-            message: `In valid number of arguments: Expected ${ServerModule[fn].length}${callbackMsg}, Received ${__arguments.length}${callbackMsg}.`,
-            status: 400,
-          });
-        }
-
-      const results = ServerModule[fn].apply(ServerModule, __arguments);
-
-      if (useReturnValues)
-        if (!useCallbacks) returnValue(results);
-        else if (results || results === false) returnValue(results);
-      //in this case check to see that results are not undefined are null
+      if (isPromise(results)) {
+        results.then(sendResponse).catch(sendResponse);
+      } else {
+        sendResponse(results);
+      }
     } catch (error) {
-      callback(error);
+      setResponse.status = 500;
+      setResponse.message = `SystemLink: Unhandled error while calling ${module_name}.${fn}()`;
+      sendResponse(error);
     }
   };
 

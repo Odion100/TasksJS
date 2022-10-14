@@ -9,7 +9,10 @@ const url = `http://localhost:${port}/${route}`;
 describe("Client Factory", () => {
   it("should return a TasksJS Client", () => {
     const Client = ClientFactory();
-    expect(Client).to.be.an("object").that.has.property("loadService").that.is.a("function");
+    expect(Client)
+      .to.be.an("object")
+      .that.has.property("loadService")
+      .that.is.a("function");
   });
 });
 describe("Client", () => {
@@ -17,27 +20,22 @@ describe("Client", () => {
     Service.ServerModule(
       "orders",
       function () {
-        this.action1 = (data, cb) =>
-          cb(null, { SERVICE_TEST_PASSED: true, ...data, action1: true });
-        this.action2 = (data, cb) =>
-          cb(null, { SERVICE_TEST_PASSED: true, ...data, action2: true });
-        this.action3 = (data, cb) =>
-          cb(null, { SERVICE_TEST_PASSED: true, ...data, action3: true });
-        this.multiArgTest = (arg1, arg2, arg3, cb) =>
-          cb(null, { SERVICE_TEST_PASSED: true, multiArgTest: true, arg1, arg2, arg3 });
-        this.noArgTest = (cb) => cb(null, { SERVICE_TEST_PASSED: true, noArgTest: true });
-        this.anyArgTest = function () {
-          cb = arguments[2];
-          arg1 = arguments[0];
-          arg2 = arguments[1];
-          cb(null, { SERVICE_TEST_PASSED: true, anyArgTest: true, arg1, arg2 });
-        };
+        this.action1 = (data) => ({ SERVICE_TEST_PASSED: true, ...data, action1: true });
+        this.action2 = (data) => ({ SERVICE_TEST_PASSED: true, ...data, action2: true });
+        this.action3 = (data) => ({ SERVICE_TEST_PASSED: true, ...data, action3: true });
+        this.noArgTest = () => ({ SERVICE_TEST_PASSED: true, noArgTest: true });
+        this.multiArgTest = (arg1, arg2, arg3) => ({
+          SERVICE_TEST_PASSED: true,
+          multiArgTest: true,
+          arg1,
+          arg2,
+          arg3,
+        });
       },
       ["action3"]
     );
 
     await Service.startService({ route, port });
-
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
 
@@ -60,8 +58,7 @@ describe("Client", () => {
         "action1",
         "action2",
         "multiArgTest",
-        "noArgTest",
-        "anyArgTest"
+        "noArgTest"
       )
       .that.respondsTo("emit")
       .that.respondsTo("on")
@@ -71,8 +68,7 @@ describe("Client", () => {
       .that.respondsTo("action1")
       .that.respondsTo("action2")
       .that.respondsTo("multiArgTest")
-      .that.respondsTo("noArgTest")
-      .that.respondsTo("anyArgTest");
+      .that.respondsTo("noArgTest");
   });
 });
 
@@ -86,29 +82,13 @@ describe("Service", () => {
     const results2 = await buAPI.orders.action2({ code: 11 });
 
     expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 3, action1: true });
-    expect(results2).to.deep.equal({ SERVICE_TEST_PASSED: true, code: 11, action2: true });
+    expect(results2).to.deep.equal({
+      SERVICE_TEST_PASSED: true,
+      code: 11,
+      action2: true,
+    });
   });
-  it("should be able to send multiple arguments (including a callback function) to the backend ServerModule", async () => {
-    const Client = ClientFactory();
-    const buAPI = await Client.loadService(url);
-    const arg1 = 1,
-      arg2 = 2,
-      arg3 = 3;
-
-    await new Promise((resolve) =>
-      buAPI.orders.multiArgTest(arg1, arg2, arg3, (err, results) => {
-        expect(results).to.deep.equal({
-          SERVICE_TEST_PASSED: true,
-          multiArgTest: true,
-          arg1,
-          arg2,
-          arg3,
-        });
-        resolve();
-      })
-    );
-  });
-  it("should be able to send multiple arguments (excluding a callback and using a promise) to the backend ServerModule", async () => {
+  it("should be able to send multiple arguments to the backend ServerModule", async () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
     const arg1 = 4,
@@ -125,21 +105,8 @@ describe("Service", () => {
       arg3,
     });
   });
-  it("should be able to send callback as the only arguments to the backend ServerModule", async () => {
-    const Client = ClientFactory();
-    const buAPI = await Client.loadService(url);
 
-    await new Promise((resolve) =>
-      buAPI.orders.noArgTest((err, results) => {
-        expect(results).to.deep.equal({
-          SERVICE_TEST_PASSED: true,
-          noArgTest: true,
-        });
-        resolve();
-      })
-    );
-  });
-  it("should be able to send no arguments and use a promise to the backend ServerModule", async () => {
+  it("should be able to send no arguments and use a promise", async () => {
     const Client = ClientFactory();
     const buAPI = await Client.loadService(url);
     const results = await buAPI.orders.noArgTest();
@@ -183,13 +150,10 @@ describe("Service", () => {
     const url = `http://localhost:${port}/${route}`;
     const useREST = true;
     Service.ServerModule("restTester", function () {
-      this.get = (data, cb) => cb(null, { REST_TEST_PASSED: true, getResponse: true, ...data });
-
-      this.put = (cb) => cb(null, { REST_TEST_PASSED: true, putResponse: true });
-
-      this.post = (cb) => cb(null, { REST_TEST_PASSED: true, postResponse: true });
-
-      this.delete = (cb) => cb(null, { REST_TEST_PASSED: true, deleteResponse: true });
+      this.get = (data) => ({ REST_TEST_PASSED: true, getResponse: true, ...data });
+      this.put = () => ({ REST_TEST_PASSED: true, putResponse: true });
+      this.post = () => ({ REST_TEST_PASSED: true, postResponse: true });
+      this.delete = () => ({ REST_TEST_PASSED: true, deleteResponse: true });
     });
 
     await Service.startService({ route, port, useREST });
@@ -198,6 +162,7 @@ describe("Service", () => {
     const putResponse = await buAPI.restTester.put();
     const postResponse = await buAPI.restTester.post();
     const deleteResponse = await buAPI.restTester.delete();
+
     expect(getResponse).to.deep.equal({
       REST_TEST_PASSED: true,
       getResponse: true,
@@ -206,49 +171,9 @@ describe("Service", () => {
     });
     expect(putResponse).to.deep.equal({ REST_TEST_PASSED: true, putResponse: true });
     expect(postResponse).to.deep.equal({ REST_TEST_PASSED: true, postResponse: true });
-    expect(deleteResponse).to.deep.equal({ REST_TEST_PASSED: true, deleteResponse: true });
-  });
-
-  it("should correctly validate the number of arguments passed to the ServerModule", async () => {
-    const Client = ClientFactory();
-    const buAPI = await Client.loadService(url);
-
-    try {
-      await buAPI.orders.noArgTest(3);
-    } catch (error) {
-      expect(error).to.deep.equal({
-        TasksJSServiceError: true,
-        message:
-          "In valid number of arguments: Expected 1 (including a callback function), Received 2 (including a callback function).",
-        serviceUrl: url,
-        status: 400,
-        fn: "noArgTest",
-        module_name: "orders",
-      });
-    }
-
-    try {
-      await buAPI.orders.multiArgTest();
-    } catch (error) {
-      expect(error).to.deep.equal({
-        TasksJSServiceError: true,
-        message:
-          "In valid number of arguments: Expected 4 (including a callback function), Received 1 (including a callback function).",
-        serviceUrl: url,
-        status: 400,
-        fn: "multiArgTest",
-        module_name: "orders",
-      });
-    }
-    const arg1 = 1;
-    const arg2 = 2;
-    const results = await buAPI.orders.anyArgTest(arg1, arg2);
-
-    expect(results).to.deep.equal({
-      SERVICE_TEST_PASSED: true,
-      anyArgTest: true,
-      arg1,
-      arg2,
+    expect(deleteResponse).to.deep.equal({
+      REST_TEST_PASSED: true,
+      deleteResponse: true,
     });
   });
 
@@ -264,7 +189,13 @@ describe("Service", () => {
       this.round = Math.round;
     });
 
-    await service.startService({ route, port, host, useReturnValues: true, useCallbacks: false });
+    await service.startService({
+      route,
+      port,
+      host,
+      useReturnValues: true,
+      useCallbacks: false,
+    });
     const Client = ClientFactory();
     const { AsyncMath } = await Client.loadService(url);
     const results = await AsyncMath.max(10, 2);

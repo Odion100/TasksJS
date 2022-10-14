@@ -125,7 +125,7 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
     const url = `http://localhost:${port}${route}`;
     const name = "testObject";
     const object = {
-      get: (cb) => cb(null, { REST_TEST_PASSED: true }),
+      get: () => (null, { REST_TEST_PASSED: true }),
       put: () => {},
       post: () => {},
       delete: () => {},
@@ -145,7 +145,16 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
       });
     });
 
-    expect(results).to.deep.equal({ REST_TEST_PASSED: true });
+    expect(results).to.deep.equal({
+      fn: "get",
+      message: "SystemLink: testObject.get() returned successfully",
+      module_name: "testObject",
+      returnValue: {
+        REST_TEST_PASSED: true,
+      },
+      serviceUrl: "http://localhost:8372/testAPI",
+      status: 200,
+    });
   });
 
   it("should be able to use the staticRouting=true property to create static routes to the ServerModules", async () => {
@@ -155,8 +164,8 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
     const url = `http://localhost:${port}${route}`;
     const name = "testObject";
     const object = {
-      get: (cb) => cb(null, { SERVICE_TEST_PASSED: true }),
-      put: (cb) => cb(null, { SERVICE_TEST_PASSED: true }),
+      get: () => (null, { SERVICE_TEST_PASSED: true }),
+      put: () => (null, { SERVICE_TEST_PASSED: true }),
       post: () => {},
       delete: () => {},
     };
@@ -176,6 +185,13 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
       });
     });
 
-    expect(results).to.deep.equal({ SERVICE_TEST_PASSED: true });
+    expect(results).to.deep.equal({
+      returnValue: { SERVICE_TEST_PASSED: true },
+      fn: "get",
+      message: "SystemLink: testObject.get() returned successfully",
+      module_name: "testObject",
+      serviceUrl: "http://localhost:2233/testAPI",
+      status: 200,
+    });
   });
 });

@@ -12,13 +12,7 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
   const ClientModule = this;
 
   return function sendRequest() {
-    const callback =
-      typeof arguments[arguments.length - 1] === "function"
-        ? arguments[arguments.length - 1]
-        : null;
-    const __arguments = callback
-      ? Array.from(arguments).splice(0, arguments.length - 1)
-      : Array.from(arguments);
+    const __arguments = Array.from(arguments);
 
     const tryRequest = (cb, errCount = 0) => {
       const { route, port, host } = ClientModule.__connectionData();
@@ -58,13 +52,11 @@ module.exports = function ServiceRequestHandler(method, fn, resetConnection) {
       } else throw Error(`(TasksJSServiceError): Invalid route:${err}`);
     };
 
-    if (typeof callback === "function") tryRequest(callback);
-    else
-      return new Promise((resolve, reject) =>
-        tryRequest((err, results) => {
-          if (err) reject(err);
-          else resolve(results);
-        })
-      );
+    return new Promise((resolve, reject) =>
+      tryRequest((err, results) => {
+        if (err) reject(err);
+        else resolve(results.returnValue);
+      })
+    );
   };
 };
