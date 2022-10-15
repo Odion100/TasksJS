@@ -1,5 +1,3 @@
-const { response } = require("express");
-
 const isObject = (value) =>
   typeof value === "object" ? (!value ? false : !Array.isArray(value)) : false;
 const isEmpty = (obj) => Object.getOwnPropertyNames(obj).length === 0;
