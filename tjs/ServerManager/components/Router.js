@@ -52,7 +52,9 @@ module.exports = function TasksJSRouter(server, config) {
         fn,
         status,
         message,
-        ...(status < 500 ? { returnValue: results } : { error: results }),
+        ...(status < 400
+          ? { returnValue: results }
+          : { error: results, TasksJSServiceError: true }),
       });
     };
 
