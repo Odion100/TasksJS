@@ -147,7 +147,7 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
 
     expect(results).to.deep.equal({
       fn: "get",
-      message: "SystemLink: testObject.get() returned successfully",
+      message: "[SystemLink][response]: testObject.get(...) returned successfully",
       module_name: "testObject",
       returnValue: {
         REST_TEST_PASSED: true,
@@ -188,7 +188,7 @@ describe("ServerManager.startService(ServerConfiguration)", () => {
     expect(results).to.deep.equal({
       returnValue: { SERVICE_TEST_PASSED: true },
       fn: "get",
-      message: "SystemLink: testObject.get() returned successfully",
+      message: "[SystemLink][response]: testObject.get(...) returned successfully",
       module_name: "testObject",
       serviceUrl: "http://localhost:2233/testAPI",
       status: 200,
